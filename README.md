@@ -52,8 +52,6 @@ The current edition uses fictional movie scenarios as a recurring example, along
 - **Node.js 22.12.0 or later** and npm.
 - **Python 3.10 or later** for the downloadable workbooks; Python is not needed to run the website. Check each workbook’s README for additional requirements.
 
-> **Cloning onto another computer?** The repository’s [`.npmrc`](.npmrc) contains a workspace-specific npm cache path. Remove or update its `cache` entry before installing dependencies.
-
 Run these commands from the project root, the folder containing `package.json`:
 
 ```sh
@@ -71,6 +69,14 @@ npm run preview
 ```
 
 The production build is written to `dist/`. The included development and preview commands bind to your local computer.
+
+### Deploy to Netlify
+
+Import the GitHub repository into Netlify and select `main` as the production branch. Leave the base directory blank: the project lives at the repository root.
+
+The checked-in [`netlify.toml`](netlify.toml) configures Node.js 22, the `npm run build` command, and the `dist` publish directory. Netlify installs dependencies and builds the site; no model API keys or Python runtime are needed for the website. Subsequent pushes to the connected production branch trigger a new deployment.
+
+PDFs and workbook ZIPs are published from `public/downloads/`. Regenerate these locally when their source content changes, then commit the updated downloads with the source changes.
 
 <details>
 <summary>Windows launcher</summary>
