@@ -1,132 +1,186 @@
 # AI, understood
 
-A personal AI handbook with all 42 planned chapters available, from foundations to the evaluated movie-assistant capstone.
+**An interactive handbook for learning AI, from first principles to practical applications.**
 
-Chapter sources live in `src/content/chapter-01.mdx`, `src/content/chapter-02.mdx`, `src/content/chapter-03.mdx`, `src/content/chapter-04.mdx`, `src/content/chapter-05.mdx`, `src/content/chapter-06.mdx`, `src/content/chapter-07.mdx`, `src/content/chapter-08.mdx`, `src/content/chapter-09.mdx`, `src/content/chapter-10.mdx`, `src/content/chapter-11.mdx`, `src/content/chapter-12.mdx`, `src/content/chapter-13.mdx`, `src/content/chapter-14.mdx`, `src/content/chapter-15.mdx`, `src/content/chapter-16.mdx`, and `src/content/chapter-17.mdx`. The same content renders on the website and in the printable edition. All examples and diagrams are original; fictional datasets, movie titles, and service names are labelled. The website makes no model API calls and uses no private workplace data. Chapter 10 includes an optional, explicitly selected live API adapter in its downloadable Python workbook.
+Explore machine learning, deep learning, generative AI, retrieval-augmented generation (RAG), and agents through clear explanations, diagrams, worked examples, and hands-on experiments.
 
-## Run
+All **42 chapters across 10 parts** are available, including an evaluated movie-assistant capstone. The handbook combines a concise reading path with optional deeper notes, exercises, and downloadable Python workbooks.
 
-Use a current Node.js version supported by the pinned Astro release, then run:
+[Getting started](#getting-started) · [Learning path](#learning-path) · [Project structure](#project-structure) · [Development](#development)
+
+## What’s inside
+
+- **Connected lessons** — concepts build progressively, from Python and mathematics to complete AI systems.
+- **Visual explanations** — accessible SVG diagrams, mathematical notation, and worked calculations.
+- **Interactive labs** — change inputs, inspect intermediate steps, and compare outcomes in the browser.
+- **Practice and revision** — exercises with revealable solutions, quizzes with explanations, and reference glossaries.
+- **Python workbooks** — downloadable code and teaching datasets for practicing beyond the browser.
+- **Reading tools** — chapter search, section navigation, bookmarks, and completion tracking with JSON export/import.
+- **Flexible reading** — responsive layouts, light and dark themes, reduced-motion support, and PDF editions of every chapter.
+
+Progress is stored locally in your browser. It does not sync between devices; use export/import to move it.
+
+## Learning path
+
+| Part | Chapters | Topics |
+| --- | --- | --- |
+| 01 · Understanding the AI landscape | 1–3 | AI, ML, deep learning, generative AI, and how models learn |
+| 02 · Programming and mathematics | 4–8 | Python, APIs, data, linear algebra, probability, calculus, and optimization |
+| 03 · Your first LLM application | 9–11 | Prompting, context design, Python applications, and a recommendation project |
+| 04 · Data and classical ML | 12–15 | Data preparation, regression, classification, clustering, and model evaluation |
+| 05 · Search, embeddings, and RAG | 16–19 | Information retrieval, vector search, RAG pipelines, and retrieval evaluation |
+| 06 · Deep learning and LLM internals | 20–26 | Neural networks, training, NLP, transformers, generation, and efficient inference |
+| 07 · Adaptation and multimodal AI | 27–30 | Choosing an approach, fine-tuning, preference learning, and multimodal systems |
+| 08 · Tools, workflows, and agents | 31–33 | Tool calling, explicit workflows, agent loops, MCP, and multi-agent systems |
+| 09 · Evaluation, security, and production | 34–36 | System evaluation, responsible use, security, deployment, and operations |
+| 10 · Broader AI and the capstone | 37–42 | Symbolic AI, reinforcement learning, applications, graphs, causality, research, and a capstone |
+
+For individual chapter titles and routes, see the [curriculum source](src/data/curriculum.ts) or open `/curriculum/` in the running app.
+
+### A suggested study routine
+
+1. Read the core explanation and trace one worked example yourself.
+2. Try the interactive lab, then complete the exercises before revealing solutions.
+3. Run the Python workbook where provided, take the quiz, and revisit deeper notes as needed.
+
+The current edition uses fictional movie scenarios as a recurring example, alongside other teaching datasets. Experiments distinguish real calculations from simulations, recorded traces, and model-backed extensions.
+
+## Getting started
+
+### Requirements
+
+- **Node.js 22.12.0 or later** and npm.
+- **Python 3.10 or later** for the downloadable workbooks; Python is not needed to run the website. Check each workbook’s README for additional requirements.
+
+> **Cloning onto another computer?** The repository’s [`.npmrc`](.npmrc) contains a workspace-specific npm cache path. Remove or update its `cache` entry before installing dependencies.
+
+Run these commands from the project root, the folder containing `package.json`:
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
-Open the localhost URL shown in the terminal. To make a production build, run `npm run build`; to view it locally, run `npm run preview`.
+Open [http://127.0.0.1:4321](http://127.0.0.1:4321). Keep the terminal running while reading; press **Ctrl+C** to stop the server. If that port is already in use, stop the earlier server or use the URL reported by the terminal.
 
-On this Windows workspace you can also run `powershell -ExecutionPolicy Bypass -File .\start-handbook.ps1` from the project folder. Keep that terminal running and open `http://127.0.0.1:4321`. The site is private to your computer. Stop it with Ctrl+C. Once installed and built, its reading content, diagrams, quiz, and experiment work without external services.
+### Build and preview
 
-The generated reading editions are `output/pdf/ai-handbook-chapter-01.pdf`, `output/pdf/ai-handbook-chapter-02.pdf`, `output/pdf/ai-handbook-chapter-03.pdf`, `output/pdf/ai-handbook-chapter-04.pdf`, `output/pdf/ai-handbook-chapter-05.pdf`, `output/pdf/ai-handbook-chapter-06.pdf`, `output/pdf/ai-handbook-chapter-07.pdf`, `output/pdf/ai-handbook-chapter-08.pdf`, `output/pdf/ai-handbook-chapter-09.pdf`, `output/pdf/ai-handbook-chapter-10.pdf`, `output/pdf/ai-handbook-chapter-11.pdf`, `output/pdf/ai-handbook-chapter-12.pdf`, `output/pdf/ai-handbook-chapter-13.pdf`, `output/pdf/ai-handbook-chapter-14.pdf`, and `output/pdf/ai-handbook-chapter-15.pdf`; the website download uses a copy under `public/downloads/`. Later chapter edits require a rebuild and a fresh PDF export. The PDF includes solutions, explained quiz answers, and a static snapshot of the interactive experiment.
+```sh
+npm run build
+npm run preview
+```
 
-## Verification and maintenance
+The production build is written to `dist/`. The included development and preview commands bind to your local computer.
 
-`npm run check` checks the Astro/TypeScript source, and `npm test` verifies the threshold example, training calculations, numerical gradients, convergence, and inference behavior. `scripts/check-browser.cjs` checks interactions and responsive rendering using Playwright and an installed Chrome browser. `scripts/check-chapter02.cjs` checks Chapter 2 and cross-chapter progress isolation. `scripts/check-chapter03.cjs` checks the training experiment and Chapter 3 reading flow. `scripts/export-pdf.cjs 1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `13`, `14`, or `15` prints the chosen chapter source using the print stylesheet. The browser and export scripts resolve Playwright from `PLAYWRIGHT_MODULE_PATH` when using the bundled workspace runtime, or from a locally installed `playwright` package. `scripts/review-pdf.py` checks text and page boundaries and assembles rendered PDF pages for visual review.
+<details>
+<summary>Windows launcher</summary>
 
-All local development checks in this workspace use `ASTRO_TELEMETRY_DISABLED=1`. The npm cache is stored inside the workspace, as configured in `.npmrc`.
+From the project root, run:
 
-## Learning features
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start-handbook.ps1
+```
 
-- Responsive chapter reading with section navigation and search.
-- Accessible SVG diagrams with accompanying explanations.
-- A transparent, synthetic threshold experiment; it is not a trained model.
-- Exercises with revealable answers, a self-check quiz, glossary, and revision notes.
-- Independent browser-local completion and bookmark state for each chapter, with JSON export/import. This does not synchronize between browsers. Storage failures are reported.
-- Light/dark themes, reduced-motion support, and a printable PDF containing answers and a static description of interactive material.
+The launcher installs dependencies if needed, builds the site if `dist/index.html` is missing, and serves the built files locally. After editing source files, run `npm run build` to refresh this version, or use `npm run dev` while making changes.
 
-## Content policy
+</details>
 
-Explain every introduced term; use original worked examples; distinguish illustration from evidence; cite primary learning sources near relevant claims; never label planned chapters as complete. Add future chapters only after checking content, calculations, diagrams, and exercises.
+## Python workbooks and PDFs
 
-The preferred style is concise but explanatory: explain an idea once, use one strong example, retain key distinctions and worked calculations, and make further detail optional. Avoid repeating the same explanation in prose, a comparison table, and another recap. Keep three core exercises; place extra practice, full code walkthroughs, and reference glossaries in clearly labelled expandable sections. Do not enforce a word limit that damages understanding of a difficult topic. Chapter 1's core reading target is 20–25 minutes, excluding practice; the PDF expands optional material so it remains available offline.
+Use the download links within each chapter, or browse [`public/downloads/`](public/downloads/).
 
-The original longer Chapter 1 and its PDF are preserved in `reference/` for editorial comparison. They are not published or indexed by the website.
+Each workbook includes its own instructions. For example, the final capstone runs locally with the Python standard library:
 
-Chapter 2 keeps the concise format: 12 sections, four original diagrams, a four-design assistant explorer, three core exercises, optional deeper notes, and five explained quiz questions. Its core reading target is 18–22 minutes excluding practice. Chapter 1 progress and old Chapter 1 backups remain compatible; new exports identify the chapter to prevent accidental cross-chapter imports.
+```sh
+cd public/downloads/chapter-42-capstone
+python assistant.py
+python assistant.py --case C1
+python -m unittest -v test_assistant.py
+```
 
-Chapter 3 covers the learning loop, loss, data splits, overfitting, leakage, distribution shift, learning signals, and LLM errors. It uses 12 concise sections, three static diagrams plus a live prediction plot, a real browser-local gradient descent experiment, three core exercises, and five quiz questions. Its synthetic runtime dataset is deliberately tiny; it is an arithmetic teaching example, not a production predictor. The PDF includes a static experiment comparison.
+The capstone provides a deterministic movie assistant with retrieval, hard constraints, a tool fixture, source references, and eight public development cases. See its [workbook README](public/downloads/chapter-42-capstone/README.md) for expected results and extension ideas.
 
-Chapter 4 introduces Python through the same synthetic runtime dataset. The standard-library starter is under `public/downloads/chapter-04-python/`, with a ZIP download. `scripts/check-python04.py` verifies the real Python calculations, input failures, CLI output, saved report, and recorded trace, and packages the ZIP. Run with `--write-trace` only when intentionally refreshing `src/data/pythonTrace.json`. `scripts/check-chapter04.cjs` verifies the reader, trace controls, quiz, downloads, mobile layout, and progress isolation. The trace replays values recorded from Python; it is not a browser Python interpreter.
+Chapter PDFs include expanded optional notes, solutions, explained quiz answers, and static versions of interactive material. Generated editions live in `output/pdf/`; the website serves copies from `public/downloads/`.
 
-Chapter 5 covers application boundaries, HTTP, JSON contracts, failure handling, storage, SQL, and reproducible data paths. The six-case API explorer is explicitly simulated. The downloadable starter in `public/downloads/chapter-05-api/` uses real loopback HTTP and SQLite with a fixed formula. Run `scripts/check-api05.py` to exercise the client/server, validate failure cases and persistence, check teaching snippets, and package the ZIP. `scripts/check-chapter05.cjs` verifies the website interactions and reader flow. No service credentials, paid APIs, or third-party Python dependencies are needed.
+The website does not require API keys or call model APIs. Some downloadable workbooks offer optional model adapters; their READMEs explain the setup and any credentials, local models, or usage costs involved.
 
-Chapter 6 introduces algebra, numerical objects and shapes, norms, dot products, cosine similarity, matrix products, transformations, and rank. Optional notes cover broadcasting, solving systems, conditioning, eigenvectors, and SVD. The matrix explorer performs real arithmetic in the browser; its geometry is dimensionless and the runtime examples are synthetic. `tests/linear-algebra.test.mjs` checks numerical invariants. `scripts/check-algebra06.py` verifies and packages the standard-library Python workbook. `scripts/check-chapter06.cjs` checks the interactive chapter and reader.
+## Tech stack
 
-Chapter 7 covers samples, descriptive statistics, probability, Bayes updates, distributions, sampling uncertainty, correlation, and hypothesis-test interpretation. Its alert calculator uses analytical expected counts, not random simulation or a trained classifier. Three diagrams, three exercises, optional deeper notes, and five quiz questions retain the concise learning format. `tests/statistics.test.mjs` checks numerical behavior; `scripts/check-statistics07.py` validates and packages the Python workbook; `scripts/check-chapter07.cjs` checks browser interactions and reading tools. The PDF includes all optional notes, solutions, and four static calculator cases.
+| Technology | Role |
+| --- | --- |
+| Astro and MDX | Static pages and chapter content with embedded components |
+| React and TypeScript | Interactive learning components |
+| CSS and Tailwind CSS | Layout, themes, responsive styles, and print presentation |
+| KaTeX, remark-math, and rehype-katex | Mathematical notation |
+| Python | Downloadable workbooks and verification scripts |
+| Node.js tests and Playwright | Calculation checks and browser verification |
 
-Chapter 8 covers derivatives, partial derivatives, chain rule, backpropagation, optimization, integrals, entropy, cross-entropy, and KL divergence. Its live gradient descent uses an explicit dimensionless quadratic with six rates and a 12-step display limit. The limit is not a convergence test. Three original diagrams, three exercises, optional deeper notes, a quiz, and a standard-library Python workbook support the concise reading path. `tests/optimization.test.mjs` checks gradients, update invariants, convergence cases, and information measures; `scripts/check-calculus08.py` checks and packages the workbook; `scripts/check-chapter08.cjs` checks the reader and experiment.
+Dependency versions are recorded in [`package.json`](package.json) and locked in `package-lock.json`.
 
-Chapter 9 begins Part 3 with prompting, context design, evidence handling, output contracts, and evaluation. The workshop assembles three prompt versions for four synthetic cases and demonstrates the limits of structural JSON validation; it never calls an LLM or presents authored references as generated results. `tests/prompt-workshop.test.mjs` verifies source preservation and validation boundaries; `scripts/check-prompts09.py` checks all 12 prompts against the Python implementation and packages the workbook; `scripts/check-chapter09.cjs` verifies reader and workshop behavior. The print edition includes all cases in a concise comparison.
+## Project structure
 
-Chapter 10 connects prompting to a Python application: provider adapters, structured requests, response-envelope checks, strict JSON parsing, contract validation, bounded retries, and evidence review. Its 10-case browser explorer replays 20 recordings from the real Python workflow using authored fixtures. Default mode is offline; explicit `--live` requires local credentials and a compatible configured model and may incur API charges. No live call was made for this edition. `scripts/check-application10.py` runs 13 local tests, checks CLI/trace parity, and packages the workbook; pass `--write-trace` only to intentionally refresh the recording. `scripts/check-chapter10.cjs` checks the reader and trace controls.
+```text
+ai-handbook/
+├── src/
+│   ├── content/        # Chapter MDX files
+│   ├── components/     # Diagrams, labs, quizzes, and shared UI
+│   ├── data/           # Curriculum, quiz data, and recorded traces
+│   ├── layouts/        # Shared handbook layout
+│   ├── lib/            # Calculation and experiment logic
+│   ├── pages/          # Home, curriculum, and chapter routes
+│   ├── scripts/        # Browser-side reading tools
+│   └── styles/         # Theme, component, and print styles
+├── public/downloads/   # Published PDFs, workbooks, datasets, and ZIPs
+├── scripts/            # Verification, PDF export, and local serving
+├── tests/              # JavaScript calculation and behavior tests
+├── output/pdf/         # Generated PDF editions
+├── reference/          # Archived editorial material
+├── start-handbook.ps1  # Windows launcher
+└── package.json        # Dependencies and npm commands
+```
 
-The recurring application example is now movie recommendation: a viewer wants a light adventure under 120 minutes; Moonlight Map fits, while unlisted streaming availability stays unknown. Chapters 1–3 and 9–10 use it across explanations, diagrams, quizzes, and runnable workbooks. Unrelated numerical and spam-classification exercises retain their original learning purpose. Chapter 11 builds the movie-recommendation assistant. Archived editorial material under `reference/` is not part of the published handbook.
+`dist/`, `.astro/`, and `tmp/` hold build output or working files and are ignored by Git. Archived material in `reference/` is not published by the website.
 
-Chapter 11 completes Part 3 with a movie recommendation project: validated catalog and preferences, hard filters, transparent ranking, a browser interface, and a Python CLI. All catalog items are fictional. The browser uses rules and templates locally; Python can explicitly request an optional LLM draft via the Chapter 10 adapter. Catalog fields remain separate from draft claims. No live call was made. `scripts/check-project11.py` checks policy cases, JS/Python parity, CLI outcomes, helper reuse, and the ZIP; `scripts/check-chapter11.cjs` checks the reader and live browser controls. The printable edition includes a fixed default result and all solutions.
+## Development
 
-Chapter 12 begins Part 4 with observation definitions, data contracts, duplicates, missing values, grouped splits, encoding, scaling, and leakage-free preprocessing. Three diagrams, a live four-mode workbench, three exercises, and a Python standard-library workbook expose the fit/transform boundary using synthetic movie-viewing records. Imputed values remain distinct from known catalog facts. `scripts/check-data12.py` checks Python/JavaScript parity, invariants, CLI behavior, and workbook packaging; `scripts/check-chapter12.cjs` verifies the workbench, reader, downloads, and responsive layout. No predictive model is trained in this chapter.
+Run commands in this section from the project root.
 
-Chapter 13 covers regression, classification, squared and log losses, probability versus decision thresholds, L2 regularization, and model families. Its new synthetic movie-history snapshot supports real closed-form regression and gradient-fitted logistic regression. Three diagrams, a plotted interactive workbench, three exercises, and five quiz questions retain the concise core/optional-depth format. Test metrics are omitted from the browser and require an explicit workbook flag. `scripts/check-supervised13.py` checks nine Python test groups, twelve JS/Python cases, CLI outcomes, and the ZIP. `scripts/check-chapter13.cjs` verifies browser controls, reader behavior, downloads, and mobile/print layouts.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run check` | Check Astro and TypeScript source |
+| `npm test` | Run JavaScript tests for calculations and experiment behavior |
+| `npm run build` | Generate the static website |
+| `npm run preview` | Preview the production build locally |
 
-Chapter 14 covers clustering, PCA, anomaly interpretation, and learning signals. Its nine fictional movies support deterministic k-means updates and a real two-dimensional PCA fit. Three diagrams, three exercises, a five-question quiz, and six optional notes retain the concise reading format. The workbook needs only the Python standard library. `scripts/check-unsupervised14.py` checks algorithm invariants, 25 JavaScript/Python cases, CLI errors, and workbook packaging; `scripts/check-chapter14.cjs` verifies the interactive workbench, reader, downloads, navigation, and responsive/print layouts. This is exploratory fitting on the entire snapshot, not held-out predictive evaluation.
+### Editing a chapter
 
-Chapter 15 covers evaluation boundaries, confusion metrics, thresholds and error costs, ROC-AUC, regression metrics, calibration, uncertainty, and structured model improvement. Its interactive workbench evaluates authored frozen movie probabilities; it does not train candidates or claim cross-validation results. The four-file Python workbook selects among ten preset policies on validation before optional final-test evaluation. `scripts/check-evaluation15.py` verifies nine Python test groups, 84 JavaScript/Python cases, CLI behavior, and ZIP contents. `scripts/check-chapter15.cjs` checks the explorer, ROC chart, reader, downloads, mobile/dark themes, and print output.
+Edit its MDX file in `src/content/`. Related diagrams and labs live in `src/components/`, calculation logic in `src/lib/`, and quiz data in `src/data/`. Page metadata and navigation connect these through `src/pages/chapters/` and the shared layout.
 
-Chapter 16 begins Part 5 with information needs, text analysis, inverted indexes, Boolean matching, hard filters, TF-IDF, BM25, and ranked retrieval evaluation. Its eight fictional movie summaries support a real browser search explorer with term-level score explanations; authored judgments stay separate from ranking. Three diagrams, five optional notes, three exercises, a quiz, and a four-file standard-library Python workbook retain the concise format. `scripts/check-retrieval16.py` verifies Python invariants, JavaScript parity, CLI failures, and ZIP contents; `scripts/check-chapter16.cjs` checks the reader and explorer. The PDF includes a fixed three-method comparison. Phrase, semantic, and neural reranking methods are explained as extensions, not implemented.
+Keep the core explanation concise, define new terms, and move additional detail into optional sections. Label fictional data and simulations clearly, distinguish measured results from illustrations, and cite primary sources near the claims they support.
 
-Chapter 17 covers learned embeddings, encoder compatibility, cosine/dot/Euclidean geometry, normalization, vector storage, exact versus approximate search, and relevance versus neighbor recall. Its explorer uses explicitly hand-authored 3D vectors for the Chapter 16 catalog, with a real exact scan and a three-cell coarse search, plus the unchanged BM25 baseline. It makes no claim of learned-model quality or measured speed improvement. Three diagrams, five optional notes, three exercises, a quiz, and a four-file Python standard-library workbook support the lesson. `scripts/check-vectors17.py` validates invariants, Python/JavaScript parity, CLI behavior, and ZIP contents; `scripts/check-chapter17.cjs` checks reader and explorer behavior.
+When an experiment changes, update its workbook, tests, and downloadable ZIP as appropriate. Run the relevant checks, inspect the browser layout, and regenerate the PDF after changing published chapter content.
 
+<details>
+<summary>Chapter checks and PDF export</summary>
 
-Chapter 18 builds a RAG pipeline from source ingestion and chunking through BM25 retrieval, context packing, quote-based generation, and citation checks. The browser is offline; its evidence formatter is deterministic. The four-file workbook in `public/downloads/chapter-18-rag/` has an optional Ollama adapter for an already installed local model. Tests mock its transport; no live model-quality claim is made. Run `scripts/check-rag18.py` for Python tests, browser/Python parity, CLI checks, and ZIP packaging; `scripts/check-chapter18.cjs` for the reader and explorer; and `scripts/export-pdf.cjs 18` plus `scripts/review-pdf.py 18` for the printable edition.
+Chapter-specific scripts in `scripts/` verify workbooks, browser interactions, and print output. For Chapter 42:
 
+```sh
+python scripts/check-capstone42.py
+node scripts/check-chapter42.cjs
+```
 
-Chapter 19 evaluates the real Chapter 18 deterministic pipeline on eight visible development questions, compares candidate count and context budget, and separates retrieval, packed-context recall, quote support, task success, and abstention. A six-fixture citation exercise calculates metrics from authored semantic judgments. The five-file standard-library workbook lives in `public/downloads/chapter-19-rag-evaluation/`; no model or judge calls occur. Run `scripts/check-rag-evaluation19.py` for Python tests, cross-language parity, CLI checks, and ZIP packaging; `scripts/check-chapter19.cjs` for browser interactions; `scripts/export-pdf.cjs 19` and `scripts/review-pdf.py 19` for the printable edition. Scores describe teaching cases, not a held-out production benchmark.
+Browser checks require a running site at `http://127.0.0.1:4321`, Playwright, and an installed Chrome browser. Playwright is an optional verification dependency, resolved from a local `playwright` installation or `PLAYWRIGHT_MODULE_PATH`.
 
+To refresh a PDF, first build the latest site and serve it locally. Then run:
 
-Chapter 20 begins Part 6 with neurons, activations, dense layers, forward propagation, task-appropriate outputs, binary cross-entropy, manual backpropagation, and gradient descent. Four new fictional movie rows encode XOR. The browser trains a 2-3-1 tanh network or a logistic baseline with fixed initialization and full-batch gradients; every reported metric is on training data. Three diagrams, six optional notes, three exercises, and a quiz retain the concise core. The three-file standard-library workbook lives in `public/downloads/chapter-20-neural-networks/`. Run `scripts/check-neural20.py` for finite-difference tests, 24 Python/JS parity cases, CLI checks, and ZIP packaging; `scripts/check-chapter20.cjs` for the reader and workbench; and `scripts/export-pdf.cjs 20` plus `scripts/review-pdf.py 20` for the printable edition.
+```sh
+node scripts/export-pdf.cjs 42
+```
 
+The export script accepts chapter numbers **1–42** and updates the generated PDF and its download copies. PDF review uses `scripts/review-pdf.py`, Python’s `pdfplumber` and Pillow packages, and page images rendered with Poppler. Visually inspect the rendered pages as well as checking their extracted text.
 
-Chapter 21 covers training setup, scaling, initialization, optimizers, regularization, gradients, evaluation modes, checkpoint selection, and early stopping. Its 2-8-1 network trains on 16 authored movie rows and evaluates 12 development-validation rows. Six presets, two batch sizes, and an optional patience policy expose real training diagnostics; there is no test set. Three diagrams, six optional notes, exercises, and a quiz accompany the four-file standard-library workbook in `public/downloads/chapter-21-training/`. Run `scripts/check-training21.py` for eight Python test groups, 22 cross-runtime parity cases, two documented unscaled mini-batch sensitivity cases, CLI contracts, and ZIP packaging; `scripts/check-chapter21.cjs` for the browser; and `scripts/export-pdf.cjs 21` plus `scripts/review-pdf.py 21` for the PDF. No dropout, normalization layers, schedules, clipping, AdamW, or mixed-precision implementation is claimed.
+To disable Astro telemetry during local work, set `ASTRO_TELEMETRY_DISABLED=1`. The Windows launcher already sets this variable.
 
-Chapter 22 covers convolution, channels, shapes, pooling, receptive fields, recurrence, BPTT, masks, LSTMs/GRUs, and transfer-learning boundaries. Three diagrams and three interactive arithmetic experiments use original poster patterns, viewing sequences, and a hand-set 2-2-1 network. The four-file standard-library workbook lives in `public/downloads/chapter-22-architectures/`. No source pretraining, CNN/RNN training, or target generalization is claimed; the adaptation experiment computes one real SGD step with a trainability mask. Run `scripts/check-architectures22.py` for eight Python test groups, 38 Python/JS parity cases, CLI checks, and ZIP packaging; `scripts/check-chapter22.cjs` for browser checks; and `scripts/export-pdf.cjs 22` plus `scripts/review-pdf.py 22` for the printable edition.
-
-Chapter 23 covers NLP tasks, tokenization, byte-pair merges, embeddings, causal targets, bigram probabilities, smoothing, cross-entropy, perplexity, and decoding. Its two independent experiments fit a byte BPE tokenizer and a word bigram model from six authored sentences. Three diagrams, six optional notes, three exercises, and a quiz accompany the four-file standard-library workbook in `public/downloads/chapter-23-language/`. Run `scripts/check-language23.py` for ten Python test groups, 240 Python/JS parity cases, CLI checks, and ZIP packaging; `scripts/check-chapter23.cjs` for browser checks; and `scripts/export-pdf.cjs 23` plus `scripts/review-pdf.py 23` for the printable edition. The bigram does not use the BPE IDs; there is no neural LLM, held-out benchmark, top-p implementation, or external service.
-
-Chapter 24 covers queries, keys, values, scaled dot-product attention, causal and padding masks, multiple heads, positions, residual paths, feed-forward layers, normalization, transformer families, and training/inference boundaries. Its interactive matrix computes two heads from hand-set 4D word embeddings, with optional sinusoidal positions and causal masking. The four-file standard-library workbook lives in `public/downloads/chapter-24-attention/`. Run `scripts/check-attention24.py` for eight Python test groups, eight complete Python/JS parity reports, CLI checks, and ZIP packaging; `scripts/check-chapter24.cjs` for reader and matrix interactions; and `scripts/export-pdf.cjs 24` plus `scripts/review-pdf.py 24` for the PDF. The numerical experiment ends at the attention residual: it omits normalization, the FFN, training, and a vocabulary head. No head specialization or language-model quality is claimed.
-
-Chapter 25 connects data preparation, causal next-token objectives, pretraining, SFT, loss masks, preference learning, chat templates, and fixed-weight generation. Its experiment trains independent trigram softmax tables, compares reply-only and all-token SFT, and generates from three checkpoints. The four-file standard-library workbook lives in `public/downloads/chapter-25-lifecycle/`. Run `scripts/check-lifecycle25.py` for ten Python test groups, six training and 972 generation parity reports, CLI checks, and ZIP packaging; `scripts/check-chapter25.cjs` for reader and experiment checks; and `scripts/export-pdf.cjs 25` plus `scripts/review-pdf.py 25` for the PDF. This is not a transformer, and all reported losses use visible training examples. Preference optimization and KV caching are explained but not implemented in the workbook.
-
-Chapter 26 explains inference memory, quantization, KV-head sharing, efficient attention, batching, prefix reuse, speculative decoding, MoE, distillation, pruning, and hardware placement. Its two-panel experiment estimates memory for a hypothetical 7B model and quantizes six hand-set weights; neither is an LLM benchmark. The four-file workbook is in `public/downloads/chapter-26-efficiency/`. Run `scripts/check-efficiency26.py` for ten Python test groups, 486 memory and eight quantization parity reports, CLI checks, and ZIP packaging; `scripts/check-chapter26.cjs` for browser checks; and `scripts/export-pdf.cjs 26` plus `scripts/review-pdf.py 26` for the PDF. The capacity planner excludes quantization metadata and uses an illustrative 2 GiB reserve. Its positive capacity result is not a device-fit guarantee.
-
-Chapter 27 compares prompting, RAG, live tools, and fine-tuning through movie-assistant requirements. Its decision lab uses explicit teaching rules; it does not run a model or estimate accuracy. The four-file standard-library workbook is in `public/downloads/chapter-27-adaptation/`. Run `scripts/check-adaptation27.py` for Python tests, exhaustive JavaScript/Python parity, CLI and ZIP checks; `scripts/check-chapter27.cjs` for browser checks; and `scripts/export-pdf.cjs 27` plus `scripts/review-pdf.py 27` for print verification. External-capability coverage is separate from measured answer quality.
-
-Chapter 28 covers SFT data and loss masks, full fine-tuning, LoRA, QLoRA, reward-model RLHF, DPO, evaluation and deployment. The lab calculates a hand-set 4x4 LoRA layer and optimizes a one-scalar policy over two fixed replies; it does not train an LLM. The standard-library workbook is in `public/downloads/chapter-28-tuning/`. Run `scripts/check-tuning28.py`, `scripts/check-chapter28.cjs`, and `scripts/export-pdf.cjs 28` plus `scripts/review-pdf.py 28` for validation.
-
-Chapter 29 compares VAEs, GANs, autoregressive models, normalizing flows, diffusion, and flow matching. Its two-panel lab uses an analytic two-dimensional Gaussian-mixture poster-style distribution, with no trained neural network or generated image. The workbook is in `public/downloads/chapter-29-generation/`. Run `scripts/check-generation29.py` for numerical, parity, CLI and packaging checks; `scripts/check-chapter29.cjs` for browser checks; and `scripts/export-pdf.cjs 29` plus `scripts/review-pdf.py 29` for the PDF. Guidance and sampler coordinates are not image-quality scores.
-
-Chapter 30 explains multimodal representations, contrastive alignment, vision-language fusion, document layout, audio and temporal video evidence. Its lab uses hand-set compatible/incompatible embedding spaces and a fully annotated synthetic 20-second trailer; it does not run OCR, ASR or a vision model. The standard-library workbook is in `public/downloads/chapter-30-multimodal/`. Run `scripts/check-multimodal30.py` for math, Python parity, CLI and packaging checks; `scripts/check-chapter30.cjs` for browser checks; and `scripts/export-pdf.cjs 30` plus `scripts/review-pdf.py 30` for the PDF. Patch counts are teaching estimates, not provider billing units.
-
-Chapter 31 explains tool contracts, call/result association, validation, account permissions and user intent, explicit workflows, retry budgets, idempotency, and ambiguous write outcomes. Its ten-scenario explorer and standard-library Python workbook use scripted proposals and fictional movie data; no model or account is connected. The backend is intentionally in memory; unsafe mode demonstrates duplicate appends. Run `scripts/check-workflows31.py` for Python parity, CLI and ZIP checks; `scripts/check-chapter31.cjs` for browser checks; and `scripts/export-pdf.cjs 31` plus `scripts/review-pdf.py 31` for the printable edition.
-
-Chapter 32 covers agent loops, planning, state versus context and memory, action boundaries, stopping conditions, and trajectory evaluation. Its simulator uses seven fictional scenarios and four deterministic decision policies; it does not run an LLM. Step controls expose immutable observations and state snapshots. The standard-library workbook is in `public/downloads/chapter-32-agents/`. Run `scripts/check-agents32.py` for Python tests, parity, CLI and ZIP checks; `scripts/check-chapter32.cjs` for browser checks; and `scripts/export-pdf.cjs 32` plus `scripts/review-pdf.py 32` for the PDF.
-
-Chapter 33 explains MCP (message examples pinned to revision 2025-11-25), host/client/server roles, tools/resources/prompts, reply ownership, dependency-aware scheduling, and evidence merging. Its local simulator uses deterministic worker roles and fictional durations, not live MCP or LLM calls. The four-file workbook is in `public/downloads/chapter-33-coordination/`. Run `scripts/check-coordination33.py` for Python tests, 120 JavaScript/Python parity configurations, CLI and ZIP checks; `scripts/check-chapter33.cjs` for browser checks; and `scripts/export-pdf.cjs 33` plus `scripts/review-pdf.py 33` for the PDF.
-
-Chapter 34 covers whole-system evaluation contracts, datasets, traces and outcomes, component diagnosis, graders and calibration, repeated trials, slices, paired comparisons, release gates and production feedback. The lab grades 48 authored records across eight tasks and three versions; it does not measure a live model. Filters affect displayed metrics but never the full-suite release gates. The workbook is in `public/downloads/chapter-34-evaluation/`. Run `scripts/check-evaluation34.py` for Python, 216 parity configurations, CLI and ZIP checks; `scripts/check-chapter34.cjs` for browser QA; and `scripts/export-pdf.cjs 34` plus `scripts/review-pdf.py 34` for print verification.
-
-Chapter 35 covers threat modeling, prompt injection, independent authorization, data minimization, output handling, guardrail evaluation, fairness, accessibility, and accountability. Its local lab contrasts a deliberately weak keyword filter with policy checks across eight synthetic cases. No model or real actions run. The four-file workbook is in `public/downloads/chapter-35-security/`. Run `scripts/check-security35.py` for Python, 36 parity configurations, CLI and ZIP checks; `scripts/check-chapter35.cjs` for browser QA; and `scripts/export-pdf.cjs 35` plus `scripts/review-pdf.py 35` for print verification.
-
-Chapter 36 covers service architecture, versioned releases, gradual rollouts, observability, SLOs and error budgets, bounded retries, recovery, scaling, cost, and ongoing operations. Its local simulator routes twenty authored requests across baseline and candidate, applying deadlines and rollback at window boundaries. It makes no model calls or deployments. The workbook is in `public/downloads/chapter-36-operations/`. Run `scripts/check-operations36.py` for Python, 96 parity configurations, CLI and ZIP checks; `scripts/check-chapter36.cjs` for browser QA; and `scripts/export-pdf.cjs 36` plus `scripts/review-pdf.py 36` for print verification.
-
-Chapter 37 covers symbolic facts and rules, search, heuristics, planning, constraints, Bayesian reasoning, utility, and hybrid systems. Its movie lab separates eligibility from belief and preference; a separate graph compares BFS, UCS, and A*. All data is fictional and calculations run locally. Workbook: `public/downloads/chapter-37-reasoning/`. Checks: `scripts/check-reasoning37.py` (Python, 162 parity reports, CLI, ZIP), `scripts/check-chapter37.cjs` (browser), and `scripts/export-pdf.cjs 37` plus `scripts/review-pdf.py 37` (print).
-
-Chapter 38 covers reinforcement learning, states and returns, reward design, exploration, Q-learning, algorithm families, evaluation, robotics, and feedback control. Its local lab actually learns a four-entry Q-table from seeded fictional movie sessions, separating training reward from frozen-policy evaluation and satisfaction. Workbook: `public/downloads/chapter-38-reinforcement/`. Checks: `scripts/check-reinforcement38.py` (Python, 144 parity reports, CLI, ZIP), `scripts/check-chapter38.cjs` (browser), and `scripts/export-pdf.cjs 38` plus `scripts/review-pdf.py 38` (print).
-
-Chapter 39 covers vision task definitions and IoU matching, recommendation candidates and ranking metrics, and time-series features, baselines, backtesting, and uncertainty. Its three local experiments use authored cinema data. Workbook: `public/downloads/chapter-39-applications/`. Checks: `scripts/check-applications39.py` (Python, 54 parity reports, CLI, ZIP), `scripts/check-chapter39.cjs` (browser), and `scripts/export-pdf.cjs 39` plus `scripts/review-pdf.py 39` (print).
-
-Chapter 40 covers graph representations and message passing, knowledge graphs, causal comparisons and standardization, and self/semi/weakly supervised, active, federated, continual, meta, and evolutionary learning. Three local movie experiments make the claims and assumptions explicit. Workbook: `public/downloads/chapter-40-connections/`. Checks: `scripts/check-connections40.py` (Python, 144 parity reports, CLI, ZIP), `scripts/check-chapter40.cjs` (browser), and `scripts/export-pdf.cjs 40` plus `scripts/review-pdf.py 40` (print).
-
-Chapter 41 covers paper reading, fair comparisons, benchmark audits, statistical uncertainty, ablations and reproduction, AGI definitions, and a durable research-note practice. It includes fictional movie-study data, three local experiments, and a Python workbook in `public/downloads/chapter-41-research/`. Checks: `scripts/check-research41.py` (Python, 144 parity reports, CLI, ZIP), `scripts/check-chapter41.cjs` (browser), and `scripts/export-pdf.cjs 41` plus `scripts/review-pdf.py 41` (print).
-
-
-Chapter 42 integrates requirements, traceable evidence, deterministic retrieval and recommendations, a read-only tool fixture, evaluation, and an optional LLM extension design. `public/downloads/chapter-42-capstone/` contains a runnable standard-library Python reference, four fictional movies, eight public development cases, tests, and build milestones. It does not call a model or a live service. Checks: `scripts/check-capstone42.py` (Python, parity, CLI, ZIP), `scripts/check-chapter42.cjs` (browser), `scripts/export-pdf.cjs 42` and `scripts/review-pdf.py 42` (print).
+</details>
