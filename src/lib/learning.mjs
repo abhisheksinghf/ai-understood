@@ -1,4 +1,4 @@
-// Original, deliberately small dataset. x = thousands of records; y = seconds.
+// Original, deliberately small dataset. x = floor area in 1,000 sq ft; y = sale price in units of 10 lakh rupees.
 export const trainingRows=Object.freeze([{x:1,y:3},{x:2,y:5},{x:3,y:7}].map(row=>Object.freeze(row)));
 export const validationRows=Object.freeze([{x:1.5,y:4.2},{x:2.5,y:5.8}].map(row=>Object.freeze(row)));
 export const INITIAL_WEIGHT=1;

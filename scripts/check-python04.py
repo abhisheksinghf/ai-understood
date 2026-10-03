@@ -14,20 +14,20 @@ sys.dont_write_bytecode = True
 
 root = Path(__file__).resolve().parent.parent
 starter = root / "public/downloads/chapter-04-python"
-spec = importlib.util.spec_from_file_location("chapter04_example", starter / "evaluate_jobs.py")
+spec = importlib.util.spec_from_file_location("chapter04_example", starter / "evaluate_houses.py")
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
-jobs = json.loads((starter / "jobs.json").read_text(encoding="utf-8"))
+houses = json.loads((starter / "houses.json").read_text(encoding="utf-8"))
 assert module.predict(2.5, 2.0) == 6.0
-cases = [module.evaluate(jobs, weight) for weight in (1.0, 2.0)]
+cases = [module.evaluate(houses, weight) for weight in (1.0, 2.0)]
 assert cases[0]["mse"] == 14 / 3
 assert cases[1]["mse"] == 0
 assert [row["running_total"] for row in cases[0]["rows"]] == [1.0, 5.0, 14.0]
-assert module.evaluate([{"size": 3, "actual": 8}], 2)["mse"] == 1
-changed = [*jobs[:2], {"size": 3.0, "actual": 8.0}]
+assert module.evaluate([{"area": 3, "actual": 8}], 2)["mse"] == 1
+changed = [*houses[:2], {"area": 3.0, "actual": 8.0}]
 assert module.evaluate(changed, 2)["mse"] == 1 / 3
-for invalid in ([], {}, [None], [{"size": "2", "actual": 5}], [{"size": True, "actual": 5}],
-                [{"size": -1, "actual": 3}], [{"size": 2, "actual": float("nan")}]):
+for invalid in ([], {}, [None], [{"area": "2", "actual": 5}], [{"area": True, "actual": 5}],
+                [{"area": -1, "actual": 3}], [{"area": 2, "actual": float("nan")}]):
     try:
         module.evaluate(invalid, 2)
     except ValueError:
@@ -38,13 +38,13 @@ for invalid in ([], {}, [None], [{"size": "2", "actual": 5}], [{"size": True, "a
 # Exercise the downloadable CLI in isolation, including failures.
 with tempfile.TemporaryDirectory(prefix="python04-", dir=root / "tmp") as directory:
     folder = Path(directory)
-    for name in ("evaluate_jobs.py", "jobs.json"):
+    for name in ("evaluate_houses.py", "houses.json"):
         shutil.copyfile(starter / name, folder / name)
-    result = subprocess.run([sys.executable, str(folder / "evaluate_jobs.py")], cwd=root,
+    result = subprocess.run([sys.executable, str(folder / "evaluate_houses.py")], cwd=root,
                             capture_output=True, text=True, check=True)
-    expected = "w=1.0 | jobs=3 | MSE=4.6667 s^2\nw=2.0 | jobs=3 | MSE=0.0000 s^2\nSaved runtime_report.json\n"
+    expected = "w=1.0 | houses=3 | MSE=4.6667 price_units^2\nw=2.0 | houses=3 | MSE=0.0000 price_units^2\nSaved price_report.json\n"
     assert result.stdout == expected
-    assert json.loads((folder / "runtime_report.json").read_text(encoding="utf-8")) == cases
+    assert json.loads((folder / "price_report.json").read_text(encoding="utf-8")) == cases
     # Run every Python teaching block in order in an isolated folder. The
     # optional comprehension explicitly refers forward to Section 5's function.
     blocks = re.findall(r"```python\n(.*?)\n```", (root / "src/content/chapter-04.mdx").read_text(encoding="utf-8"), re.S)
@@ -56,18 +56,18 @@ with tempfile.TemporaryDirectory(prefix="python04-", dir=root / "tmp") as direct
         with contextlib.redirect_stdout(output_capture):
             for number, block in enumerate(blocks, 1):
                 exec(compile(block, f"chapter04-example-{number}", "exec"), scope)
-        assert "Predicted: 5.00 s" in output_capture.getvalue()
-        assert "MSE: 4.6667 s^2" in output_capture.getvalue()
+        assert "Predicted: 5.00 price units" in output_capture.getvalue()
+        assert "MSE: 4.6667 price_units^2" in output_capture.getvalue()
         assert "Check passed" in output_capture.getvalue()
         assert scope["squared_error"](4, 7) == 9
     finally:
         sys.path.pop(0)
-    (folder / "jobs.json").write_text('[]', encoding="utf-8")
-    failed = subprocess.run([sys.executable, str(folder / "evaluate_jobs.py")], capture_output=True, text=True)
+    (folder / "houses.json").write_text('[]', encoding="utf-8")
+    failed = subprocess.run([sys.executable, str(folder / "evaluate_houses.py")], capture_output=True, text=True)
     assert failed.returncode != 0 and "nonempty list" in failed.stderr
-    (folder / "jobs.json").write_text('not JSON', encoding="utf-8")
-    failed = subprocess.run([sys.executable, str(folder / "evaluate_jobs.py")], capture_output=True, text=True)
-    assert failed.returncode != 0 and "Could not evaluate jobs:" in failed.stderr
+    (folder / "houses.json").write_text('not JSON', encoding="utf-8")
+    failed = subprocess.run([sys.executable, str(folder / "evaluate_houses.py")], capture_output=True, text=True)
+    assert failed.returncode != 0 and "Could not evaluate houses:" in failed.stderr
 
 trace_path = root / "src/data/pythonTrace.json"
 trace = json.dumps(cases, indent=2) + "\n"
@@ -78,7 +78,7 @@ else:
 
 archive = root / "public/downloads/chapter-04-python-starter.zip"
 with ZipFile(archive, "w", ZIP_DEFLATED) as bundle:
-    for name in ("evaluate_jobs.py", "jobs.json", "README.md"):
+    for name in ("evaluate_houses.py", "houses.json", "README.md"):
         bundle.write(starter / name, "chapter-04-python/" + name)
 with ZipFile(archive) as bundle:
     assert bundle.testzip() is None

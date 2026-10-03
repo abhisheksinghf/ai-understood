@@ -1,14 +1,130 @@
 [
-  {"name":"default adventure","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":true,"seen_ids":[]},"expected_id":"M001"},
-  {"name":"exact length boundary","preferences":{"genre":"adventure","max_minutes":105,"prefer_light":true,"seen_ids":[]},"expected_id":"M001"},
-  {"name":"one minute too short","preferences":{"genre":"adventure","max_minutes":104,"prefer_light":true,"seen_ids":[]},"expected_id":null},
-  {"name":"seen first choice","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":true,"seen_ids":["M001"]},"expected_id":"M003"},
-  {"name":"remove soft preference","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":false,"seen_ids":["M001"]},"expected_id":"M004"},
-  {"name":"all known-length adventures seen","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":true,"seen_ids":["M001","M003","M004"]},"expected_id":null},
-  {"name":"short comedy","preferences":{"genre":"comedy","max_minutes":90,"prefer_light":true,"seen_ids":[]},"expected_id":"M005"},
-  {"name":"action over time limit","preferences":{"genre":"action","max_minutes":120,"prefer_light":true,"seen_ids":[]},"expected_id":null},
-  {"name":"action at exact limit","preferences":{"genre":"action","max_minutes":140,"prefer_light":true,"seen_ids":[]},"expected_id":"M002"},
-  {"name":"serious drama still eligible","preferences":{"genre":"drama","max_minutes":100,"prefer_light":true,"seen_ids":[]},"expected_id":"M006"},
-  {"name":"second genre tag","preferences":{"genre":"sci-fi","max_minutes":110,"prefer_light":true,"seen_ids":[]},"expected_id":"M004"},
-  {"name":"any genre","preferences":{"genre":"any","max_minutes":90,"prefer_light":false,"seen_ids":[]},"expected_id":"M005"}
+  {
+    "name": "default learning",
+    "preferences": {
+      "topic": "learning",
+      "max_minutes": 30,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N01"
+  },
+  {
+    "name": "exact length boundary",
+    "preferences": {
+      "topic": "learning",
+      "max_minutes": 20,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N01"
+  },
+  {
+    "name": "preferred note exceeds budget; shorter advanced note fits",
+    "preferences": {
+      "topic": "learning",
+      "max_minutes": 19,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N02"
+  },
+  {
+    "name": "completed first choice",
+    "preferences": {
+      "topic": "learning",
+      "max_minutes": 30,
+      "prefer_introductory": true,
+      "completed_ids": [
+        "N01"
+      ]
+    },
+    "expected_id": "N04"
+  },
+  {
+    "name": "remove soft preference",
+    "preferences": {
+      "topic": "learning",
+      "max_minutes": 30,
+      "prefer_introductory": false,
+      "completed_ids": [
+        "N01"
+      ]
+    },
+    "expected_id": "N02"
+  },
+  {
+    "name": "all known-length learnings seen",
+    "preferences": {
+      "topic": "learning",
+      "max_minutes": 30,
+      "prefer_introductory": true,
+      "completed_ids": [
+        "N01",
+        "N04",
+        "N02"
+      ]
+    },
+    "expected_id": null
+  },
+  {
+    "name": "short data",
+    "preferences": {
+      "topic": "data",
+      "max_minutes": 10,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N03"
+  },
+  {
+    "name": "action over time limit",
+    "preferences": {
+      "topic": "search",
+      "max_minutes": 30,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": null
+  },
+  {
+    "name": "action at exact limit",
+    "preferences": {
+      "topic": "search",
+      "max_minutes": 45,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N05"
+  },
+  {
+    "name": "advanced math still eligible",
+    "preferences": {
+      "topic": "math",
+      "max_minutes": 12,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N06"
+  },
+  {
+    "name": "second topic tag",
+    "preferences": {
+      "topic": "optimization",
+      "max_minutes": 15,
+      "prefer_introductory": true,
+      "completed_ids": []
+    },
+    "expected_id": "N02"
+  },
+  {
+    "name": "any topic",
+    "preferences": {
+      "topic": "any",
+      "max_minutes": 10,
+      "prefer_introductory": false,
+      "completed_ids": []
+    },
+    "expected_id": "N03"
+  }
 ]

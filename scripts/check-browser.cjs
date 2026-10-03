@@ -69,15 +69,17 @@ const root=path.resolve(__dirname,'..');
   await page.waitForFunction(()=>document.getElementById('toast')?.textContent?.includes('not a valid'));
   await page.locator('#import-progress').setInputFiles({name:'good.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({...saved,complete:false}))});
   await page.waitForFunction(()=>document.getElementById('complete-chapter')?.getAttribute('aria-pressed')==='false');
-  const legacy={version:1,complete:true,bookmark:'9-real-world-walkthrough-an-incident-report-assistant'};
+  for(const bookmark of ['9-real-world-walkthrough-an-incident-report-assistant','9-real-world-walkthrough-a-movie-recommendation-assistant']){
+  const legacy={version:1,complete:true,bookmark};
   await page.locator('#import-progress').setInputFiles({name:'legacy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacy))});
-  await page.waitForFunction(()=>document.getElementById('resume-place')?.getAttribute('href')==='#9-real-world-walkthrough-a-movie-recommendation-assistant');
+  await page.waitForFunction(()=>document.getElementById('resume-place')?.getAttribute('href')==='#9-real-world-walkthrough-a-personal-learning-assistant');
   assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'true');
   await page.evaluate(p=>localStorage.setItem('ai-handbook-progress-v1',JSON.stringify(p)),legacy);
   await page.goto('http://127.0.0.1:4321/chapters/01-what-is-ai/#'+legacy.bookmark,{waitUntil:'networkidle'});
-  assert.equal(await page.locator('#resume-place').getAttribute('href'),'#9-real-world-walkthrough-a-movie-recommendation-assistant');
+  assert.equal(await page.locator('#resume-place').getAttribute('href'),'#9-real-world-walkthrough-a-personal-learning-assistant');
   assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'true');
-  assert.ok(page.url().endsWith('#9-real-world-walkthrough-a-movie-recommendation-assistant'));
+  assert.ok(page.url().endsWith('#9-real-world-walkthrough-a-personal-learning-assistant'));
+  }
   await page.goto('http://127.0.0.1:4321/curriculum/',{waitUntil:'networkidle'});
   assert.equal(await page.locator('.curriculum-part li').count(),42);
   assert.equal(await page.locator('.curriculum-part small').count(),0);

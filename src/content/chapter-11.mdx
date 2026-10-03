@@ -3,17 +3,17 @@ import MovieProject from '../components/MovieProject';
 import Quiz from '../components/Quiz';
 import {chapter11Questions} from '../data/chapter11';
 
-<p className="chapter-intro">Build something you can use, inspect, and test. Our first project recommends a movie from a small catalog, explains the choice, and handles the cases where a useful answer is not available.</p>
+<p className="chapter-intro">Build something you can use, inspect, and test. Our first project recommends a note from a small catalog, explains the choice, and handles the cases where a useful answer is not available.</p>
 
-<div className="learning-card"><span className="eyebrow">WHAT YOU WILL BUILD</span><p><strong>A complete path:</strong> preferences → eligible movies → ranked choice → an explanation with known and missing facts.</p><p><strong>Two ways to run it:</strong> a working browser demo and a downloadable Python project. Both start with explicit rules; Python can optionally add an LLM-written draft using Chapter 10's adapter.</p><p><strong>Reading path:</strong> follow the core sections, try the demo, then run the project. Expand the deeper notes when you want more detail.</p></div>
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL BUILD</span><p><strong>A complete path:</strong> preferences → eligible notes → ranked choice → an explanation with known and missing facts.</p><p><strong>Two ways to run it:</strong> a working browser demo and a downloadable Python project. Both start with explicit rules; Python can optionally add an LLM-written draft using Chapter 10's adapter.</p><p><strong>Reading path:</strong> follow the core sections, try the demo, then run the project. Expand the deeper notes when you want more detail.</p></div>
 
 ## 1. Start with a small product promise
 
-“Help me choose an unseen adventure movie that fits into 120 minutes. I would prefer something light.” This request gives us a task small enough to build and test.
+“Help me choose a note about how models learn, estimated at no more than 30 minutes. Exclude notes I have completed. I prefer an introductory explanation.” This request gives us a task small enough to build and test.
 
-The application returns one suggested movie, the catalog facts that explain the choice, and streaming availability if supplied. If nothing qualifies, it says so and lets the viewer change the request. It never promises that the viewer will enjoy the film.
+The application returns one suggested note, the catalog facts that explain the choice, and exam timing if supplied. If nothing qualifies, it says so and lets the learner change the request. It never promises that the learner will benefit from the note.
 
-An **acceptance criterion** is an observable condition for calling a feature successful. Here, the chosen movie must exist in the catalog, match the required genre, fit the time limit, and be absent from the viewer's seen list. A missing streaming service must stay unknown. These conditions are more useful than “make the AI good.”
+An **acceptance criterion** is an observable condition for calling a feature successful. Here, the chosen note must exist in the catalog, match the required topic, have an estimate within the time limit, and be absent from the learner's completed list. A missing exam date must stay unknown. These conditions are more useful than “make the AI good.”
 
 <ProjectDiagrams kind="pipeline" />
 
@@ -21,117 +21,118 @@ The first working version is a **baseline**: a simple reference implementation t
 
 ## 2. Keep catalog facts separate from preferences
 
-The downloadable catalog has seven fictional movies. Each has a stable ID, title, genre tags, tone, runtime, and an optional streaming service. A **stable ID** identifies the same record even when its display title changes. For example:
+The downloadable study pack has seven authored notes. Each record combines a stable ID, title, text, topic tags, level, study-time estimate, and optional exam metadata for that topic. N01, N02, and N03 retain Chapter 5’s titles, text, and estimates. For this compact project, timetable metadata is bundled with each note; a larger app would keep separately versioned timetable records. A **stable ID** identifies the same record even when its display title changes. For example:
 
 ```json
 {
-  "id": "M001",
-  "title": "Moonlight Map",
-  "genres": ["adventure", "comedy"],
-  "tone": "light",
-  "runtime_minutes": 105,
-  "streaming_service": null
+  "id": "N01",
+  "title": "Overfitting",
+  "topics": ["learning", "data"],
+  "level": "introductory",
+  "estimated_minutes": 20,
+  "exam_date": null,
+  "text": "A model can fit training examples too closely and perform poorly on new cases."
 }
 ```
 
-Preferences are a different object: `genre`, `max_minutes`, `prefer_light`, and `seen_ids`. The viewer can change them without rewriting the movie's runtime. `null` means a value is unknown; it does not mean zero minutes or unavailable everywhere.
+Preferences are a different object: `topic`, `max_minutes`, `prefer_introductory`, and `completed_ids`. The learner can change them without rewriting the note's study-time estimate. `null` means a value is unknown; it does not mean zero minutes or that no exam exists. A study estimate is planning metadata, not measured completion time. Marking a note completed is a learner input, not proof of mastery.
 
-The catalog's `version` identifies this input snapshot. Recording it alongside the request helps explain why a result changed after an edit. All movie titles, tone labels, and service names in this project are invented for learning. They are not current cinema or streaming information.
+The catalog's `version` identifies this input snapshot. Recording it alongside the request helps explain why a result changed after an edit. The topic names are real; level labels, study estimates, and exam dates are authored teaching metadata. They are not current course or timetable information.
 
-<details className="optional-depth"><summary>Go deeper: data validation is not factual verification</summary><p>The project rejects duplicate movie IDs, unknown genre tags, unexpected fields, and invalid types. It accepts a null runtime as missing data. These checks make records usable by the program; they do not prove that a real-world film actually has that runtime. A real catalog also needs provenance, update dates, regional availability, and a process for correcting errors. We will develop data-quality concepts in Chapter 12.</p></details>
+<details className="optional-depth"><summary>Go deeper: data validation is not factual verification</summary><p>The project rejects duplicate note IDs, unknown topic tags, unexpected fields, and invalid types. It accepts a null study-time estimate as missing data. These checks make records usable by the program; they do not prove that a real-world note actually has that study-time estimate. A real catalog also needs provenance, update dates, course-specific timetable information, and a process for correcting errors. We will develop data-quality concepts in Chapter 12.</p></details>
 
 ## 3. Filter hard constraints before ranking
 
-A **hard constraint** must hold for a result to qualify. Our hard constraints are the required genre, maximum runtime, and exclusion of seen movies. The “any” genre option removes only the genre restriction. “Maximum 120 minutes” includes a film that lasts exactly 120 minutes.
+A **hard constraint** must hold for a result to qualify. Our hard constraints are the required topic, maximum study-time estimate, and exclusion of completed notes. The “any” topic option removes only the topic restriction. “Maximum 30 minutes” includes a note estimated at exactly 30 minutes.
 
-A **soft preference** helps choose among qualifying results. Here, a light tone is preferred, not required. A serious movie can still be returned if it is the best eligible option under our policy.
+A **soft preference** helps choose among qualifying results. Here, an introductory level is preferred, not required. An advanced note can still be returned if it is the best eligible option under our policy.
 
 <ProjectDiagrams kind="ranking" />
 
-Moonlight Map passes the default request: it has the adventure tag, lasts 105 minutes, and is unseen. City Sprint lasts 140 minutes and has only the action tag, so it fails two constraints. Unlisted Voyage has an adventure tag but no runtime; the program cannot establish that it fits the time limit, so it is excluded too.
+Overfitting passes the default request: it has the learning tag, is estimated at 20 minutes, and is not yet completed. Embeddings is estimated at 45 minutes and has only the search tag, so it fails two constraints. Backpropagation has a learning tag but no study-time estimate; the program cannot establish that it fits the time limit, so it is excluded too.
 
-<details className="optional-depth"><summary>Go deeper: requirements should match the wording</summary><p>“I would prefer something light” allows a tradeoff. “Only show light movies” expresses a hard constraint and would need a separate filter. Likewise, “under 120 minutes” strictly means less than 120, while this project's maximum-length control means at most 120. Translate wording into explicit rules before implementation. If an interface quietly changes the meaning, even perfectly executed code can solve the wrong problem.</p></details>
+<details className="optional-depth"><summary>Go deeper: requirements should match the wording</summary><p>“I would prefer an introductory note” allows a tradeoff. “Only show introductory notes” expresses a hard constraint and would need a separate filter. Likewise, “under 30 minutes” strictly means less than 30, while this project's maximum-time control means at most 30. Translate wording into explicit rules before implementation. If an interface quietly changes the meaning, even perfectly executed code can solve the wrong problem.</p></details>
 
 ## 4. Rank candidates with a transparent rule
 
-A **candidate** is a movie still under consideration. **Ranking** puts candidates in a preferred order. Our small baseline assigns an eligible movie one point if light tone is preferred and the movie is light; otherwise it gets zero. Higher scores come first.
+A **candidate** is a note still under consideration. **Ranking** puts candidates in a preferred order. Our small baseline assigns an eligible note one point if introductory level is preferred and the note is introductory; otherwise it gets zero. Higher scores come first.
 
-| Eligible movie for the default request | Light-tone score | Runtime |
+| Eligible note for the default request | Introductory-level score | Study-time estimate |
 | --- | --- | --- |
-| Moonlight Map · M001 | 1 | 105 minutes |
-| Forest Signal · M003 | 1 | 115 minutes |
-| Quiet Orbit · M004 | 0 | 110 minutes |
+| Overfitting · N01 | 1 | 20 minutes |
+| Train-validation splits · N04 | 1 | 25 minutes |
+| Gradient descent · N02 | 0 | 15 minutes |
 
-We break equal scores by shorter runtime, then movie ID. Moonlight Map wins over Forest Signal because 105 is less than 115. Quiet Orbit follows both because its score is lower, even though it is shorter than Forest Signal. This is a deliberate product policy, not a mathematical law about better movies.
+We break equal scores by shorter study-time estimate, then note ID. Overfitting wins over Train-validation splits because 20 is less than 25. Gradient descent follows both because its score is lower, even though it is shorter than Train-validation splits. This is a deliberate product policy, not a mathematical law about better notes.
 
-The score is neither a probability nor a predicted rating. We have not trained anything or used other viewers' behavior. Large recommenders often separate candidate generation, scoring, and re-ranking; this project's filter-and-sort pipeline is a small, explicit design. See [Google's recommendation architecture overview](https://developers.google.com/machine-learning/recommendation/overview/types).
+The score is neither a probability nor a predicted rating. We have not trained anything or used other learners' behavior. Large recommenders often separate candidate generation, scoring, and re-ranking; this project's filter-and-sort pipeline is a small, explicit design. See [Google's recommendation architecture overview](https://developers.google.com/machine-learning/recommendation/overview/types).
 
-<details className="optional-depth"><summary>Go deeper: cold start, ties, and learning later</summary><p><strong>Cold start</strong> means making recommendations with little interaction history for a new viewer or item. Asking for preferences is one starting point. Later, ratings, watch behavior, or item features could support learned scoring, but you would need suitable data and evaluation. Even a learned score often needs explicit tie-breaks and product constraints. Stable sorting rules make this baseline reproducible; they do not make it personalized beyond the supplied preferences.</p></details>
+<details className="optional-depth"><summary>Go deeper: cold start, ties, and learning later</summary><p><strong>Cold start</strong> means making recommendations with little interaction history for a new learner or item. Asking for preferences is one starting point. Later, ratings, quiz performance, or item features could support learned scoring, but you would need suitable data and evaluation. Even a learned score often needs explicit tie-breaks and product constraints. Stable sorting rules make this baseline reproducible; they do not make it personalized beyond the supplied preferences.</p></details>
 
 ## 5. Try the complete recommendation flow
 
-Use the demo below before reading the implementation. Start with the defaults. Then mark Moonlight Map as seen: Forest Signal becomes first. Turn off the light-tone preference as well: Quiet Orbit now wins because its 110-minute runtime is shorter than Forest Signal's 115 minutes. Finally, lower the adventure time limit to 90: nothing qualifies.
+Use the demo below before reading the implementation. Start with the defaults. Then mark Overfitting as completed: Train-validation splits becomes first. Turn off the introductory-level preference as well: Gradient descent now wins because its 15-minute study-time estimate is shorter than the 25-minute estimate for Train-validation splits. Finally, lower the learning time limit to 10: nothing qualifies.
 
 <MovieProject client:load />
 
-The explanation is assembled from catalog fields and the request. It reports why the selected item qualifies, without inventing plot details or availability. The decision table exposes the rule's operation, not a model's private reasoning. Downloading the result saves an inspectable JSON snapshot; changing preferences alone does not save them.
+The explanation is assembled from catalog fields and the request. It reports why the selected item qualifies, without inventing learning outcomes or exam timing. The decision table exposes the rule's operation, not a model's private reasoning. Downloading the result saves an inspectable JSON snapshot; changing preferences alone does not save them.
 
 ## 6. Run and understand the Python project
 
-<a className="download-link" href="/downloads/chapter-11-movie-project.zip" download>Download the movie recommendation project ZIP ↗</a>
+<a className="download-link" href="/downloads/chapter-11-learning-project.zip" download>Download the study suggestion project ZIP ↗</a>
 
 Extract all files into one folder and open a terminal there. Python 3.10 or newer is sufficient; no third-party packages are needed for this workbook.
 
 ```powershell
-py movie_app.py
+py study_app.py
 py evaluate.py
-py -m unittest -v test_movie_app.py
+py -m unittest -v test_study_app.py
 ```
 
-Use your working `python` or `python3` command if `py` is unavailable. The first command prints a result with `status: ok`, movie ID M001, and an unknown streaming service. The other commands run the prepared evaluation and code tests. None calls a model service.
+Use your working `python` or `python3` command if `py` is unavailable. The first command prints a result with `status: ok`, note ID N01, and an unknown exam date. The other commands run the prepared evaluation and code tests. None calls a model service.
 
-Open `preferences.json` and put `"M001"` in `seen_ids`; rerun the first command. The recommendation should change to M003. Set `prefer_light` to `false`; it should change to M004. These are the same decisions you explored in the browser.
+Open `preferences.json` and put `"N01"` in `completed_ids`; rerun the first command. The recommendation should change to N04. Set `prefer_introductory` to `false`; it should change to N02. These are the same decisions you explored in the browser.
 
-The main `recommend` function validates inputs, creates an exclusion-reason list for each record, sorts eligible movies, and builds a result. Its sorting key is compact:
+The main `recommend` function validates inputs, creates an exclusion-reason list for each record, sorts eligible notes, and builds a result. Its sorting key is compact:
 
 ```python
 eligible.sort(key=lambda m: (
-    -int(p["prefer_light"] and m["tone"] == "light"),
-    m["runtime_minutes"],
+    -int(p["prefer_introductory"] and m["level"] == "introductory"),
+    m["estimated_minutes"],
     m["id"],
 ))
 ```
 
-Python compares tuple elements from left to right. Negating the score puts one-point movies before zero-point movies in an ascending sort. Runtime and ID resolve ties. Missing runtimes have already been filtered out.
+Python compares tuple elements from left to right. Negating the score puts one-point notes before zero-point notes in an ascending sort. Study-time estimate and ID resolve ties. Missing study-time estimates have already been filtered out.
 
-<details className="optional-depth"><summary>Go deeper: where the browser and Python run</summary><p>The handbook demo executes JavaScript locally; it does not send requests to the downloaded Python program. The workbook implements the same rules in Python, and automated checks compare their outputs. In a deployed application, a browser could send preferences to a server that owns validation, catalog access, and model credentials. You would then need an HTTP contract, loading and error states, and server-side validation. Chapter 5 introduced that boundary; this project keeps the two learning environments independent.</p><p>The folder's README maps each file. <code>movie_app.py</code> owns the project flow, while <code>llm_core.py</code>, <code>provider.py</code>, and <code>errors.py</code> reuse Chapter 10's service boundary. Use <code>movie_app.py</code> as the entry point.</p></details>
+<details className="optional-depth"><summary>Go deeper: where the browser and Python run</summary><p>The handbook demo executes JavaScript locally; it does not send requests to the downloaded Python program. The workbook implements the same rules in Python, and automated checks compare their outputs. In a deployed application, a browser could send preferences to a server that owns validation, catalog access, and model credentials. You would then need an HTTP contract, loading and error states, and server-side validation. Chapter 5 introduced that boundary; this project keeps the two learning environments independent.</p><p>The folder's README maps each file. <code>study_app.py</code> owns the project flow, while <code>llm_core.py</code>, <code>provider.py</code>, and <code>errors.py</code> reuse Chapter 10's service boundary. Use <code>study_app.py</code> as the entry point.</p></details>
 
 ## 7. Add an LLM explanation as a separate stage
 
-An LLM can phrase the explanation more flexibly. It should receive the viewer preferences and the selected movie's facts, rather than being asked to invent an entire catalog. In this project, S1 holds preferences, S2 holds the selected movie, and S3 holds its supplied streaming information. M001 is a movie ID; S2 is a source ID within the current prompt.
+An LLM can phrase the explanation more flexibly. It should receive the learner preferences and the selected note's facts, rather than being asked to invent an entire catalog. In this project, S1 holds preferences, S2 holds the selected note, and S3 holds its supplied timetable information. N01 is a note ID; S2 is a source ID within the current prompt.
 
 First exercise the integration offline:
 
 ```powershell
-py movie_app.py --draft template
-py movie_app.py --draft unsupported
+py study_app.py --draft template
+py study_app.py --draft unsupported
 ```
 
-The template mode constructs an authored response and sends it through Chapter 10's real envelope, JSON, field, and source-ID checks. It is not generated by an LLM. Unsupported mode deliberately inserts an ExampleFlix claim; it demonstrates that a false fact can pass structural checks.
+The template mode constructs an authored response and sends it through Chapter 10's real envelope, JSON, field, and source-ID checks. It is not generated by an LLM. Unsupported mode deliberately inserts an unsupported 2026-12-01 exam date; it demonstrates that a false fact can pass structural checks.
 
-The result keeps two separate objects. `recommendation` is the catalog-based card. `draft.candidate` contains the optional prose and the familiar four Chapter 10 fields. Its `review_required` status means a person must compare claims with the supplied records. The draft never overwrites the card's movie or streaming-service field. Valid structure still allows factual mistakes, as described in [OpenAI's Structured Outputs guidance](https://developers.openai.com/api/docs/guides/structured-outputs).
+The result keeps two separate objects. `recommendation` is the catalog-based card. `draft.candidate` contains the optional prose and the familiar four Chapter 10 fields. Its `review_required` status means a person must compare claims with the supplied records. The draft never overwrites the card's note or exam-date field. Valid structure still allows factual mistakes, as described in [OpenAI's Structured Outputs guidance](https://developers.openai.com/api/docs/guides/structured-outputs).
 
-<details className="optional-depth"><summary>Go deeper: optional live mode and the review boundary</summary><p>With the local credentials and compatible model configuration described in Chapter 10, explicitly run `py movie_app.py --draft live`. This transmits the selected records and preferences and can incur API charges. Keep credentials outside the handbook browser and source files. The download README explains setup and limitations; no live API call was made for this edition.</p><p>The project makes at most one provider call for a requested draft and none when no movie qualifies. The browser demo remains offline. Check the draft's selected title, runtime, preference claims, source support, and availability before using its wording. Separating the draft limits its ability to corrupt catalog fields, but does not make its prose trustworthy. Prompt instructions alone are not evidence verification.</p></details>
+<details className="optional-depth"><summary>Go deeper: optional live mode and the review boundary</summary><p>With the local credentials and compatible model configuration described in Chapter 10, explicitly run `py study_app.py --draft live`. This transmits the selected records and preferences and can incur API charges. Keep credentials outside the handbook browser and source files. The download README explains setup and limitations; no live API call was made for this edition.</p><p>The project makes at most one provider call for a requested draft and none when no note qualifies. The browser demo remains offline. Check the draft's selected title, study-time estimate, preference claims, source support, and exam timing before using its wording. Separating the draft limits its ability to corrupt catalog fields, but does not make its prose trustworthy. Prompt instructions alone are not evidence verification.</p></details>
 
 ## 8. Make unhelpful outcomes understandable
 
-An empty result is sometimes the correct answer. With adventure and a 90-minute maximum, “No matching movie” respects the viewer's request. Quietly increasing the limit would conceal a product decision the viewer did not make.
+An empty result is sometimes the correct answer. With learning and a 10-minute maximum, “No matching note” respects the learner's request. Quietly increasing the limit would conceal a product decision the learner did not make.
 
 | Situation | Project behavior |
 | --- | --- |
 | Invalid preference types or unknown IDs | Stop and describe the input problem |
-| Valid request, no eligible movie | Return `no_match`; suggest changing preferences |
-| Streaming service missing | Keep `null`; show “unknown in this catalog” |
+| Valid request, no eligible note | Return `no_match`; suggest changing preferences |
+| Exam date missing | Keep `null`; show “unknown in this catalog” |
 | Optional provider fails | Keep the catalog-based card; record the draft failure |
 | Draft passes structure checks | Keep it separate with `review_required` |
 
@@ -139,35 +140,35 @@ Keeping a usable simpler result when an optional service fails is **graceful deg
 
 ## 9. Evaluate the product, not just the happy path
 
-The workbook's `eval_cases.json` contains 12 requests and expected movie IDs, including expected no-match results. These expectations were written for the stated policy; the recommender does not generate its own answer key. Running `evaluate.py` compares actual IDs with that file and reports each case.
+The workbook's `eval_cases.json` contains 12 requests and expected note IDs, including expected no-match results. These expectations were written for the stated policy; the recommender does not generate its own answer key. Running `evaluate.py` compares actual IDs with that file and reports each case.
 
-The default catalog passes all 12 cases. That means **12 prepared policy checks passed**, not “100% recommendation accuracy.” Cases cover exact time boundaries, seen exclusions, soft-preference changes, genre tags, and empty results. They do not measure whether viewers enjoy the recommendations or whether a live LLM writes accurate explanations.
+The default catalog passes all 12 cases. That means **12 prepared policy checks passed**, not “100% recommendation accuracy.” Cases cover exact time boundaries, completion exclusions, soft-preference changes, topic tags, and empty results. They do not measure whether learners improve after studying the selected notes or whether a live LLM writes accurate explanations.
 
 <ProjectDiagrams kind="evaluation" />
 
-Code tests add different checks: every eligible movie respects the constraints across many time limits; duplicate IDs fail; missing runtimes are excluded; ties are stable; provider failures preserve the card; and no-match requests make zero provider calls. The tests use Python's standard [unittest framework](https://docs.python.org/3/library/unittest.html).
+Code tests add different checks: every eligible note respects the constraints across many time limits; duplicate IDs fail; missing study-time estimates are excluded; ties are stable; provider failures preserve the card; and no-match requests make zero provider calls. The tests use Python's standard [unittest framework](https://docs.python.org/3/library/unittest.html).
 
-<details className="optional-depth"><summary>Go deeper: evaluating an improvement fairly</summary><p>To compare an LLM explanation with the template, keep the same requests and catalog. Check factual support, correct handling of missing data, clarity, latency, and cost; collect viewer feedback for usefulness. Count unsupported claims separately from valid-JSON rates. A nicer sentence is not an improvement if it invents a service. These prepared cases are development checks. If you tune prompts or a learned ranker against them, preserve separate unseen cases for a less biased final assessment. Real availability also changes by date and region.</p></details>
+<details className="optional-depth"><summary>Go deeper: evaluating an improvement fairly</summary><p>To compare an LLM explanation with the template, keep the same requests and catalog. Check factual support, correct handling of missing data, clarity, latency, and cost; collect learner feedback for usefulness. Count unsupported claims separately from valid-JSON rates. A nicer sentence is not an improvement if it invents an exam date. These prepared cases are development checks. If you tune prompts or a learned ranker against them, preserve separate unseen evaluation cases for a less biased final assessment. Real timetables can change by course and term.</p></details>
 
 ## 10. Practice: predict, change, and inspect
 
 ### Exercise 1: separate a rule from a preference
 
-The viewer requests adventure, at most 110 minutes, prefers light tone, and has seen M001. Which movie wins? Does its tone disqualify it?
+The learner requests learning, at most 15 minutes, prefers introductory level, and has completed N01. Which note wins? Does its level disqualify it?
 
-<details className="solution"><summary>Reveal the result</summary><p>M004, Quiet Orbit, wins. M001 is seen, M003 lasts 115 minutes, and M007 has no known runtime. M004 is an unseen 110-minute adventure, so it meets the hard constraints. Its serious tone gives it zero preference points but does not exclude it.</p></details>
+<details className="solution"><summary>Reveal the result</summary><p>N02, Gradient descent, wins. N01 is completed, N04 is estimated at 25 minutes, and N07 has no known study-time estimate. N02 is a not-yet-completed learning note estimated at 15 minutes, so it meets the hard constraints. Its advanced level gives it zero preference points but does not exclude it.</p></details>
 
 ### Exercise 2: expose an unsupported claim
 
-Run `py movie_app.py --draft unsupported`. Compare `recommendation.streaming_service` with `draft.candidate.streaming_service`. Which value should a catalog-based “Where to watch” field display, and why?
+Run `py study_app.py --draft unsupported`. Compare `recommendation.exam_date` with `draft.candidate.exam_date`. Which value should a catalog-based “Exam date” field display, and why?
 
-<details className="solution"><summary>Reveal the distinction</summary><p>The card must display unknown because its catalog field is null. The draft's ExampleFlix claim is unsupported even though the JSON and source IDs passed checks. Keep the draft pending review; do not silently copy it into the card.</p></details>
+<details className="solution"><summary>Reveal the distinction</summary><p>The card must display unknown because its catalog field is null. The draft's 2026-12-01 claim is unsupported even though the JSON and source IDs passed checks. Keep the draft pending review; do not silently copy it into the card.</p></details>
 
 ### Exercise 3: prove the evaluation can fail
 
-Back up `eval_cases.json`, then change the default case's expected ID from M001 to M002. Run `py evaluate.py`, inspect the mismatch, and restore the original expectation. Why is changing the answer key until the score passes a poor evaluation practice?
+Back up `eval_cases.json`, then change the default case's expected ID from N01 to N05. Run `py evaluate.py`, inspect the mismatch, and restore the original expectation. Why is changing the answer key until the score passes a poor evaluation practice?
 
-<details className="solution"><summary>Reveal the lesson</summary><p>The modified evaluation reports 11 of 12 cases passing and exits 1. The default case shows expected M002 and actual M001. Expectations should follow the requirements, not be adjusted merely to match implementation output. A deliberate policy change may require updated expectations, with the reason documented.</p></details>
+<details className="solution"><summary>Reveal the lesson</summary><p>The modified evaluation reports 11 of 12 cases passing and exits 1. The default case shows expected N05 and actual N01. Expectations should follow the requirements, not be adjusted merely to match implementation output. A deliberate policy change may require updated expectations, with the reason documented.</p></details>
 
 ## 11. Check your understanding
 
@@ -178,6 +179,8 @@ Answer all five questions, then read the explanations.
 ## 12. Keep the boundaries visible
 
 <blockquote>Validate the inputs. Filter required constraints. Rank eligible choices. Explain from supplied facts. Review model prose separately. Test the cases where the answer is missing or the service fails.</blockquote>
+
+This is the first stage of the personal learning assistant. Note search, source-backed answers, quizzes, prerequisite checks, and revision scheduling are later extensions. The current project checks supplied preferences and estimates; it does not enforce prerequisites or infer weak topics.
 
 You have completed a small product with an inspectable policy, a working interface, a Python implementation, and repeatable checks. You can now explain which behavior comes from data, which comes from application rules, and where an optional model enters the system.
 

@@ -1,6 +1,6 @@
 """Evaluate prepared task cases. This does not call or evaluate a live LLM."""
 import json
-from movie_app import ROOT, load_json, recommend
+from study_app import ROOT, load_json, recommend
 
 
 def evaluate(catalog, cases):
@@ -8,11 +8,11 @@ def evaluate(catalog, cases):
     for case in cases:
         result = recommend(case['preferences'], catalog)
         card = result['recommendation']
-        actual = card['movie_id'] if card else None
+        actual = card['note_id'] if card else None
         results.append({'case': case['name'], 'expected_id': case['expected_id'], 'actual_id': actual, 'passed': actual == case['expected_id']})
     passed = sum(row['passed'] for row in results)
     return {'passed': passed, 'total': len(results), 'cases': results,
-            'scope': 'Prepared policy acceptance cases only; no viewer study and no live model evaluation.'}
+            'scope': 'Prepared policy acceptance cases only; no learner study and no live model evaluation.'}
 
 
 if __name__ == '__main__':

@@ -37,22 +37,22 @@ Read the boxes as “is a kind of,” not “must come next.” A decision tree 
 
 **Machine learning (ML)** fits a model using data and a learning objective. Instead of writing every decision rule yourself, you choose a learning procedure that adjusts the model from examples. You still decide what to measure and whether its performance is useful.
 
-For a movie-review classifier, the task is to predict a review's sentiment. A training example pairs a review such as “A cheerful adventure I would watch again” with a label such as “positive.” A **label** is the target answer supplied for that example; a **feature** is an input value available to the model.
+For a study-question classifier, the task is to predict a question’s topic. A training example pairs “How do derivatives work?” with the label “calculus.” A **label** is the target answer supplied for that example; a **feature** is an input value available to the model.
 
-A model might learn from features such as review length, counts of selected words, and movie genre. A **decision tree** learns a sequence of branching tests on these features. It is an ML method; it does not need a neural network.
+A model might learn from features such as question length and counts of selected words. A **decision tree** learns a sequence of branching tests on these features. It is an ML method; it does not need a neural network.
 
 **Deep learning (DL)** uses neural networks with multiple layers of learned transformations. A layer converts its input values into a new representation. Training adjusts the numerical settings, called **parameters**, across the network so that its outputs better meet the objective.
 
 For language, learned representations can encode useful patterns in words and their context. That can reduce the need to manually design every feature. It does not remove the need for suitable data, evaluation, or application logic.
 
-**Same task, different method:** a decision tree and a deep neural network can both classify reviews. Neither has to generate a recommendation explanation. Choose between them using measured results, data needs, cost, and complexity. “Deep” describes the model structure; it does not guarantee deeper understanding.
+**Same task, different method:** a decision tree and a deep neural network can both classify study questions. Neither has to generate an explanation of the answer. Choose between them using measured results, data needs, cost, and complexity. “Deep” describes the model structure; it does not guarantee deeper understanding.
 
 <details className="optional-depth">
 <summary>Go deeper: what is a learned representation?</summary>
 
-A representation is a numerical form of information that a model can work with. A manually chosen feature might be “does the review contain the word enjoyable?” A learned representation can capture combinations of signals that are useful for the training objective, including context that an isolated word misses.
+A representation is a numerical form of information that a model can work with. A manually chosen feature might be “does the question contain the word derivative?” A learned representation can capture combinations of signals that are useful for the training objective, including context that an isolated word misses.
 
-For example, “I loved this movie” and “A really enjoyable film” may acquire related representations when training rewards handling them similarly. This is not guaranteed by the architecture alone. Data, objectives, and training quality matter. Later chapters explain embeddings, layers, and parameter updates mathematically.
+For example, “How do derivatives work?” and “Explain rates of change” may acquire related representations when training rewards handling them similarly. This is not guaranteed by the architecture alone. Data, objectives, and training quality matter. Later chapters explain embeddings, layers, and parameter updates mathematically.
 
 “More layers” and “more parameters” are related design choices, but not synonyms. A layer can be wide or narrow, and different network designs use their parameters differently.
 
@@ -62,9 +62,9 @@ For example, “I loved this movie” and “A really enjoyable film” may acqu
 
 **Natural language processing (NLP)** concerns computational work with human language: classifying messages, finding names, translating, searching text, summarizing, and more.
 
-NLP tells you **what the system works on**, not exactly how it works. Finding a movie ID in a catalog entry might use a written matching pattern. Classifying its topic might use a small ML model. Drafting a readable response might use an LLM. All involve language; only some require generation.
+NLP tells you **what the system works on**, not exactly how it works. Finding a lesson ID in a course note might use a written matching pattern. Classifying its topic might use a small ML model. Drafting a readable response might use an LLM. All involve language; only some require generation.
 
-Consider “Movie MOV-104 lasts 105 minutes.” Extracting “MOV-104” and “105” into fields is an NLP task. A pattern matcher can handle this standardized input without learning from examples. More varied language may require a different method.
+Consider “Lesson LES-104 takes an estimated 20 minutes.” Extracting “LES-104” and “20” into fields is an NLP task. A pattern matcher can handle this standardized input without learning from examples. More varied language may require a different method.
 
 An LLM is one powerful tool for NLP, not a replacement name for the whole field. [Hugging Face's NLP and LLM introduction](https://huggingface.co/learn/llm-course/chapter1/1) develops this distinction.
 
@@ -76,19 +76,19 @@ An LLM is one powerful tool for NLP, not a replacement name for the whole field.
 
 An LLM represents text as **tokens**: units that may be words, word pieces, or punctuation. In the common next-token approach to generation, it estimates possibilities for the next token from the available context; a decoding procedure selects a token and continues. This mechanism can produce an explanation or code, but does not itself guarantee factual correctness.
 
-For our assistant, “Explain why this movie fits my preferences” is a **prompt**, the input containing instructions and any supplied material. The **context window** is the model's bounded working input/output capacity, measured in tokens according to the model's limits. It is not an unlimited memory of everything the user has ever said.
+For our assistant, “Explain overfitting using my notes” is a **prompt**, the input containing instructions and any supplied material. The **context window** is the model's bounded working input/output capacity, measured in tokens according to the model's limits. It is not an unlimited memory of everything the user has ever said.
 
 Two distinctions keep this clear:
 
 - **GenAI extends beyond LLMs.** Image and audio generators can use other model families.
-- **An LLM can perform a classification task.** Asking it to return only “positive” uses a generative model to produce a label. The application task is still classification.
+- **An LLM can perform a classification task.** Asking it to return a topic such as “calculus” uses a generative model to produce a label. The application task is still classification.
 
 The model is also different from the chat application around it. A chat interface may add document uploads, stored history, search, permission checks, and tool execution. Those features are not automatically inside the model.
 
 <details className="optional-depth">
 <summary>Go deeper: context, parameters, and foundation models</summary>
 
-**Parameters** are numerical values fitted during training. **Context** is information supplied for a particular inference call. Pasting a new movie description into context can change the answer without changing the parameters.
+**Parameters** are numerical values fitted during training. **Context** is information supplied for a particular inference call. Pasting a new study note into context can change the answer without changing the parameters.
 
 **Fine-tuning** means additional training that updates model parameters. This is different from prompting or retrieving documents. An application might store conversation history and include it in later prompts; that is not, by itself, fine-tuning.
 
@@ -100,13 +100,13 @@ The boundaries of “large” and “foundation” are conventions rather than a
 
 ## 5. RAG supplies information before generation
 
-Suppose the user asks: **“Which light adventure movies in this catalog run under two hours?”** A model's training does not ensure it knows this catalog or its latest entries.
+Suppose the user asks: **“What do my notes say about overfitting?”** A model’s training does not ensure it knows your notes or their latest revisions.
 
 **Retrieval-augmented generation (RAG)** connects retrieval with generation. The application finds relevant information, includes it in the generator's context, and asks for an answer based on that evidence.
 
 <ConceptDiagrams kind="rag" />
 
-In our fictional example, the retrieved entry says: “Moonlight Map is an adventure comedy lasting 105 minutes.” A suitable answer recommends it based on those facts and cites the entry. It should not invent a streaming service that the entry never names.
+Using Chapter 1’s fictional note N01, retrieval finds: “A model can fit training examples too closely and perform poorly on new cases.” A suitable answer explains overfitting and cites N01. It should not invent an exam date that the note never names.
 
 Retrieval can use keywords, numerical representations called embeddings, or a combination. A vector database is one implementation option, not the definition of RAG. Here, **retrieval supplies context; it does not itself retrain the generator**. [Microsoft's RAG overview](https://learn.microsoft.com/en-us/azure/search/retrieval-augmented-generation-overview) explains the retrieval-and-generation pattern.
 
@@ -125,11 +125,11 @@ Manually pasting one passage gives a model context. It does not demonstrate an a
 
 ## 6. Workflows, tools, and agents
 
-A **tool** is a function an application makes available, such as searching a movie catalog, reading a review, or adding movie lengths. When a model requests a tool call, application code validates and executes the allowed function and returns its result. The request itself is not execution.
+A **tool** is a function an application makes available, such as searching study notes, reading a lesson, or adding estimated study times. When a model requests a tool call, application code validates and executes the allowed function and returns its result. The request itself is not execution.
 
-A **workflow** organizes steps. In a fixed workflow, code defines the route: retrieve catalog entries, draft an answer, check the required fields, then send the draft for review. The workflow can contain model calls, conditions, and retries.
+A **workflow** organizes steps. In a fixed workflow, code defines the route: retrieve study notes, draft an answer, check the required fields, then send the draft for review. The workflow can contain model calls, conditions, and retries.
 
-In the **LLM agent** sense used here, the model can choose the next step based on the goal and observations. It might search, inspect a movie entry, search again with a different phrase, then decide it has enough evidence to respond. This creates a loop.
+In the **LLM agent** sense used here, the model can choose the next step based on the goal and observations. It might search, inspect a lesson and its prerequisites, search again with a different phrase, then decide it has enough evidence to respond. This creates a loop.
 
 <ConceptDiagrams kind="agent" />
 
@@ -137,7 +137,7 @@ The difference is control over the next step. One tool call, a chat interface, o
 
 An agent can use RAG as part of its work. RAG can also run in a fixed workflow with no agent loop. Neither requires the other.
 
-For our assistant, read-only access to a catalog may be enough. If it can rent a movie or change a watchlist, define the allowed actions, validation, and review requirements. Set stopping conditions and tool-call limits so an unsuccessful search cannot continue indefinitely.
+For our assistant, read-only access to notes may be enough. Proposing a revision schedule is different from writing calendar events: calendar changes need explicit permission, validated details, and any required review. Set stopping conditions and tool-call limits so an unsuccessful search cannot continue indefinitely.
 
 <details className="optional-depth">
 <summary>Go deeper: why “agent” has more than one meaning</summary>
@@ -150,7 +150,7 @@ This handbook uses the narrower phrase **LLM agent** when discussing a model tha
 
 ## 7. Put the pieces into one application
 
-Our fictional **movie assistant** receives preferences, searches a supplied catalog, drafts an answer with sources, and gives the user a reviewable result.
+Our fictional **personal learning assistant** receives a study question, searches supplied notes, drafts an explanation with sources, and gives the learner a reviewable result. Later application chapters will extend this project with quizzes and revision planning.
 
 <ConceptDiagrams kind="application" />
 
@@ -170,48 +170,48 @@ For each design, notice **what changed**: the output task, the information suppl
 
 AGI is therefore not another component to add after RAG or agents. A proposed framework, [Levels of AGI](https://arxiv.org/abs/2311.02462), separates questions such as breadth and performance when describing progress. It is a framework, not a universally accepted test.
 
-An assistant that reads movie posters and writes useful recommendations demonstrates those capabilities. That evidence alone does not establish general intelligence. **Multimodal** describes information types; **agentic** describes aspects of execution; neither establishes AGI.
+An assistant that reads lesson diagrams and writes useful explanations demonstrates those capabilities. That evidence alone does not establish general intelligence. **Multimodal** describes information types; **agentic** describes aspects of execution; neither establishes AGI.
 
-For practical work, use narrower, testable claims: “On this held-out set of movie requests, the system found entries meeting the genre and runtime constraints in these cases.” A **held-out set** contains examples excluded from fitting the system, used to assess its behavior on new cases. We will examine evaluation in later chapters.
+For practical work, use narrower, testable claims: “On this held-out set of study questions, the system retrieved relevant notes and produced answers supported by those notes in these cases.” A **held-out set** contains examples excluded from fitting the system, used to assess its behavior on new cases. We will examine evaluation in later chapters.
 
 ## 9. Choose from the need
 
 Start by writing the required input, output, and success criterion. Then choose a baseline simple enough to understand and test.
 
-| Need in the movie assistant | A sensible starting point | What you would check |
+| Need in the learning assistant | A sensible starting point | What you would check |
 |---|---|---|
-| Check whether a movie fits a 120-minute limit | Ordinary arithmetic | Correct runtime and units |
-| Predict a movie review's sentiment | Rules or a small classifier as a baseline | Errors by sentiment on new reviews |
-| Explain a suggestion from supplied movie facts | A template or an LLM, compared on the task | Coverage of facts and unsupported claims |
-| Answer from a changing movie catalog | Search; add RAG when a composed answer is needed | Retrieval relevance and evidence support |
+| Check whether 20- and 15-minute lessons fit a 30-minute session | Ordinary arithmetic | 35 minutes exceeds the budget by 5 minutes |
+| Predict a study question’s topic | Rules or a small classifier as a baseline | Errors by topic on new questions |
+| Explain a concept from supplied notes | A template or an LLM, compared on the task | Coverage of facts and unsupported claims |
+| Answer from changing study notes | Search; add RAG when a composed answer is needed | Retrieval relevance and evidence support |
 | Choose follow-up searches based on results | Start with an explicit workflow; consider an agent if flexibility helps | Task success, tool mistakes, time, and cost |
 
-No technique is automatically required because another is present. A classifier does not need to write prose. A movie search tool need not generate an answer. A RAG assistant need not choose its own workflow.
+No technique is automatically required because another is present. A classifier does not need to write prose. A note search tool need not generate an answer. A RAG assistant need not choose its own workflow.
 
 ## 10. Practice: explain the design
 
 ### Exercise 1: give each label a reason
 
-A deep neural network was trained on labelled movie reviews to output positive, neutral, or negative sentiment. It uses no document retrieval and does not produce free-form recommendations. Which labels fit: AI, ML, DL, NLP, RAG? Does the description establish generative AI?
+A deep neural network was trained on labelled study questions to output algebra, calculus, or probability. It uses no document retrieval and does not produce free-form explanations. Which labels fit: AI, ML, DL, NLP, RAG? Does the description establish generative AI?
 
 <details className="solution"><summary>Reveal the explanation</summary><p>AI, ML, DL, and NLP fit: the system performs a language task using a learned deep neural network. RAG does not fit because no retrieval-and-generation path is described. The classification task does not establish a generative model or generative capability; do not infer one merely from the use of deep learning.</p></details>
 
 ### Exercise 2: trace one question
 
-Draw how “Which light adventure movies last under two hours?” reaches a RAG answer. Include the document collection, retrieved passage, model input, generated answer, and evidence check. Which step changes the LLM's parameters?
+Draw how “What do my notes say about overfitting?” reaches a RAG answer. Include the document collection, retrieved passage, model input, generated answer, and evidence check. Which step changes the LLM's parameters?
 
 <details className="solution"><summary>Reveal the explanation</summary><p>The question drives retrieval over the document collection. Selected passages join the question and instructions in the model input. The LLM generates an answer, whose claims and citations are checked against the passages. None of these ordinary inference steps requires changing the LLM's parameters. Updating the searchable collection is also distinct from training the generator.</p></details>
 
 ### Exercise 3: find the control boundary
 
-Design A always searches once, summarizes, and stops. Design B lets a model inspect results and choose between another search, reading a movie entry, or finishing. Which is a fixed workflow and which is an LLM agent loop? Give one useful stopping condition for B.
+Design A always searches once, summarizes, and stops. Design B lets a model inspect results and choose between another search, reading a study note, or finishing. Which is a fixed workflow and which is an LLM agent loop? Give one useful stopping condition for B.
 
 <details className="solution"><summary>Reveal the explanation</summary><p>A is a fixed workflow; B is an LLM agent loop under our stated definition. B could stop after a set tool-call limit and return what was found with any missing evidence identified. It should also stop when sufficient evidence supports an answer. The application enforces limits; the model's decision to continue does not override them.</p></details>
 
 <details className="optional-depth">
 <summary>Extra practice: test the boundaries</summary>
 
-**Exercise 4.** An application retrieves movie entries but displays only their titles and excerpts. Is that enough to call it RAG?
+**Exercise 4.** An application retrieves study notes but displays only their titles and excerpts. Is that enough to call it RAG?
 
 <details className="solution"><summary>Reveal the explanation</summary><p>No. This describes retrieval without a generative answer. It can still be a useful search application.</p></details>
 
@@ -231,7 +231,7 @@ Choose an answer for each question before checking. Use the explanations to revi
 
 Finish by describing an application in one sentence with separate roles:
 
-> “A movie assistant uses an LLM to explain suggestions, retrieves catalog entries through RAG, and follows a fixed workflow with a review step.”
+> “A learning assistant uses an LLM to explain concepts, retrieves study notes through RAG, and follows a fixed workflow with a review step.”
 
 Replace “fixed workflow” with “agent loop” only if the model helps choose subsequent steps. You should now be able to explain why a single system can have several accurate labels, and why adding one does not automatically add the others.
 

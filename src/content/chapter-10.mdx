@@ -8,20 +8,20 @@ import {chapter10Questions} from '../data/chapter10';
 <div className="learning-card">
 <p className="eyebrow">WHAT YOU WILL BE ABLE TO DO</p>
 <p>Build a small Python command-line app with an interchangeable model provider, a structured response contract, explicit failure states, and local tests. Explain which checks establish correctness of the code and which require reviewing real model outputs.</p>
-<p><strong>Reading path:</strong> Turn Chapter 9's viewer preferences and fictional movie catalog into a reasoned recommendation. Run the complete workflow offline with prepared responses; optionally connect the same code to a live API. The website itself does not make model calls.</p>
+<p><strong>Reading path:</strong> Turn Chapter 9's learner preferences and fictional study-note catalog into a reasoned recommendation. Run the complete workflow offline with prepared responses; optionally connect the same code to a live API. The website itself does not make model calls.</p>
 </div>
 
 ## 1. Build one useful vertical slice
 
-A **vertical slice** is one small task working from input to visible result. Our task is: take viewer preferences and movie entries, produce a structured suggestion, and show it for review. We begin with a **command-line interface (CLI)**: a Python program you run from a terminal. A web interface can later call the same application logic.
+A **vertical slice** is one small task working from input to visible result. Our task is: take learner preferences and note entries, produce a structured suggestion, and show it for review. We begin with a **command-line interface (CLI)**: a Python program you run from a terminal. A web interface can later call the same application logic.
 
 This is **inference**: using an existing model to produce a response. We are not training weights, building a search index, or creating an autonomous agent. No framework is required for this first workflow. Python's standard library can read JSON, make HTTPS requests, validate results, and run tests.
 
-This first movie app uses supplied preferences and catalog facts to guide an LLM's suggestion and explanation. Learning a personalized ranking from many viewers' ratings is another approach, developed in the later recommendation-system chapters.
+This first learning-assistant app uses supplied preferences and note records to guide an LLM’s suggestion and explanation. It does not retrieve from a large collection, train a model, create a quiz, or change a calendar yet.
 
-Reuse Chapter 9's fictional movie-night case: S1 asks for a light adventure under 120 minutes. S2 lists Moonlight Map, an adventure comedy lasting 105 minutes, and City Sprint, a 140-minute action movie. S3 says Moonlight Map's streaming service is not supplied. A useful suggestion explains why Moonlight Map fits and keeps availability unknown. All titles and service names here are fictional.
+Reuse Chapter 9's fictional study-session case: S1 asks for an introductory note about model learning, estimated at no more than 30 minutes. S2 lists Overfitting, an introductory learning note estimated at 20 minutes, and Embeddings, an advanced search note estimated at 45 minutes. S3 says Overfitting's exam date is not supplied. A useful suggestion explains why Overfitting fits and keeps the exam date unknown. The learner profile, estimates, and dates are teaching examples.
 
-The result has two layers: the **application status**, such as `review_required`, and an optional **candidate recommendation** with `recommendation`, `streaming_service`, `evidence_ids`, and `open_questions`. A failure returns a status without an accepted candidate. This prevents “something went wrong” from masquerading as a valid movie suggestion.
+The result has two layers: the **application status**, such as `review_required`, and an optional **candidate recommendation** with `recommendation`, `exam_date`, `evidence_ids`, and `open_questions`. A failure returns a status without an accepted candidate. This prevents “something went wrong” from masquerading as a valid study suggestion.
 
 ## 2. Separate the workflow from the provider
 
@@ -96,7 +96,7 @@ return {
     "instructions": INSTRUCTIONS,
     "input": [{"role": "user", "content": json.dumps({"sources": sources})}],
     "text": {"format": {
-        "type": "json_schema", "name": "movie_recommendation",
+        "type": "json_schema", "name": "study_suggestion",
         "strict": True, "schema": schema,
     }},
     "max_output_tokens": 1200,
@@ -104,7 +104,7 @@ return {
 }
 ```
 
-The schema requires all four recommendation fields, rejects additional properties, and limits `evidence_ids` to supplied IDs using an **enum**, a list of permitted values. The streaming-service field permits a string or `null`. `null` means availability is not established here; it is different from the string `"null"`.
+The schema requires all four recommendation fields, rejects additional properties, and limits `evidence_ids` to supplied IDs using an **enum**, a list of permitted values. The exam-date field permits a string or `null`. `null` means exam timing is not established here; it is different from the string `"null"`.
 
 The local validator also checks nonempty strings and distinct evidence IDs. Even schema-constrained generation is only one layer: it cannot establish that the chosen source proves a claim. The exact request format and supported schema features are documented in [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 
@@ -139,18 +139,18 @@ The workflow applies checks in order, stopping at the first unusable result:
 | Envelope | Incomplete response or refusal | incomplete or refused |
 | Candidate JSON | Broken syntax, duplicate keys, NaN | invalid_json |
 | Recommendation contract | Wrong types or unknown source IDs | invalid_recommendation |
-| Evidence review | Supported structure but invented availability | Still review_required; human checks meaning |
+| Evidence review | Supported structure but invented exam timing | Still review_required; human checks meaning |
 
 An HTTP success status does not guarantee a complete model answer. If generation stops early, do not add a brace to the truncated text and call it finished. If the model refuses, handle that as a distinct outcome rather than parsing the refusal as recommendation data or trying to bypass it.
 
-The application deliberately calls its accepted state **review_required**, never “verified.” In the unsupported-claim fixture, `streaming_service` says ExampleFlix and cites S1. S1 exists, but only states viewer preferences; it says nothing about streaming availability. The type and ID checks pass; the evidence claim fails.
+The application deliberately calls its accepted state **review_required**, never “verified.” In the unsupported-claim fixture, `exam_date` says 2026-12-01 and cites S1. S1 exists, but only states learner preferences; it says nothing about exam timing. The type and ID checks pass; the evidence claim fails.
 
 <details className="optional-depth">
 <summary>Go deeper: structured outputs, rendering, and actions</summary>
 
 Our malformed and wrong-type fixtures deliberately inject bad outcomes. They test defensive application behavior; they are not measurements of how often schema-constrained models fail. A completed, non-refused response under a supported strict schema has stronger format guarantees, but can still contain incorrect values. Provider refusal and incomplete-response behavior must be handled separately.
 
-Treat the candidate as data. Render text with an escaping UI mechanism; do not feed it into raw HTML, SQL strings, `eval`, or shell commands. This app grants no model-generated action permissions. It only prints a candidate and its status. If a future app saves a recommendation or rents a movie, the application must authorize that separate action and handle duplicate submissions.
+Treat the candidate as data. Render text with an escaping UI mechanism; do not feed it into raw HTML, SQL strings, `eval`, or shell commands. This app grants no model-generated action permissions. It only prints a candidate and its status. If a future app saves a recommendation or creates a calendar event, the application must authorize that separate action and handle duplicate submissions.
 
 </details>
 
@@ -191,7 +191,7 @@ Try **Temporary service failure** with one attempt, then two. Next try **Unsuppo
 
 The workbook tests zero calls for invalid input, a maximum of two calls for temporary failures, refusal handling, malformed output, field rules, and the known limitation of unsupported claims. Adapter tests intercept HTTP locally to inspect headers, request data, timeout settings, and error classification. They use a dummy credential and never call the service.
 
-After choosing a live model, evaluate real outputs on varied movie requests: supplied and missing availability, conflicting movie lengths, changing preferences, and embedded instructions. Review factual support and completeness against sources, not exact wording. Keep some cases separate from prompt revision and repeat trials when response variability matters. Passing fixture tests is a prerequisite for that work, not evidence that the model is accurate.
+After choosing a live model, evaluate real outputs on varied study requests: supplied and missing exam timing, conflicting study-time estimates, changing preferences, and embedded instructions. Review factual support and completeness against sources, not exact wording. Keep some cases separate from prompt revision and repeat trials when response variability matters. Passing fixture tests is a prerequisite for that work, not evidence that the model is accurate.
 
 <details className="optional-depth">
 <summary>Go deeper: observability, cost, streaming, and state</summary>
@@ -218,7 +218,7 @@ Run the temporary-failure fixture with one attempt and then two. Predict the fin
 
 The unsupported-claim fixture passes JSON, type, and ID checks. Which statement is false, which source fails to support it, and what should the reviewed recommendation contain instead?
 
-<details className="solution"><summary>Reveal the evidence check</summary><p>The claim that Moonlight Map is on ExampleFlix is unsupported. S1 only states viewer preferences. streaming_service should remain null and availability should be an open question. No additional string-type check can prove a missing catalog fact.</p></details>
+<details className="solution"><summary>Reveal the evidence check</summary><p>The claim that Overfitting has an exam on 2026-12-01 is unsupported. S1 only states learner preferences. exam_date should remain null and exam timing should be an open question. No additional string-type check can prove a missing catalog fact.</p></details>
 
 ### Exercise 3: distinguish two failures
 
@@ -259,6 +259,6 @@ You now have an executable path from source records to a reviewable draft, with 
 
 Sources and fixtures are original, fictional teaching material. Local tests verify code paths; they do not establish live API availability, pricing, or model quality. Provider documentation linked beside relevant claims was checked for this edition. The Python source and recorded traces ship with the same chapter.
 
-**Next:** [Chapter 11, Project 1: a movie-recommendation assistant](/chapters/11-project-movie-recommendation-assistant/), combines the workflow with a usable interface and a task evaluation.
+**Next:** [Chapter 11, Project 1: a personal learning assistant](/chapters/11-project-movie-recommendation-assistant/), combines the workflow with a usable interface and a task evaluation.
 
 </div>

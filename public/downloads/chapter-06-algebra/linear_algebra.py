@@ -45,11 +45,11 @@ def predict_batch(matrix, weights, bias):
 
 
 def main():
-    # Feature order: size in MB, then number of queued jobs.
+    # Coordinate order: horizontal, then vertical; dimensionless values.
     features = [[1, 0], [2, 1], [3, 2]]
     weights = [2, 0.5]
     bias = 1
-    print(f"One prediction: {dot(features[2], weights) + bias:.1f} seconds")
+    print(f"One prediction: {dot(features[2], weights) + bias:.1f}")
     print(f"Batch predictions: {predict_batch(features, weights, bias)}")
     # Geometry below uses dimensionless coordinates, not mixed-unit features.
     print(f"Length of [3, 4]: {norm([3, 4]):.1f}")

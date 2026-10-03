@@ -32,12 +32,12 @@ const base='http://127.0.0.1:4321',route='/chapters/07-probability-and-statistic
   const metric=name=>page.locator('[data-bayes="'+name+'"]');
   assert.equal(await metric('true-alerts').innerText(),'90');assert.equal(await metric('false-alerts').innerText(),'495');assert.equal(await metric('precision').innerText(),'15.38%');
   async function rate(id,value){const slider=page.locator(id);const step=Number(await slider.getAttribute('step'));await slider.focus();await slider.press('Home');for(let i=0;i<value/step;i++)await slider.press('ArrowRight');assert.equal(Number(await slider.inputValue()),value);}
-  await rate('#failure-rate',10);assert.equal(await metric('true-alerts').innerText(),'900');assert.equal(await metric('false-alerts').innerText(),'450');assert.equal(await metric('precision').innerText(),'66.67%');
+  await rate('#spam-rate',10);assert.equal(await metric('true-alerts').innerText(),'900');assert.equal(await metric('false-alerts').innerText(),'450');assert.equal(await metric('precision').innerText(),'66.67%');
   await lab.screenshot({path:path.join(out,'lab-common.png')});
   await rate('#false-alert-rate',0);assert.equal(await metric('precision').innerText(),'100.00%');
   await rate('#recall-rate',0);assert.equal(await metric('precision').innerText(),'Undefined');assert.match(await metric('calculation').innerText(),/zero alerts/);assert.equal(await lab.locator('.empty-alerts').innerText(),'No alerts to divide');
-  await rate('#failure-rate',0);await rate('#false-alert-rate',5);assert.equal(await metric('precision').innerText(),'0.00%');
-  await page.getByRole('button',{name:'Reset alert rates'}).click();assert.equal(await metric('precision').innerText(),'15.38%');assert.equal(await page.locator('#failure-rate').inputValue(),'1');
+  await rate('#spam-rate',0);await rate('#false-alert-rate',5);assert.equal(await metric('precision').innerText(),'0.00%');
+  await page.getByRole('button',{name:'Reset alert rates'}).click();assert.equal(await metric('precision').innerText(),'15.38%');assert.equal(await page.locator('#spam-rate').inputValue(),'1');
   await page.getByRole('button',{name:'Switch to dark theme'}).click();await lab.screenshot({path:path.join(out,'lab-dark.png')});await page.getByRole('button',{name:'Switch to light theme'}).click();
   await page.locator('.solution summary').first().click();assert.equal(await page.locator('.solution').first().getAttribute('open'),'');
   await page.locator('.quiz').scrollIntoViewIfNeeded();await page.waitForFunction(()=>!document.querySelector('.quiz')?.closest('astro-island')?.hasAttribute('ssr'));
@@ -61,9 +61,9 @@ const base='http://127.0.0.1:4321',route='/chapters/07-probability-and-statistic
   await page.goto(base+'/curriculum/',{waitUntil:'networkidle'});assert.equal(await page.locator('.curriculum-part li').count(),42);assert.equal(await page.locator('.curriculum-part small').count(),0);assert.equal(await page.locator('.curriculum-part li a').count(),42);
   await page.goto(base+route,{waitUntil:'networkidle'});await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.screenshot({path:path.join(out,'mobile.png')});await page.getByRole('button',{name:'Open handbook navigation'}).click();assert.equal(await page.locator('.chapter-nav[aria-current="page"]').isVisible(),true);await page.keyboard.press('Escape');
-  await rate('#failure-rate',10);assert.equal(await metric('precision').innerText(),'66.67%');await lab.screenshot({path:path.join(out,'mobile-lab.png')});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+  await rate('#spam-rate',10);assert.equal(await metric('precision').innerText(),'66.67%');await lab.screenshot({path:path.join(out,'mobile-lab.png')});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.setViewportSize({width:1200,height:1000});await page.evaluate(()=>dispatchEvent(new Event('beforeprint')));assert.equal(await page.locator('.chapter-content details:not([open])').count(),0);
-  await page.emulateMedia({media:'print'});assert.equal(await page.locator('.bayes-lab .print-only').isVisible(),true);assert.equal(await page.locator('.bayes-lab .print-only tbody tr').count(),4);assert.equal(await page.locator('#failure-rate').isVisible(),false);
+  await page.emulateMedia({media:'print'});assert.equal(await page.locator('.bayes-lab .print-only').isVisible(),true);assert.equal(await page.locator('.bayes-lab .print-only tbody tr').count(),4);assert.equal(await page.locator('#spam-rate').isVisible(),false);
   await page.emulateMedia({media:'screen'});await page.evaluate(()=>dispatchEvent(new Event('afterprint')));assert.equal(await page.locator('.optional-depth[open]').count(),0);assert.deepEqual(errors,[]);
   const report={passed:true,headings:12,diagrams:3,mathExpressions:5,optionalNotes:7,checks:['conditional-probability calculation','keyboard controls','zero denominator vs zero precision','reset','accessible diagrams','quiz and search','PDF and workbook downloads','progress isolation','curriculum','mobile and dark theme','print fallback'],errors};
   await fs.writeFile(path.join(out,'browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));await browser.close();

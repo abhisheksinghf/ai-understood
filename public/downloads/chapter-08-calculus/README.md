@@ -2,7 +2,7 @@
 
 Run `py calculus_lab.py` from this folder with Python 3.10 or newer. Use `python` or `python3` if that is your installed command. No extra packages or network access are required. The script prints results and writes no files.
 
-The optimizer minimizes the dimensionless teaching objective L(w) = (w - 3)^2 / 2. Its derivative is w - 3. This is real gradient descent on a chosen function; it does not train a useful predictor or measure production performance. It is separate from Chapter 3's runtime dataset.
+The optimizer minimizes the dimensionless teaching objective L(w) = (w - 3)^2 / 2. Its derivative is w - 3. This is real gradient descent on a chosen function; it does not train a useful predictor or measure production performance. It is separate from Chapter 3's house-price dataset.
 
 Expected output:
 

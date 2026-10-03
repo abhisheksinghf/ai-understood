@@ -10,11 +10,11 @@ export function summarize(values){
 export function alertScenario({baseRate=.01,recall=.9,falsePositiveRate=.05,total=10000}={}){
   if(![baseRate,recall,falsePositiveRate].every(p=>Number.isFinite(p)&&p>=0&&p<=1))throw new Error('Probabilities must be between zero and one.');
   if(!Number.isInteger(total)||total<=0)throw new Error('Total must be a positive integer.');
-  const failures=total*baseRate,healthy=total-failures;
-  const truePositive=failures*recall,falseNegative=failures-truePositive;
-  const falsePositive=healthy*falsePositiveRate,trueNegative=healthy-falsePositive;
+  const spamCount=total*baseRate,legitimate=total-spamCount;
+  const truePositive=spamCount*recall,falseNegative=spamCount-truePositive;
+  const falsePositive=legitimate*falsePositiveRate,trueNegative=legitimate-falsePositive;
   const alerts=truePositive+falsePositive;
-  return {total,failures,healthy,truePositive,falseNegative,falsePositive,trueNegative,alerts,precision:alerts===0?null:truePositive/alerts};
+  return {total,spamCount,legitimate,truePositive,falseNegative,falsePositive,trueNegative,alerts,precision:alerts===0?null:truePositive/alerts};
 }
 export function knownSigmaInterval(mean,sigma,n){
   if(!Number.isFinite(mean)||!Number.isFinite(sigma)||sigma<=0||!Number.isInteger(n)||n<1)throw new Error('Use a finite mean, positive known SD, and positive integer sample size.');

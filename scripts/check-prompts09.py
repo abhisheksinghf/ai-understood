@@ -21,11 +21,11 @@ for row in prompts:
 for item in module.CASES:
     ids=[source['id'] for source in item['sources']]
     assert module.validate_recommendation(item['reference'],ids)==[]
-    wrong_type={**item['reference'],'streaming_service':42}
+    wrong_type={**item['reference'],'exam_date':42}
     assert module.validate_recommendation(wrong_type,ids)
     assert module.validate_recommendation({**item['reference'],'evidence_ids':['S99']},ids)
     assert module.validate_recommendation({**item['reference'],'evidence_ids':[['S1']]},ids)
-    assert module.validate_recommendation({**item['reference'],'streaming_service':'ExampleFlix [S1]'},ids)==[]
+    assert module.validate_recommendation({**item['reference'],'exam_date':'2026-12-01 [S1]'},ids)==[]
 for case_id,version in [('unknown','grounded'),('incomplete','unknown')]:
     try:module.build_prompt(case_id,version)
     except ValueError:pass

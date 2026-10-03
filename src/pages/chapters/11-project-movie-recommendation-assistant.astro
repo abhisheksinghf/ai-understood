@@ -7,12 +7,12 @@ const chunks=raw.split(/^## /m).slice(1);
 const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
 const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
 ---
-<BookLayout title="Project 1: a movie recommendation assistant" chapter chapterNumber={11} headings={headings} searchSections={searchSections} tocTitles={["The product promise","Catalog & preferences","Hard constraints","Ranking & tie-breaks","Try the movie assistant","Run the Python project","The optional LLM stage","Handle empty results","Evaluate the product","Practice exercises","Knowledge check","Revision & connections"]} searchPlaceholder="Try “cold start”, “tie-break”, or “graceful degradation”…">
+<BookLayout title="Project 1: a personal learning assistant" chapter chapterNumber={11} headings={headings} searchSections={searchSections} tocTitles={["The product promise","Catalog & preferences","Hard constraints","Ranking & tie-breaks","Try the learning assistant","Run the Python project","The optional LLM stage","Handle empty results","Evaluate the product","Practice exercises","Knowledge check","Revision & connections"]} searchPlaceholder="Try “cold start”, “tie-break”, or “graceful degradation”…">
   <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 03 · Your first LLM application</span></div>
   <header class="chapter-hero">
     <div class="hero-kicker"><span class="chapter-pill">CHAPTER 11</span><span class="edition">PROJECT 01 · PUT THE PIECES TOGETHER</span></div>
-    <h1>Build your movie<br/><em>recommendation assistant.</em></h1>
-    <p class="hero-description">Choose a movie. Explain the choice.<br class="desktop-break"/> Build a small product you can inspect and test.</p>
+    <h1>Build your personal<br/><em>learning assistant.</em></h1>
+    <p class="hero-description">Choose a study note. Explain the choice.<br class="desktop-break"/> Build a small product you can inspect and test.</p>
     <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>30–45 min project practice</span><span>12 short sections</span></div>
     <div class="hero-actions screen-only"><a href="#1-start-with-a-small-product-promise" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-11.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
     <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">FILTER → RANK → EXPLAIN</span></div>

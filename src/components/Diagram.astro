@@ -3,7 +3,7 @@ interface Props { kind: string }
 const { kind } = Astro.props;
 const configs: Record<string, { title: string; caption: string; lanes: { label: string; nodes: [string,string][] }[] }> = {
   anatomy: { title: 'An AI application has several responsibilities', caption: 'Figure 1. A model output becomes useful through preparation, application policies, and review. Feedback can inform later improvements; it does not automatically retrain the model.', lanes: [
-    { label: 'FROM INFORMATION TO A USEFUL RESULT', nodes: [['Input', 'Viewer preferences'], ['Prepare', 'Check and organize'], ['Model', 'Score candidate movies'], ['Policy & review', 'Suggest or ask a question']] },
+    { label: 'FROM INFORMATION TO A USEFUL RESULT', nodes: [['Input', 'Email text'], ['Prepare', 'Check and organize'], ['Model', 'Score spam likelihood'], ['Policy & review', 'Flag, accept, or review']] },
   ] },
   rules: { title: 'Two ways to specify behavior', caption: 'Figure 2. Explicit rules encode chosen conditions directly. Learning fits a model from examples. Both approaches still require evaluation.', lanes: [
     { label: 'EXPLICIT RULES', nodes: [['Developer', 'Writes conditions'], ['Rule', 'Phrase is present?'], ['New message', 'Apply the condition'], ['Decision', 'Flag or accept']] },
@@ -14,12 +14,12 @@ const configs: Record<string, { title: string; caption: string; lanes: { label: 
     { label: 'INFERENCE · FITTED PARAMETERS ARE USED', nodes: [['New input', 'An unseen message'], ['Fitted model', 'Compute an output'], ['Score', 'Spam-like: 0.82'], ['Decision policy', 'Flag, accept, or review']] },
   ] },
   tasks: { title: 'One input can support different tasks', caption: 'Figure 4. The desired output defines the task. A single model family can be used in more than one kind of application.', lanes: [
-    { label: 'PREDICTIVE TASK', nodes: [['Movie + preferences', 'Genre and length'], ['Ranker', 'Estimate preference'], ['Ranking', 'Moonlight Map first'], ['Evaluation', 'Is the ranking useful?']] },
-    { label: 'GENERATIVE TASK', nodes: [['Movie + preferences', 'Same evidence'], ['Generator', 'Compose a draft'], ['Explanation', 'Why this movie fits'], ['Evaluation', 'Are claims supported?']] },
+    { label: 'PREDICTIVE TASK', nodes: [['Study question', 'What is overfitting?'], ['Classifier', 'Predict question topic'], ['Topic label', 'Machine learning'], ['Evaluation', 'Is the topic correct?']] },
+    { label: 'GENERATIVE TASK', nodes: [['Question + note', 'Overfitting note N01'], ['Generator', 'Compose a draft'], ['Explanation', 'Explain overfitting'], ['Evaluation', 'Are claims supported?']] },
   ] },
-  assistant: { title: 'Design the assistant around evidence', caption: 'Figure 5. Generation explains a suggestion. Code checks structure and runtime limits; a reviewer checks claims. A purchase is a separate, authorized action.', lanes: [
-    { label: 'DRAFTING', nodes: [['Movie catalog', 'Keep source details'], ['Instructions', 'Preferences + constraints'], ['Generate', 'Draft from evidence'], ['Suggestion', 'Mark unknown facts']] },
-    { label: 'CHECKING AND USE', nodes: [['Suggestion', 'A proposal to review'], ['Code checks', 'Fields, types, lengths'], ['Human review', 'Evidence + uncertainty'], ['Approved use', 'Purchase only if allowed']] },
+  assistant: { title: 'Design the assistant around evidence', caption: 'Figure 5. Generation explains a topic from notes. Code checks structure and source IDs; a reviewer checks claims. Calendar changes are separate, authorized actions.', lanes: [
+    { label: 'DRAFTING', nodes: [['Study notes', 'Keep source details'], ['Instructions', 'Question + constraints'], ['Generate', 'Draft from evidence'], ['Explanation', 'Mark unknown facts']] },
+    { label: 'CHECKING AND USE', nodes: [['Explanation', 'A proposal to review'], ['Code checks', 'Fields, types, source IDs'], ['Human review', 'Evidence + uncertainty'], ['Approved use', 'Calendar needs permission']] },
   ] },
   choice: { title: 'Choose the method from the problem', caption: 'Figure 6. Start with the output you need, choose a simple baseline, and evaluate whether extra complexity helps. Real applications often combine several rows.', lanes: [
     { label: 'EXACT OPERATION', nodes: [['Known inputs', 'Amounts or IDs'], ['Known rule', 'A precise operation'], ['Ordinary code', 'Calculate or validate'], ['Check', 'Verify exact result']] },

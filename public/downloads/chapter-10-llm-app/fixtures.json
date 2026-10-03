@@ -1,17 +1,17 @@
 {
-  "notice": "Fictional movies, services, and authored provider responses; no model generated these fixtures.",
+  "notice": "Authored study notes, invented learner/timetable records, and prepared provider responses; no model generated these fixtures.",
   "sources": [
     {
       "id": "S1",
-      "text": "The viewer wants a light adventure movie lasting no more than 120 minutes."
+      "text": "The learner wants an introductory note about how models learn, with a study-time estimate of at most 30 minutes."
     },
     {
       "id": "S2",
-      "text": "Moonlight Map is a 105-minute adventure comedy. City Sprint is a 140-minute action movie."
+      "text": "N01, Overfitting: introductory, learning topic, estimated 20 minutes. A model can fit training examples too closely and perform poorly on new cases. N05, Embeddings: advanced, search topic, estimated 45 minutes."
     },
     {
       "id": "S3",
-      "text": "No streaming service is recorded for Moonlight Map in this fictional catalog."
+      "text": "No exam date is supplied for the topic covered by N01, Overfitting."
     }
   ],
   "cases": [
@@ -35,7 +35,7 @@
                 "content": [
                   {
                     "type": "output_text",
-                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                    "text": "{\"recommendation\": \"Study N01, Overfitting: its learning topic, introductory level, and 20-minute estimate match the request [S1, S2]. Actual study time may differ. No exam date is supplied [S3].\", \"exam_date\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"When is the exam covering Overfitting?\"]}"
                   }
                 ]
               }
@@ -71,7 +71,7 @@
                 "content": [
                   {
                     "type": "output_text",
-                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                    "text": "{\"recommendation\": \"Study N01, Overfitting: its learning topic, introductory level, and 20-minute estimate match the request [S1, S2]. Actual study time may differ. No exam date is supplied [S3].\", \"exam_date\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"When is the exam covering Overfitting?\"]}"
                   }
                 ]
               }
@@ -181,7 +181,7 @@
     {
       "id": "wrong_type",
       "label": "Wrong field type",
-      "lesson": "Valid JSON still fails the recommendation contract when a streaming service is a number.",
+      "lesson": "Valid JSON still fails the recommendation contract when an exam date is a number.",
       "outcomes": [
         {
           "response": {
@@ -198,7 +198,7 @@
                 "content": [
                   {
                     "type": "output_text",
-                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": 42, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                    "text": "{\"recommendation\": \"Study N01, Overfitting: its learning topic, introductory level, and 20-minute estimate match the request [S1, S2]. Actual study time may differ. No exam date is supplied [S3].\", \"exam_date\": 42, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"When is the exam covering Overfitting?\"]}"
                   }
                 ]
               }
@@ -227,7 +227,7 @@
                 "content": [
                   {
                     "type": "output_text",
-                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S99\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                    "text": "{\"recommendation\": \"Study N01, Overfitting: its learning topic, introductory level, and 20-minute estimate match the request [S1, S2]. Actual study time may differ. No exam date is supplied [S3].\", \"exam_date\": null, \"evidence_ids\": [\"S99\"], \"open_questions\": [\"When is the exam covering Overfitting?\"]}"
                   }
                 ]
               }
@@ -239,7 +239,7 @@
     {
       "id": "unsupported",
       "label": "Unsupported claim",
-      "lesson": "The false ExampleFlix availability claim passes structure and source-ID checks. review_required does not mean verified.",
+      "lesson": "The false 2026-12-01 exam timing claim passes structure and source-ID checks. review_required does not mean verified.",
       "outcomes": [
         {
           "response": {
@@ -256,7 +256,7 @@
                 "content": [
                   {
                     "type": "output_text",
-                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": \"ExampleFlix [S1]\", \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                    "text": "{\"recommendation\": \"Study Overfitting; its exam is 2026-12-01 [S1].\", \"exam_date\": \"2026-12-01 [S1]\", \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"When is the exam covering Overfitting?\"]}"
                   }
                 ]
               }
@@ -285,7 +285,7 @@
                 "content": [
                   {
                     "type": "output_text",
-                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                    "text": "{\"recommendation\": \"Study N01, Overfitting: its learning topic, introductory level, and 20-minute estimate match the request [S1, S2]. Actual study time may differ. No exam date is supplied [S3].\", \"exam_date\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"When is the exam covering Overfitting?\"]}"
                   }
                 ]
               }

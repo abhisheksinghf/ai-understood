@@ -8,22 +8,22 @@ import {chapter07Questions} from '../data/chapter07';
 <div className="learning-card">
 <p className="eyebrow">WHAT YOU WILL BE ABLE TO DO</p>
 <p>Summarize data, distinguish two directions of conditional probability, calculate a Bayes update, and interpret a confidence interval. Recognize why correlation and a small p-value cannot establish a complete conclusion.</p>
-<p><strong>Reading path:</strong> Follow a synthetic job-monitoring example, change its alert rates, then reproduce the calculations in Python. Optional notes add mathematical depth. Every dataset and rate in this chapter is invented for learning.</p>
+<p><strong>Reading path:</strong> Summarize delivery times, then change a spam filter’s alert rates, then reproduce the calculations in Python. Optional notes add mathematical depth. Every dataset and rate in this chapter is invented for learning.</p>
 </div>
 
 ## 1. Start with the population and the sample
 
-A **population** is the full group you want to describe: for example, all jobs your service will process next month. A **sample** is the subset you observe. A **parameter** describes the population, such as its true mean runtime; a **statistic** is calculated from a sample to estimate or describe something, such as the sample mean.
+A **population** is the full group you want to describe: for example, all parcels handed to a courier next month. A **sample** is the subset you observe. A **parameter** describes the population, such as the fraction delivered within three days; a **statistic** is calculated from a sample to estimate or describe something, such as the sample mean delivery time among completed deliveries.
 
-**Descriptive statistics** summarizes the observed data. **Statistical inference** uses data and assumptions to draw conclusions about a wider population. Five observed runtimes tell you exactly about those five jobs; using them to predict next month's performance needs additional justification.
+**Descriptive statistics** summarizes the observed data. **Statistical inference** uses data and assumptions to draw conclusions about a wider population. Five observed delivery times tell you exactly about those five deliveries; using them to predict next month's performance needs additional justification.
 
-Collection matters before calculation. Logs containing only successful daytime jobs omit failures and overnight workloads: **selection bias**. Ten copies of one job are not ten independent observations. More rows do not automatically mean more independent information, and a larger biased sample does not repair the collection process.
+Collection matters before calculation. Logs containing only completed city deliveries omit lost parcels and rural routes: **selection bias**. Ten copies of one delivery are not ten independent observations. More rows do not automatically mean more independent information, and a larger biased sample does not repair the collection process.
 
 For an AI evaluation, name the target population, sampling method, time period, and unit of observation. A random sample gives each eligible unit a specified chance of selection. It helps control selection bias, but missing records and a changing future population can still limit your conclusion.
 
 ## 2. Describe the center and the spread
 
-Use five synthetic runtimes, in seconds: **[2, 3, 3, 4, 8]**.
+Use five synthetic delivery times, in days: **[2, 3, 3, 4, 8]**.
 
 | Summary | Calculation | Meaning |
 |---|---|---|
@@ -40,50 +40,50 @@ The mean uses every value's magnitude. The median uses their sorted positions. R
 
 $$
 s^2=\frac{\sum_{i=1}^{n}(x_i-\bar{x})^2}{n-1}
-=\frac{22}{4}=5.5\text{ s}^2,\qquad s=\sqrt{5.5}\approx2.345\text{ s}
+=\frac{22}{4}=5.5\text{ days}^2,\qquad s=\sqrt{5.5}\approx2.345\text{ days}
 $$
 
-Here n = 5, xᵢ is one observation, x̄ is the sample mean, and s is the **sample standard deviation (SD)**. Squaring prevents positive and negative deviations from cancelling; taking the root restores seconds. If these five values are the entire population being described, divide by 5 instead: population variance = 4.4 s². See [NIST's measures of scale](https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm).
+Here n = 5, xᵢ is one observation, x̄ is the sample mean, and s is the **sample standard deviation (SD)**. Squaring prevents positive and negative deviations from cancelling; taking the root restores days. If these five values are the entire population being described, divide by 5 instead: population variance = 4.4 days². See [NIST's measures of scale](https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm).
 
 <details className="optional-depth">
 <summary>Go deeper: n − 1, percentiles, and standardization</summary>
 
 After estimating the mean, the deviations must sum to zero; knowing n − 1 fixes the last one. For independent, identically distributed observations with finite variance, dividing by n − 1 makes the sample variance an unbiased estimator of population variance. This does not make every estimate accurate, nor make the square-root estimate of SD exactly unbiased.
 
-A **quantile** marks a position in a distribution; a percentile uses a 0–100 scale. The median is the 50th percentile. The interquartile range is Q₃ − Q₁, the width between the 75th and 25th percentiles. Software uses different interpolation conventions for small datasets; record the convention. Five values cannot support a stable estimate of a population's extreme tail, such as p95 latency.
+A **quantile** marks a position in a distribution; a percentile uses a 0–100 scale. The median is the 50th percentile. The interquartile range is Q₃ − Q₁, the width between the 75th and 25th percentiles. Software uses different interpolation conventions for small datasets; record the convention. Five values cannot support a stable estimate of a population's extreme tail, such as p95 delivery time.
 
-A **z-score** expresses a value relative to a chosen mean and SD: z = (x − mean) / SD. Using our sample statistics, 8 seconds becomes (8 − 4) / √5.5 ≈ 1.706. This feature standardization differs from dividing a whole vector by its length in Chapter 6. Fit preprocessing statistics on training data and reuse them on validation and test data. Constant features have SD zero and require explicit handling.
+A **z-score** expresses a value relative to a chosen mean and SD: z = (x − mean) / SD. Using our sample statistics, 8 days becomes (8 − 4) / √5.5 ≈ 1.706. This feature standardization differs from dividing a whole vector by its length in Chapter 6. Fit preprocessing statistics on training data and reuse them on validation and test data. Constant features have SD zero and require explicit handling.
 
 </details>
 
 ## 3. Read probability as a statement about an event
 
-An **outcome** is one possible result; the **sample space** contains the possible outcomes. An **event** is a set of outcomes. Let F mean “the job fails” and A mean “the monitor raises an alert.” Probabilities lie between 0 and 1; multiplying by 100 expresses a percentage.
+An **outcome** is one possible result; the **sample space** contains the possible outcomes. An **event** is a set of outcomes. For a fair die, the sample space is 1 through 6. The event “even” contains 2, 4, and 6, so its probability is 3/6 = 1/2. For our next example, let S mean “the email is spam” and A mean “the filter raises a spam alert.” Probabilities lie between 0 and 1; multiplying by 100 expresses a percentage.
 
 | Expression | Read it as |
 |---|---|
-| P(F) | Probability of failure |
-| P(not F) = 1 − P(F) | Probability of no failure |
-| P(F ∩ A) | Probability of both failure and alert |
-| P(F ∪ A) | Probability of failure or alert, including both |
-| P(F \| A) | Probability of failure **among alerted jobs** |
+| P(S) | Probability of spam |
+| P(not S) = 1 − P(S) | Probability of no spam |
+| P(S ∩ A) | Probability of both spam and alert |
+| P(S ∪ A) | Probability of spam or alert, including both |
+| P(S \| A) | Probability of spam **among flagged emails** |
 
-For “or,” add the two probabilities and subtract their overlap: P(F ∪ A) = P(F) + P(A) − P(F ∩ A). Otherwise, the overlap is counted twice.
+For “or,” add the two probabilities and subtract their overlap: P(S ∪ A) = P(S) + P(A) − P(S ∩ A). Otherwise, the overlap is counted twice.
 
 **Conditional probability** restricts the denominator to the condition:
 
 $$
-P(F\mid A)=\frac{P(F\cap A)}{P(A)},\qquad P(A)>0
+P(S\mid A)=\frac{P(S\cap A)}{P(A)},\qquad P(A)>0
 $$
 
-P(F | A) and P(A | F) ask different questions. The first starts with alerted jobs; the second starts with failed jobs. Write “among which group?” before calculating.
+P(S | A) and P(A | S) ask different questions. The first starts with flagged emails; the second starts with spam emails. Write “among which group?” before calculating.
 
 <details className="optional-depth">
 <summary>Go deeper: joint, marginal, independent, and mutually exclusive</summary>
 
-P(F ∩ A) is a **joint probability**. P(F) is a **marginal probability**, obtained by adding over the possibilities for the other event. Conditional probabilities hold one event fixed. A two-way count table makes all three visible.
+P(S ∩ A) is a **joint probability**. P(S) is a **marginal probability**, obtained by adding over the possibilities for the other event. Conditional probabilities hold one event fixed. A two-way count table makes all three visible.
 
-F and A are **independent** if P(F ∩ A) = P(F)P(A). When P(A) > 0, this is equivalent to P(F | A) = P(F): learning about A does not change F's probability. This statistical independence differs from Chapter 6's linear independence of vectors.
+S and A are **independent** if P(S ∩ A) = P(S)P(A). When P(A) > 0, this is equivalent to P(S | A) = P(S): learning about A does not change S’s probability. This statistical independence differs from Chapter 6's linear independence of vectors.
 
 **Mutually exclusive** events cannot occur together. Two events with positive probability that are mutually exclusive cannot be independent: knowing one occurred rules out the other. Independence is an assumption to justify, not a synonym for “different things.”
 
@@ -91,95 +91,95 @@ F and A are **independent** if P(F ∩ A) = P(F)P(A). When P(A) > 0, this is equ
 
 ## 4. Use Bayes rule to reverse the question
 
-Suppose 1% of jobs fail. The monitor catches 90% of failures but also alerts on 5% of healthy jobs. For a hypothetical 10,000 jobs, the expected counts are:
+Suppose 1% of incoming emails are spam. The filter catches 90% of spam emails but also alerts on 5% of legitimate emails. For a hypothetical 10,000 emails, the expected counts are:
 
 | Actual outcome | Alert | No alert | Total |
 |---|---:|---:|---:|
-| Failed | 90 true positives | 10 false negatives | 100 |
-| Healthy | 495 false positives | 9,405 true negatives | 9,900 |
+| Spam | 90 true positives | 10 false negatives | 100 |
+| Legitimate | 495 false positives | 9,405 true negatives | 9,900 |
 | Total | 585 | 9,415 | 10,000 |
 
-These names treat failure as the **positive class**. Positive means the event being detected, not something desirable.
+These names treat spam as the **positive class**. Positive means the event being detected, not something desirable.
 
 <StatisticsDiagrams kind="bayes" />
 
-Of 585 alerts, only 90 correspond to failures: **90 / 585 ≈ 15.38%**. The 90% catch rate answers P(A | F), not P(F | A). Healthy jobs vastly outnumber failed jobs, so even a modest false-positive rate creates many false alerts.
+Of 585 alerts, only 90 correspond to spam emails: **90 / 585 ≈ 15.38%**. The 90% catch rate answers P(A | S), not P(S | A). Legitimate emails vastly outnumber spam emails, so even a modest false-positive rate creates many false alerts.
 
 **Bayes' rule** writes the same calculation in probabilities:
 
 $$
-P(F\mid A)=\frac{P(A\mid F)P(F)}{P(A)}
+P(S\mid A)=\frac{P(A\mid S)P(S)}{P(A)}
 =\frac{0.90\times0.01}{0.90\times0.01+0.05\times0.99}
 \approx0.1538
 $$
 
-P(F) is the **prior**, before seeing the alert. P(A | F) is the probability of that evidence under failure, a **likelihood** term. P(F | A) is the **posterior**, after observing the alert. The denominator counts every way to get an alert, including healthy jobs. No machine-learning training is needed to perform this update.
+P(S) is the **prior**, before seeing the alert. P(A | S) is the probability of that evidence under spam, a **likelihood** term. P(S | A) is the **posterior**, after observing the alert. The denominator counts every way to get an alert, including legitimate emails. No machine-learning training is needed to perform this update.
 
 ## 5. Explore how the base rate changes an alert
 
-The **base rate** is the population frequency of the condition. In this example, **recall** = TP / (TP + FN), **false-positive rate** = FP / (FP + TN), and **precision** = TP / (TP + FP). TP, FN, FP, and TN are the four interior table cells above. Precision is our P(failure | alert). These denominators are also used in [Google's classification guide](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall).
+The **base rate** is the population frequency of the condition. In this example, **recall** = TP / (TP + FN), **false-positive rate** = FP / (FP + TN), and **precision** = TP / (TP + FP). TP, FN, FP, and TN are the four interior table cells above. Precision is our P(spam | alert). These denominators are also used in [Google's classification guide](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall).
 
 <BayesLab client:load />
 
-Change the failure rate from 1% to 10%, keeping recall at 90% and false-positive rate at 5%. Precision becomes **66.67%**, even though those two monitor rates stayed fixed. A test result measured on one population may not transfer unchanged to another.
+Change the spam rate from 1% to 10%, keeping recall at 90% and false-positive rate at 5%. Precision becomes **66.67%**, even though those two filter rates stayed fixed. A test result measured on one population may not transfer unchanged to another.
 
-The controls vary assumptions independently. In a real classifier, moving a decision threshold usually changes recall and false-positive rate together; population changes can change both too. The calculator is a mathematical thought experiment, not measured monitor performance.
+The controls vary assumptions independently. In a real classifier, moving a decision threshold usually changes recall and false-positive rate together; population changes can change both too. The calculator is a mathematical thought experiment, not measured filter performance.
 
 <details className="optional-depth">
 <summary>Go deeper: accuracy, specificity, and calibration</summary>
 
-At the default settings, accuracy = (TP + TN) / total = 94.95%. A monitor that never alerts would be 99% accurate because healthy jobs dominate, yet catch no failures. Accuracy alone can hide the behavior you care about.
+At the default settings, accuracy = (TP + TN) / total = 94.95%. A filter that never alerts would be 99% accurate because legitimate emails dominate, yet catch no spam emails. Accuracy alone can hide the behavior you care about.
 
 **Specificity** is TN / (TN + FP), or 1 − false-positive rate. A false-positive rate is not the fraction of alerts that are false; that latter fraction is 1 − precision when there are alerts.
 
-A probability predictor is **calibrated** when, across sufficiently many comparable predictions, outcomes agree with its stated probabilities: among predictions near 0.8, roughly 80% should be positive. Calibration is assessed over groups, not established by one outcome. It differs from accuracy and does not guarantee useful separation between classes; a constant base-rate prediction can be calibrated but uninformative about individual jobs.
+A probability predictor is **calibrated** when, across sufficiently many comparable predictions, outcomes agree with its stated probabilities: among predictions near 0.8, roughly 80% should be positive. Calibration is assessed over groups, not established by one outcome. It differs from accuracy and does not guarantee useful separation between classes; a constant base-rate prediction can be calibrated but uninformative about individual emails.
 
 </details>
 
 ## 6. Understand distributions and expected values
 
-A **random variable** assigns a numerical value to an outcome. Y might be 1 for a failed job and 0 otherwise; T might be its runtime. A **distribution** describes which values are possible and how probability is assigned to them.
+A **random variable** assigns a numerical value to an outcome. Y might be 1 for a spam email and 0 otherwise; T might be a parcel’s delivery time. A **distribution** describes which values are possible and how probability is assigned to them.
 
 | Distribution | Example | Assumptions to notice |
 |---|---|---|
-| Bernoulli | One failure indicator, 0 or 1 | P(Y = 1) = p |
-| Binomial | Number of failures in n trials | Independent Bernoulli trials with the same p |
+| Bernoulli | One spam indicator, 0 or 1 | P(Y = 1) = p |
+| Binomial | Number of spam emails in n trials | Independent Bernoulli trials with the same p |
 | Normal (Gaussian) | A bell-shaped model for a continuous measurement | Described by mean μ and variance σ²; real data need not follow it |
 
 For discrete values, a **probability mass function (PMF)** assigns probability to each value; those probabilities sum to 1. A continuous **probability density function (PDF)** assigns density. Probability is the area over an interval, not the height at one point. Density can exceed 1, and a variable with a continuous density has probability zero of equaling any one exact value.
 
-An **expected value** is a probability-weighted average. In a separate toy runtime distribution, T takes 2, 4, or 10 seconds with probabilities 0.5, 0.3, and 0.2:
+An **expected value** is a probability-weighted average. In a separate toy delivery time distribution, T takes 2, 4, or 10 days with probabilities 0.5, 0.3, and 0.2:
 
 $$
-E[T]=2(0.5)+4(0.3)+10(0.2)=4.2\text{ seconds}
+E[T]=2(0.5)+4(0.3)+10(0.2)=4.2\text{ days}
 $$
 
-No job in this model lasts 4.2 seconds. An expectation is not necessarily a possible outcome, the most likely outcome, or the next outcome. Population variance is the expected squared deviation from the mean: Var(T) = E[(T − E[T])²].
+No delivery in this model takes 4.2 days. An expectation is not necessarily a possible outcome, the most likely outcome, or the next outcome. Population variance is the expected squared deviation from the mean: Var(T) = E[(T − E[T])²].
 
 <details className="optional-depth">
 <summary>Go deeper: cumulative probability, tails, and likelihood</summary>
 
 A **cumulative distribution function (CDF)** gives P(T ≤ t). Unlike a density, it always lies between 0 and 1 and never decreases. A histogram estimates the distribution from observed values; its appearance depends on the bin choices.
 
-Runtime data can have a long right tail. A normal distribution permits negative values, so it is not automatically a suitable model for positive runtimes. Examine skew, tails, and domain constraints. Investigate unusually large observations before deciding they are errors; a genuine slow job may be operationally important.
+Delivery-time data can have a long right tail. A normal distribution permits negative values, so it is not automatically a suitable model for positive delivery times. Examine skew, tails, and domain constraints. Investigate unusually large observations before deciding they are errors; a genuinely delayed parcel may matter to customers.
 
-In **maximum likelihood estimation (MLE)**, hold the observations fixed and choose parameters making them most likely. Three failures in 100 independent trials with one shared failure probability give the Bernoulli MLE p = 3/100. Likelihood is a function of parameters for fixed data; it is not, by itself, a probability distribution over those parameters. **Maximum a posteriori (MAP)** instead chooses a parameter maximizing its posterior, combining likelihood with a prior. Bayes' rule is the connection; optimization is the next chapter's topic.
+In **maximum likelihood estimation (MLE)**, hold the observations fixed and choose parameters making them most likely. Three spam emails in 100 independent trials with one shared spam probability give the Bernoulli MLE p = 3/100. Likelihood is a function of parameters for fixed data; it is not, by itself, a probability distribution over those parameters. **Maximum a posteriori (MAP)** instead chooses a parameter maximizing its posterior, combining likelihood with a prior. Bayes' rule is the connection; optimization is the next chapter's topic.
 
 </details>
 
 ## 7. Separate data spread from estimate uncertainty
 
-**SD** describes variability of individual observations. **Standard error (SE)** describes variability of an estimator across repeated samples. For the mean of n independent observations from the same population with finite SD σ, SE = σ / √n. Larger n can make the mean more precise without making individual jobs less variable.
+**SD** describes variability of individual observations. **Standard error (SE)** describes variability of an estimator across repeated samples. For the mean of n independent observations from the same population with finite SD σ, SE = σ / √n. Larger n can make the mean more precise without making individual delivery times less variable.
 
-Use a separate, deliberately simple model: **prediction error = predicted runtime − actual runtime**, so negative values are possible. Assume independent normal errors with **known population SD σ = 4 seconds**. An observed sample mean of 1 second gives this approximate 95% confidence interval for the population mean error:
+Use a separate, deliberately simple model: **prediction error = predicted delivery time − actual delivery time**, so negative values are possible. Assume independent normal errors with **known population SD σ = 4 days**. An observed sample mean of 1 day gives this approximate 95% confidence interval for the population mean error:
 
 $$
 \bar{x}\pm1.96\frac{\sigma}{\sqrt{n}}
 \quad\Longrightarrow\quad
-1\pm1.96\frac{4}{\sqrt{25}}=[-0.568,\;2.568]\text{ s}
+1\pm1.96\frac{4}{\sqrt{25}}=[-0.568,\;2.568]\text{ days}
 $$
 
-At n = 100, SE falls from 0.8 to 0.4 seconds. Holding the observed mean fixed at 1 for comparison gives **[0.216, 1.784] seconds**: half the width. These are assumed-model calculations, not intervals estimated from our five runtimes.
+At n = 100, SE falls from 0.8 to 0.4 days. Holding the observed mean fixed at 1 for comparison gives **[0.216, 1.784] days**: half the width. These are assumed-model calculations, not intervals estimated from our five delivery times.
 
 <StatisticsDiagrams kind="interval" />
 
@@ -204,13 +204,13 @@ A Bayesian **credible interval** contains a stated amount of posterior probabili
 
 For x = [1, 2, 3] and y = [2, 4, 6], r = 1: a perfect positive linear relationship. The slope is 2, not 1. Correlation describes strength and direction of a linear association, not how many units y changes per unit of x. Zero correlation can still hide a nonlinear relationship.
 
-Large jobs may use more memory and take longer. **Job size is a confounder**, a common influence on both. This association does not establish that assigning more memory causes slower execution. Reverse causation, selection, and measurement errors are other possibilities.
+Long-distance deliveries may cost more and take longer. **Distance is a confounder**, a common influence on both. This association does not establish that charging a higher price causes a delivery to slow down. Reverse causation, selection, and measurement errors are other possibilities.
 
-To investigate a change, define the outcome and compare like with like. A well-designed randomized A/B experiment assigns eligible jobs to configurations independently of workload, helping balance confounders in expectation. Still check sample size, interference between jobs, missing outcomes, and practical effect size. Observational comparisons require additional causal assumptions.
+To investigate a change, define the outcome and compare like with like. A well-designed randomized A/B experiment assigns eligible parcels to routing methods independently of distance, helping balance confounders in expectation. Still check sample size, interference between deliveries, missing outcomes, and practical effect size. Observational comparisons require additional causal assumptions.
 
 ## 9. Check evidence and reproduce the arithmetic
 
-A **hypothesis test** starts with a null hypothesis H₀, such as “the two configurations have equal mean runtime,” and an alternative. A **test statistic** summarizes the relevant discrepancy. A **p-value** is the probability, under H₀ and the test's assumptions, of a statistic at least as extreme as the one observed, with “extreme” defined by the test.
+A **hypothesis test** starts with a null hypothesis H₀, such as “the two routing methods have equal mean delivery time,” and an alternative. A **test statistic** summarizes the relevant discrepancy. A **p-value** is the probability, under H₀ and the test's assumptions, of a statistic at least as extreme as the one observed, with “extreme” defined by the test.
 
 A p-value of 0.03 does **not** mean a 3% chance that H₀ is true. Failing to reject H₀ does not prove equality. A small p-value also does not measure effect size or business importance: a tiny speed improvement may become detectable with enough data. Report the estimated change, uncertainty, study design, and limitations together. See the [ASA's p-value principles](https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf).
 
@@ -219,7 +219,7 @@ Choose the question and analysis before inspecting results. Trying many comparis
 <details className="optional-depth">
 <summary>Go deeper: significance level, testing errors, and power</summary>
 
-A **Type I error** rejects a true null hypothesis; a **Type II error** fails to reject a false null. These are errors of a statistical decision procedure, distinct from the monitor's job-by-job classification errors earlier.
+A **Type I error** rejects a true null hypothesis; a **Type II error** fails to reject a false null. These are errors of a statistical decision procedure, distinct from the filter's email-by-email classification errors earlier.
 
 Choose a **significance level α** before the analysis. A valid test designed at α = 0.05 controls its probability of a Type I error at no more than 5% under the null and stated assumptions. This is a repeated-use error rate, not the probability that one rejected hypothesis was true.
 
@@ -232,10 +232,10 @@ Now verify the descriptive example with Python's standard library:
 ```python
 from statistics import mean, median, variance, stdev
 
-runtimes = [2, 3, 3, 4, 8]
-print(mean(runtimes), median(runtimes))  # 4 3
-print(variance(runtimes))               # 5.5 (sample variance)
-print(round(stdev(runtimes), 3))        # 2.345
+delivery_days = [2, 3, 3, 4, 8]
+print(mean(delivery_days), median(delivery_days))  # 4 3
+print(variance(delivery_days))               # 5.5 (sample variance)
+print(round(stdev(delivery_days), 3))        # 2.345
 ```
 
 <code>variance</code> and <code>stdev</code> use the sample convention; <code>pvariance</code> and <code>pstdev</code> use the population convention. The [Python statistics reference](https://docs.python.org/3/library/statistics.html) documents their behavior.
@@ -248,7 +248,7 @@ Extract the ZIP, open a terminal in that folder, and run:
 py statistics_lab.py
 ```
 
-Use Python 3.10 or newer; substitute your working <code>python</code> or <code>python3</code> command if needed. No extra packages are required. The workbook prints these summaries, the Bayes examples, and the known-SD intervals. It uses expected counts, makes no random draws, trains no model, and writes no files. Its README explains assumptions and gives three small modifications to try.
+Use Python 3.10 or newer; substitute your working <code>python</code> or <code>python3</code> command if needed. No extra packages are required. The workbook prints these summaries, the Bayes examples, and the known-SD intervals. It uses expected counts, makes no random draws, trains no model, and writes no files. Its README explains assumptions and gives four small modifications to try.
 
 ## 10. Practice: name the denominator and the assumption
 
@@ -256,19 +256,19 @@ Use Python 3.10 or newer; substitute your working <code>python</code> or <code>p
 
 Replace 8 with 18 in [2, 3, 3, 4, 8]. Calculate the mean and median. Does their difference prove that 18 is a logging error?
 
-<details className="solution"><summary>Reveal the calculation</summary><p>The sum becomes 30, so the mean is 6 seconds; the middle value stays 3. The mean responds to the larger value. Neither this difference nor a large value alone proves an error. Inspect the job and its collection context.</p></details>
+<details className="solution"><summary>Reveal the calculation</summary><p>The sum becomes 30, so the mean is 6 days; the middle value stays 3. The mean responds to the larger value. Neither this difference nor a large value alone proves an error. Inspect the delivery and its collection context.</p></details>
 
 ### Exercise 2: reverse the conditional probability
 
-Among 10,000 jobs, 10% fail. Recall is 90% and the false-positive rate is 5%. How many true and false alerts are expected? What fraction of alerts represent failures?
+Among 10,000 emails, 10% are spam. Recall is 90% and the false-positive rate is 5%. How many true and false alerts are expected? What fraction of alerts represent spam emails?
 
-<details className="solution"><summary>Reveal the denominator</summary><p>There are 1,000 failed and 9,000 healthy jobs. True alerts = 0.9 × 1,000 = 900; false alerts = 0.05 × 9,000 = 450. Among 1,350 alerts, precision = 900/1,350 = 2/3, approximately 66.67%. The denominator is all alerts, not all failed jobs.</p></details>
+<details className="solution"><summary>Reveal the denominator</summary><p>There are 1,000 spam and 9,000 legitimate emails. True alerts = 0.9 × 1,000 = 900; false alerts = 0.05 × 9,000 = 450. Among 1,350 alerts, precision = 900/1,350 = 2/3, approximately 66.67%. The denominator is all alerts, not all spam emails.</p></details>
 
 ### Exercise 3: increase the sample size
 
 In the independent, known-SD example, increase n from 25 to 100 while holding the mean and SD fixed. What happens to SE and the confidence-interval width? Does this eliminate selection bias?
 
-<details className="solution"><summary>Reveal the reasoning</summary><p>Sample size quadruples, so its square root doubles. SE falls from 0.8 to 0.4 seconds, and interval width halves. Individual-observation SD stays 4 seconds. A larger sample does not remove selection bias; the interval calculation assumes an appropriate sampling process.</p></details>
+<details className="solution"><summary>Reveal the reasoning</summary><p>Sample size quadruples, so its square root doubles. SE falls from 0.8 to 0.4 days, and interval width halves. Individual-observation SD stays 4 days. A larger sample does not remove selection bias; the interval calculation assumes an appropriate sampling process.</p></details>
 
 ## 11. Check your understanding
 

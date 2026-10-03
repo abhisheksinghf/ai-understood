@@ -1,14 +1,14 @@
 [
   {
     "id": "S1",
-    "text": "The viewer wants a light adventure movie lasting no more than 120 minutes."
+    "text": "The learner wants an introductory note about how models learn, with a study-time estimate of at most 30 minutes."
   },
   {
     "id": "S2",
-    "text": "Moonlight Map is a 105-minute adventure comedy. City Sprint is a 140-minute action movie."
+    "text": "N01, Overfitting: introductory, learning topic, estimated 20 minutes. A model can fit training examples too closely and perform poorly on new cases. N05, Embeddings: advanced, search topic, estimated 45 minutes."
   },
   {
     "id": "S3",
-    "text": "No streaming service is recorded for Moonlight Map in this fictional catalog."
+    "text": "No exam date is supplied for the topic covered by N01, Overfitting."
   }
 ]

@@ -5,7 +5,7 @@ export default function ApiExplorer(){
   const [caseId,setCaseId]=useState('success');
   const [sent,setSent]=useState(false);
   const selected=apiCases.find(item=>item.id===caseId)!;
-  const request='POST /predict\nContent-Type: application/json\n\n'+JSON.stringify({size_mb:selected.size},null,2);
+  const request='POST /notes/lookup\nContent-Type: application/json\n\n'+JSON.stringify({note_id:selected.noteId},null,2);
   return <section className="lab api-explorer" aria-labelledby="api-explorer-title">
     <div className="lab-top"><span className="eyebrow">FIND THE FAILED BOUNDARY</span><span className="lab-tag">Local simulation</span></div>
     <h4 id="api-explorer-title">Same task. Different outcomes.</h4>
@@ -25,7 +25,7 @@ export default function ApiExplorer(){
       </div>
     </div>
     <div className="print-only">
-      <p>Example request: POST /predict with JSON body <code>{'{"size_mb": 3}'}</code>. A successful response contains prediction_seconds = 7 and model_version = demo-v1.</p>
+      <p>Example request: POST /notes/lookup with JSON body <code>{'{"note_id": "N01"}'}</code>. A successful response contains N01, its title and text, estimated_minutes = 20, and source_version = notes-v1.</p>
       <table><thead><tr><th>Situation</th><th>Outcome</th><th>Reasoned next action</th></tr></thead><tbody>{apiCases.map(item=><tr key={item.id}><td>{item.label}</td><td>{item.status}</td><td>{item.action}</td></tr>)}</tbody></table>
     </div>
     <noscript><p>Enable JavaScript to explore each situation, or use the PDF for the complete comparison.</p></noscript>

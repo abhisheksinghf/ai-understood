@@ -13,7 +13,7 @@ prints results; it creates no output files and does not train a model.
 Expected output:
 
 ```
-One prediction: 8.0 seconds
+One prediction: 8.0
 Batch predictions: [3.0, 5.5, 8.0]
 Length of [3, 4]: 5.0
 Cosine of [3, 4] and [6, 8]: 1.0
@@ -21,10 +21,11 @@ Rotated [2, 1]: [-1, 2]
 Projected [2, 1]: [2, 0]
 ```
 
-The prediction feature order is size in MB, then number of queued jobs. The toy
-formula is 2 * size_mb + 0.5 * queued_jobs + 1. The separate geometry examples
-use dimensionless coordinates. These are original synthetic examples, not a
-validated runtime model or real text embeddings.
+Each input row gives horizontal then vertical coordinates in a geometric plane.
+The scalar affine map is 2 * horizontal + 0.5 * vertical + 1. All coordinates
+and outputs are dimensionless. The predict_batch function demonstrates the
+weighted-sum arithmetic used by prediction models; no weights are learned here.
+The other examples rotate, stretch, and project geometric vectors.
 
 Try these edits in main(), then run the file again:
 

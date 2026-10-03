@@ -1,12 +1,84 @@
 {
-  "version": "fictional-movies-v1",
-  "movies": [
-    {"id":"M001","title":"Moonlight Map","genres":["adventure","comedy"],"tone":"light","runtime_minutes":105,"streaming_service":null},
-    {"id":"M002","title":"City Sprint","genres":["action"],"tone":"serious","runtime_minutes":140,"streaming_service":"StreamBox"},
-    {"id":"M003","title":"Forest Signal","genres":["adventure"],"tone":"light","runtime_minutes":115,"streaming_service":"StreamBox"},
-    {"id":"M004","title":"Quiet Orbit","genres":["adventure","sci-fi"],"tone":"serious","runtime_minutes":110,"streaming_service":null},
-    {"id":"M005","title":"Cafe Chaos","genres":["comedy"],"tone":"light","runtime_minutes":90,"streaming_service":"StreamBox"},
-    {"id":"M006","title":"Winter Road","genres":["drama"],"tone":"serious","runtime_minutes":100,"streaming_service":null},
-    {"id":"M007","title":"Unlisted Voyage","genres":["adventure"],"tone":"light","runtime_minutes":null,"streaming_service":null}
+  "version": "study-notes-v2",
+  "notes": [
+    {
+      "id": "N01",
+      "title": "Overfitting",
+      "topics": [
+        "learning",
+        "data"
+      ],
+      "level": "introductory",
+      "estimated_minutes": 20,
+      "exam_date": null,
+      "text": "A model can fit training examples too closely and perform poorly on new cases."
+    },
+    {
+      "id": "N05",
+      "title": "Embeddings",
+      "topics": [
+        "search"
+      ],
+      "level": "advanced",
+      "estimated_minutes": 45,
+      "exam_date": "2026-11-15",
+      "text": "Embeddings represent items as numerical vectors. Nearby vectors can indicate similar meaning in a suitable embedding space."
+    },
+    {
+      "id": "N04",
+      "title": "Train-validation splits",
+      "topics": [
+        "learning"
+      ],
+      "level": "introductory",
+      "estimated_minutes": 25,
+      "exam_date": "2026-11-15",
+      "text": "Keep validation data separate from training data when choosing model settings. Reserve a test set for final evaluation."
+    },
+    {
+      "id": "N02",
+      "title": "Gradient descent",
+      "topics": [
+        "learning",
+        "optimization"
+      ],
+      "level": "advanced",
+      "estimated_minutes": 15,
+      "exam_date": null,
+      "text": "Gradient descent updates parameters opposite the gradient. A sufficiently small step can reduce a smooth loss locally."
+    },
+    {
+      "id": "N03",
+      "title": "Features and labels",
+      "topics": [
+        "data"
+      ],
+      "level": "introductory",
+      "estimated_minutes": 10,
+      "exam_date": "2026-11-15",
+      "text": "Features are inputs to a model. Labels are the target values used in supervised training."
+    },
+    {
+      "id": "N06",
+      "title": "Matrix multiplication",
+      "topics": [
+        "math"
+      ],
+      "level": "advanced",
+      "estimated_minutes": 12,
+      "exam_date": null,
+      "text": "Matrix multiplication combines rows and columns with dot products. The inner dimensions must match."
+    },
+    {
+      "id": "N07",
+      "title": "Backpropagation",
+      "topics": [
+        "learning"
+      ],
+      "level": "advanced",
+      "estimated_minutes": null,
+      "exam_date": null,
+      "text": "Backpropagation applies the chain rule to compute gradients of a loss through a computation graph."
+    }
   ]
 }

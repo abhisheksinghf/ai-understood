@@ -3,8 +3,8 @@ import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 import { curriculum } from '../data/curriculum';
 interface Props { title: string; chapter?: boolean; chapterNumber?: number; tocTitles?: string[]; searchPlaceholder?: string; headings?: { depth:number; slug:string; text:string }[]; searchSections?: {title:string;slug:string;body:string}[] }
-const {title,chapter=false,chapterNumber=1,headings=[],searchSections=[],tocTitles,searchPlaceholder='Try “training”, “threshold”, or “movie”…'}=Astro.props;
-const shortTitles=tocTitles||['Begin with a problem','What AI means','Inside an application','The tasks AI can do','Rules vs. learned patterns','Training & inference','The threshold experiment','Prediction & generation','A movie assistant','When to use AI','Limits & misconceptions','Python lab','Practice exercises','Knowledge check','Revision & glossary','Sources & next steps'];
+const {title,chapter=false,chapterNumber=1,headings=[],searchSections=[],tocTitles,searchPlaceholder='Try “training”, “threshold”, or “spam”…'}=Astro.props;
+const shortTitles=tocTitles||['Begin with a problem','What AI means','Inside an application','The tasks AI can do','Rules vs. learned patterns','Training & inference','The threshold experiment','Prediction & generation','A learning assistant','When to use AI','Limits & misconceptions','Python lab','Practice exercises','Knowledge check','Revision & glossary','Sources & next steps'];
 ---
 <!doctype html>
 <html lang="en" data-theme="light">
@@ -48,7 +48,7 @@ const shortTitles=tocTitles||['Begin with a problem','What AI means','Inside an 
           <div class="part-label"><span>03</span> Your first LLM application</div>
           <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===9}]} href="/chapters/09-prompting-and-context-design/" aria-current={chapter&&chapterNumber===9?'page':undefined}><span>09</span><span>Prompting and context design</span><span class="status-dot" title="Available"></span></a>
           <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===10}]} href="/chapters/10-building-an-llm-application-with-python/" aria-current={chapter&&chapterNumber===10?'page':undefined}><span>10</span><span>Building an LLM app with Python</span><span class="status-dot" title="Available"></span></a>
-          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===11}]} href="/chapters/11-project-movie-recommendation-assistant/" aria-current={chapter&&chapterNumber===11?'page':undefined}><span>11</span><span>Project: movie recommendation</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===11}]} href="/chapters/11-project-movie-recommendation-assistant/" aria-current={chapter&&chapterNumber===11?'page':undefined}><span>11</span><span>Project: learning assistant</span><span class="status-dot" title="Available"></span></a>
           <a class="part-link" href="/curriculum/#part-3"><span>↗</span> All chapters in Part 3</a>
           <div class="sidebar-divider"></div>
           <div class="part-label"><span>04</span> Data &amp; classical machine learning</div>

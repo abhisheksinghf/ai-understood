@@ -13,7 +13,7 @@ test('Bayes worked examples preserve totals and distinguish conditional directio
   near(alertScenario({baseRate:.1}).precision,2/3);near(alertScenario({baseRate:.5}).precision,18/19);
   for(const baseRate of [0,.01,.1,1])for(const recall of [0,.5,1])for(const falsePositiveRate of [0,.05,1]){
     const r=alertScenario({baseRate,recall,falsePositiveRate});near(r.truePositive+r.falsePositive+r.falseNegative+r.trueNegative,10000);
-    near(r.truePositive+r.falseNegative,r.failures);near(r.falsePositive+r.trueNegative,r.healthy);
+    near(r.truePositive+r.falseNegative,r.spamCount);near(r.falsePositive+r.trueNegative,r.legitimate);
     assert.ok(r.precision===null||r.precision>=0&&r.precision<=1);
   }
   assert.equal(alertScenario({baseRate:0,falsePositiveRate:0}).precision,null);

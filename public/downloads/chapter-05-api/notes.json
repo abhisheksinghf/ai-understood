@@ -1,0 +1,17 @@
+{
+  "N01": {
+    "title": "Overfitting",
+    "text": "A model can fit training examples too closely and perform poorly on new cases.",
+    "estimated_minutes": 20
+  },
+  "N02": {
+    "title": "Gradient descent",
+    "text": "Gradient descent updates parameters opposite the gradient. A sufficiently small step can reduce a smooth loss locally.",
+    "estimated_minutes": 15
+  },
+  "N03": {
+    "title": "Features and labels",
+    "text": "Features are inputs to a model. Labels are the target values used in supervised training.",
+    "estimated_minutes": 10
+  }
+}

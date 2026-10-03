@@ -2,9 +2,9 @@
 interface Props {kind:'run'|'data'|'project'}
 const {kind}=Astro.props;
 const configs={
-  run:{title:'From saved instructions to a visible result',caption:'Figure 1. Editing the file changes the saved instructions. Running the interpreter executes them; print displays selected values.',nodes:[['Save a script','hello_ai.py'],['Run in a terminal','py hello_ai.py'],['Python executes','Calculate prediction'],['Inspect output','Predicted: 5.00 s']]},
-  data:{title:'A list contains rows; a dictionary names fields',caption:'Figure 2. Read the expression from left to right: select row zero, then retrieve its size field. Index zero is the first item.',nodes:[['jobs','List of three rows'],['jobs[0]','First dictionary'],['Key: "size"','One field in that row'],['Value: 1.0','A floating-point number']]},
-  project:{title:'Keep the data, calculation, and report distinct',caption:'Figure 3. The starter reads its input beside the script, checks the rows, evaluates fixed weights, then creates or replaces its generated report.',nodes:[['jobs.json','Structured input text'],['Parse & validate','Python list of rows'],['Evaluate','Predictions and MSE'],['Save the report','runtime_report.json']]}
+  run:{title:'From saved instructions to a visible result',caption:'Figure 1. Editing the file changes the saved instructions. Running the interpreter executes them; print displays selected values.',nodes:[['Save a script','hello_ai.py'],['Run in a terminal','py hello_ai.py'],['Python executes','Calculate prediction'],['Inspect output','Price: 5.00 units']]},
+  data:{title:'A list contains rows; a dictionary names fields',caption:'Figure 2. Read the expression from left to right: select row zero, then retrieve its area field. Index zero is the first item.',nodes:[['houses','List of three rows'],['houses[0]','First dictionary'],['Key: "area"','One field in that row'],['Value: 1.0','A floating-point number']]},
+  project:{title:'Keep the data, calculation, and report distinct',caption:'Figure 3. The starter reads its input beside the script, checks the rows, evaluates fixed weights, then creates or replaces its generated report.',nodes:[['houses.json','Structured input text'],['Parse & validate','Python list of rows'],['Evaluate','Predictions and MSE'],['Save the report','price_report.json']]}
 };
 const d=configs[kind],id='python-'+kind;
 ---

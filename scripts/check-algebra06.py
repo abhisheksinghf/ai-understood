@@ -57,7 +57,7 @@ before = sorted(p.name for p in starter.iterdir())
 result = subprocess.run([sys.executable, str(starter / "linear_algebra.py")], cwd=root,
                         capture_output=True, text=True, check=True)
 expected_output = "\n".join([
-    "One prediction: 8.0 seconds", "Batch predictions: [3.0, 5.5, 8.0]",
+    "One prediction: 8.0", "Batch predictions: [3.0, 5.5, 8.0]",
     "Length of [3, 4]: 5.0", "Cosine of [3, 4] and [6, 8]: 1.0",
     "Rotated [2, 1]: [-1, 2]", "Projected [2, 1]: [2, 0]", "",
 ])

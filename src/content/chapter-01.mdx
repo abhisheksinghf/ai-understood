@@ -9,7 +9,7 @@ import ThresholdLab from '../components/ThresholdLab';
 import Quiz from '../components/Quiz';
 
 <div className="chapter-intro">
-AI is bigger than a chat window. An email filter, an image recognizer, and a movie-recommendation assistant solve different problems. This chapter explains what connects them, how they work at a high level, and when to use them.
+AI is bigger than a chat window. An email filter, an image recognizer, and a personal learning assistant solve different problems. This chapter explains what connects them, how they work at a high level, and when to use them.
 </div>
 
 <div className="learning-card">
@@ -22,16 +22,16 @@ Explain AI in your own words, distinguish rules from learning, trace an AI appli
 
 ## 1. Begin with a problem, not a technology
 
-Imagine choosing a movie for tonight from 150 titles. You want a light adventure lasting no more than two hours. Genre filters, a written scoring rule, or a learned recommender might help. Choosing AI is a method decision; first define the problem.
+Imagine an inbox receiving 150 emails a day. You want to catch spam while keeping legitimate messages easy to find. A phrase rule or a learned spam classifier might help. Choosing AI is a method decision; first define the problem.
 
-| Question | Movie-night example |
+| Question | Email-filter example |
 |---|---|
-| **Input:** What information is available? | Viewer preferences and movie details |
-| **Task:** What should the system do? | Suggest a suitable movie |
-| **Output:** What should it return? | A ranked suggestion with a reason |
-| **Success:** How will we judge it? | Suggestions meet the time limit and suit the viewer |
+| **Input:** What information is available? | Message text and available sender information |
+| **Task:** What should the system do? | Identify likely spam |
+| **Output:** What should it return? | A spam score and a flag-or-accept decision |
+| **Success:** How will we judge it? | Catch spam while limiting false alarms on legitimate messages |
 
-“Use AI” is vague. “Suggest an adventure under two hours that this viewer is likely to enjoy” is testable. If a simple genre-and-length filter solves the problem reliably, a model may be unnecessary.
+“Use AI” is vague. “Catch spam without hiding important messages” gives us two measurable goals. If a simple rule solves the problem reliably, a model may be unnecessary.
 
 ## 2. What does “artificial intelligence” mean?
 
@@ -50,7 +50,7 @@ An aircraft flies without flapping its wings like a bird. Similarly, performing 
 
 ## 3. Look inside an AI application
 
-A movie-ranking model is one component. The complete application must collect preferences, prepare movie details, obtain a ranking, and decide what to show.
+A spam-classification model is one component. The complete application must receive messages, prepare their text, obtain scores, and decide which messages to flag.
 
 <Diagram kind="anatomy" />
 
@@ -63,7 +63,7 @@ A movie-ranking model is one component. The complete application must collect pr
 | **Interface** | Let people supply inputs and inspect results |
 | **Evaluation** | Compare results with defined requirements |
 
-The training algorithm is the **procedure**; the fitted model is the **resulting state used for predictions**. A model might output a preference score of 0.82. Adding a movie to a watchlist is a separate action, controlled by application policy. A score alone does not grant permission to act.
+The training algorithm is the **procedure**; the fitted model is the **resulting state used for predictions**. A model might output a spam-like score of 0.82. Moving a message to a spam folder is a separate action, controlled by application policy. A score alone does not grant permission to act.
 
 ## 4. The different kinds of work AI can do
 
@@ -71,20 +71,20 @@ These capabilities can be combined in one application:
 
 | Capability | Meaning and example |
 |---|---|
-| **Perceive** | Extract information from sensory input, such as reading a movie poster |
-| **Classify** | Assign a category, such as a movie-review label, “positive” |
-| **Estimate** | Produce a number, such as a predicted viewer rating |
-| **Rank** | Order candidates, such as movies ordered by preference score |
-| **Generate** | Produce content, such as an explanation of a movie suggestion |
-| **Reason or solve** | Use relationships or constraints, such as checking whether two movies fit an evening |
-| **Plan** | Choose steps toward a goal, such as choosing a movie-night schedule |
+| **Perceive** | Extract information from sensory input, such as recognizing a handwritten digit |
+| **Classify** | Assign a category, such as an email label, “spam” |
+| **Estimate** | Produce a number, such as a predicted house price |
+| **Rank** | Order candidates, such as search results ordered by relevance |
+| **Generate** | Produce content, such as a summary of a study note |
+| **Reason or solve** | Use relationships or constraints, such as checking whether two lessons fit a study session |
+| **Plan** | Choose steps toward a goal, such as finding a robot’s route through a maze |
 | **Learn** | Adjust a model from data or experience |
 
 Three distinctions prevent confusion:
 
 - **Prediction is broader than forecasting.** Identifying the language of an existing sentence predicts a label; forecasting estimates something in the future.
 - **Receiving input is not perception.** Loading an image reads data; recognizing its objects interprets that data.
-- **Planning is not execution.** Suggesting a rental and actually purchasing it are different operations.
+- **Planning is not execution.** Proposing a study schedule and adding events to a calendar are different operations.
 
 ## 5. Explicit rules versus learned patterns
 
@@ -153,16 +153,14 @@ Dividing 5 by 8 gives 0.625; multiplying by 100 expresses it as a percentage. Ac
 
 <Diagram kind="tasks" />
 
-Consider these fictional movie-night notes:
+Consider a question submitted to a **personal learning assistant**: “What is overfitting?” It has this short fictional course note:
 
-> The viewer wants a light adventure under 120 minutes. Moonlight Map is a 105-minute adventure comedy. City Sprint is a 140-minute action movie. The catalog does not list streaming services.
+> **N01 · Overfitting:** A model can fit training examples too closely and perform poorly on new cases. This lesson has an estimated study time of 20 minutes. The notes do not list an exam date.
 
-A predictive model might rank **Moonlight Map above City Sprint** for this viewer. A generator might explain the suggestion:
+A predictive classifier might assign the question the topic **machine learning**. A generator might compose an explanation:
 
-- **Supported draft:** “Try Moonlight Map: its genre matches your request and its 105-minute length fits your limit. The catalog does not say where to stream it.”
-- **Unsupported draft:** “Moonlight Map is free on StreamBox and you will definitely love it.” Neither streaming availability nor guaranteed enjoyment follows from the notes.
-
-All movie titles and the service name StreamBox in this example are fictional.
+- **Supported draft:** “Overfitting means fitting training examples so closely that performance on new cases suffers [N01]. The note does not state your exam date.”
+- **Unsupported draft:** “Your exam is Friday, and studying for 20 minutes guarantees mastery.” Neither the date nor guaranteed mastery follows from N01.
 
 **Grounding** ties an answer to supporting information. A **hallucination**, here, is incorrect or unsupported generated content presented as an answer. Check support, important omissions, and preserved meaning—not just fluent writing.
 
@@ -173,22 +171,22 @@ Yes. A language model often generates text by repeatedly predicting a next **tok
 
 </details>
 
-## 9. Real-world walkthrough: a movie-recommendation assistant
+## 9. Real-world walkthrough: a personal learning assistant
 
-Our goal is a movie suggestion with a reason, known facts, and any missing information. Here is how the components work together:
+Our goal is a clear explanation from the learner’s notes, with sources and any missing information identified. Here is how the components work together:
 
 <Diagram kind="assistant" />
 
-1. **Specify the result.** Respect the viewer's genre and time preferences; separate catalog facts from predictions about taste.
-2. **Supply evidence.** Provide movie details, viewer preferences, and source references. **Retrieval-augmented generation (RAG)** supplies retrieved information to support an answer; we will build it later.
+1. **Specify the result.** Answer the learner’s question clearly; separate what the notes say from what remains unknown.
+2. **Supply evidence.** Provide relevant notes, the question, and source references such as N01. **Retrieval-augmented generation (RAG)** supplies retrieved information to support an answer; we will build it later.
 3. **Generate a draft.** Request the required sections and explicit treatment of missing facts.
-4. **Validate.** Code checks required fields, movie lengths, and calculations. These checks do not prove factual accuracy.
+4. **Validate.** Code checks required fields, source identifiers, and calculations. These checks do not prove factual accuracy.
 5. **Review claims.** A person checks the draft against evidence before approved use.
 6. **Improve deliberately.** Use reviewed errors to revise prompts, data handling, or models; then evaluate on separate examples.
 
-**A calculation can be correct while its interpretation is wrong.** A 120-minute limit minus Moonlight Map's 105-minute length leaves 15 minutes. That establishes that the movie fits the limit; it does not establish that the viewer will enjoy it.
+**A calculation can be correct while its interpretation is wrong.** A 30-minute study session minus N01’s estimated 20 minutes leaves 10 minutes. That establishes a time budget; it does not establish that the learner will master the topic in that time.
 
-People who choose adventure films might also give them high ratings. **Correlation** is an association; **causation** is a claim that changing one factor affects another. That association alone does not prove that recommending any adventure film makes someone enjoy it.
+Students who revise more might also score higher on exams. **Correlation** is an association; **causation** is a claim that changing one factor affects another. That association alone does not prove that adding a particular revision session causes a higher score: prior knowledge and study methods may also matter.
 
 ## 10. When should you use AI?
 
@@ -199,11 +197,11 @@ A **baseline** is a simple reference solution used for comparison. Start there a
 | Need | Sensible first approach |
 |---|---|
 | Add known amounts; reject an empty field | Exact code, a formula, or a validation rule |
-| Find a known movie title | Exact search |
+| Find a note with a known ID | Exact search |
 | Find documents despite varied wording | Search; compare search by meaning (semantic retrieval) if needed |
-| Categorize varied movie reviews | Compare rules, a learned classifier, and a language model |
-| Explain a movie suggestion from catalog facts | A template or generative draft with evidence checks |
-| Rent a movie or change a subscription | Authorized application logic and an explicit approval policy |
+| Categorize varied emails as spam or legitimate | Compare rules, a learned classifier, and a language model |
+| Explain a topic from supplied study notes | A template or generative draft with evidence checks |
+| Add events to a study calendar | Authorized application logic and an explicit approval policy |
 
 Before choosing, ask: **Is the task clear? Is the evidence available? What does an error cost? Can we measure usefulness? Would a simpler method suffice?** Include verification effort: faster drafting is not a gain if checking the draft takes longer than doing the original task.
 
@@ -274,7 +272,7 @@ Do these three core exercises first. Explain your reasoning before revealing an 
 
 Explain AI in three sentences. Include a task, a method, and a limitation.
 
-<details className="solution"><summary>Show a sample answer</summary><p>AI builds systems for tasks such as recognizing information, using language, and choosing actions. A model fitted on viewers' past ratings can rank movies for a new request. Its errors must be evaluated because unfamiliar cases or misleading learned patterns can produce wrong suggestions.</p></details>
+<details className="solution"><summary>Show a sample answer</summary><p>AI builds systems for tasks such as recognizing information, using language, and choosing actions. A model fitted on labeled emails can score new messages for spam. Its errors must be evaluated because unfamiliar cases or misleading learned patterns can flag legitimate mail or miss spam.</p></details>
 
 ### Exercise 2: calculate the mistakes
 
@@ -284,18 +282,18 @@ Set the eight-message experiment to **0.60**. Which messages are flagged? Count 
 
 ### Exercise 3: check the evidence
 
-A draft claims: “Moonlight Map is free on StreamBox, and you will definitely love it.” What can the movie notes in Section 8 actually support?
+A draft claims: “Your exam is Friday, and studying N01 for 20 minutes guarantees mastery.” What can the course note in Section 8 actually support?
 
-<details className="solution"><summary>Show the evidence check</summary><p>The notes support the genre, 105-minute length, and fit with the stated 120-minute limit. They do not establish a streaming service, price, or guaranteed enjoyment. Recommend it with a factual reason and keep availability unknown.</p></details>
+<details className="solution"><summary>Show the evidence check</summary><p>N01 supports the definition of overfitting and a 20-minute study-time estimate. It does not establish an exam date or guarantee mastery. Explain the concept using the note, label the time as an estimate, and keep the exam date unknown.</p></details>
 
 <details className="optional-depth">
 <summary>Optional practice: five more exercises with solutions</summary>
 
 ### Exercise 4: choose the first approach
 
-Choose an approach for adding amounts, detecting an absent ID, grouping movie reviews, and explaining a recommendation.
+Choose an approach for adding amounts, detecting an absent ID, grouping study questions, and explaining a topic.
 
-<details className="solution"><summary>Show the reasoning</summary><p>Use arithmetic for amounts and a validation rule for an absent ID. For movie reviews, clarify whether groups are predefined labels or exploratory groupings, then compare a simple baseline. Use a template or generative explanation for the recommendation, checking catalog claims against sources.</p></details>
+<details className="solution"><summary>Show the reasoning</summary><p>Use arithmetic for amounts and a validation rule for an absent ID. For study questions, clarify whether groups are predefined topics or exploratory groupings, then compare a simple baseline. Use a template or generative explanation for the topic, checking claims against the supplied notes.</p></details>
 
 ### Exercise 5: distinguish training from inference
 
@@ -313,7 +311,7 @@ Only two of 100 messages are spam. A system calls every message legitimate. How 
 
 Choose a task. Identify its input, output, baseline, AI component, two failure cases, and checking method.
 
-<details className="solution"><summary>Show a worked example</summary><p>For a movie recommender, use viewer preferences and a catalog as input and a ranked suggestion as output. Compare a learned ranking with a genre-and-length filter. Watch for ignored preferences and invented availability. Check movie facts against the catalog and keep any purchase separate.</p></details>
+<details className="solution"><summary>Show a worked example</summary><p>For a learning assistant, use a question and study notes as input and an explanation with sources as output. Compare generated explanations with search plus quoted passages. Watch for irrelevant notes and invented exam dates. Check claims against the sources and keep calendar changes subject to permission.</p></details>
 
 ### Exercise 8: explain the experiment
 
@@ -366,7 +364,7 @@ Use this short quiz as a self-check. Read the explanations for any uncertain ans
 
 </details>
 
-**Before moving on:** Explain why the phrase rule is not learning, why lowering a threshold changes errors, and why the movie recommendation cannot invent a streaming service. Then draw an everyday application and label its input, AI component, ordinary code, review step, and evaluation method.
+**Before moving on:** Explain why the phrase rule is not learning, why lowering a threshold changes errors, and why the learning assistant cannot invent an exam date. Then draw an everyday application and label its input, AI component, ordinary code, review step, and evaluation method.
 
 ## 16. Sources and where we go next
 

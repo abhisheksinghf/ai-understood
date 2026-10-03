@@ -26,7 +26,7 @@ Progress is stored locally in your browser. It does not sync between devices; us
 | --- | --- | --- |
 | 01 · Understanding the AI landscape | 1–3 | AI, ML, deep learning, generative AI, and how models learn |
 | 02 · Programming and mathematics | 4–8 | Python, APIs, data, linear algebra, probability, calculus, and optimization |
-| 03 · Your first LLM application | 9–11 | Prompting, context design, Python applications, and a recommendation project |
+| 03 · Your first LLM application | 9–11 | Prompting, context design, Python applications, and a personal learning assistant project |
 | 04 · Data and classical ML | 12–15 | Data preparation, regression, classification, clustering, and model evaluation |
 | 05 · Search, embeddings, and RAG | 16–19 | Information retrieval, vector search, RAG pipelines, and retrieval evaluation |
 | 06 · Deep learning and LLM internals | 20–26 | Neural networks, training, NLP, transformers, generation, and efficient inference |
@@ -43,7 +43,7 @@ For individual chapter titles and routes, see the [curriculum source](src/data/c
 2. Try the interactive lab, then complete the exercises before revealing solutions.
 3. Run the Python workbook where provided, take the quiz, and revisit deeper notes as needed.
 
-The current edition uses fictional movie scenarios as a recurring example, alongside other teaching datasets. Experiments distinguish real calculations from simulations, recorded traces, and model-backed extensions.
+Examples are being revised in batches to suit each concept. Chapters 1–11 now use examples suited to their topics: spam filtering, a personal learning assistant, house prices, study-note APIs, geometric vectors, delivery times, simple optimization curves, and a first personal learning assistant. The Chapter 5 starter retrieves authored notes by ID; semantic search and generation come later. Chapters 9–11 add study suggestions, structured model drafts, and a rules-based note selector with optional LLM explanations. Later chapters still use the previous examples until their migration is complete; movies will remain where they help explain recommendations. Experiments distinguish real calculations from simulations, recorded traces, and model-backed extensions.
 
 ## Getting started
 

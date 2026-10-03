@@ -103,7 +103,7 @@ $$
 
 The subscript t counts updates. The learning rate controls the size of a move; it is a chosen **hyperparameter**, distinct from the fitted parameters θ.
 
-For the experiment below, switch to the simpler, dimensionless objective **L(w) = (w − 3)²/2**, whose derivative is w − 3. This is a separate teaching function, not the previous training example or Chapter 3's runtime dataset. Starting at w = 0 with η = 0.5:
+For the experiment below, switch to the simpler, dimensionless objective **L(w) = (w − 3)²/2**, whose derivative is w − 3. This is a separate teaching function, not the previous training example or Chapter 3's house-price dataset. Starting at w = 0 with η = 0.5:
 
 **gradient = −3 → new w = 0 − 0.5(−3) = 1.5 → new loss = 1.125**, down from 4.5.
 
@@ -171,7 +171,7 @@ In information theory, **self-information**, or surprisal, of an outcome with pr
 
 Using base-2 logarithms gives **bits**; using natural logarithms gives **nats**. The logarithm turns products into sums, so surprise adds for independent outcomes. An outcome assigned probability zero has infinite surprisal if it occurs.
 
-**Entropy** is the expected surprisal of a distribution. For a toy job outcome with probabilities P(healthy) = 0.75 and P(failed) = 0.25:
+**Entropy** is the expected surprisal of a distribution. For a separate toy email population, in category order [legitimate, spam], use P(legitimate) = 0.75 and P(spam) = 0.25. These are new illustrative rates, independent of Chapter 7’s 1% spam scenario:
 
 $$
 H(P)=-\sum_i p_i\log_2 p_i

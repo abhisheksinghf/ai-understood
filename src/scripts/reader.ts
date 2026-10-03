@@ -8,13 +8,13 @@ const key=chapterNumber===1?'ai-handbook-progress-v1':`ai-handbook-progress-chap
 type Progress={version:1;chapter?:number;complete:boolean;bookmark:string|null};
 const blank:Progress={version:1,chapter:chapterNumber,complete:false,bookmark:null};
 // Keep saved progress and old links valid after the example's heading changed.
-const legacyMovieHeading='9-real-world-walkthrough-an-incident-report-assistant';
-const movieHeading='9-real-world-walkthrough-a-movie-recommendation-assistant';
+const legacyAssistantHeadings=['9-real-world-walkthrough-an-incident-report-assistant','9-real-world-walkthrough-a-movie-recommendation-assistant'];
+const assistantHeading='9-real-world-walkthrough-a-personal-learning-assistant';
 function migrateBookmark(value:unknown):unknown {
-  if(chapterNumber===1&&value&&typeof value==='object'&&'bookmark' in value&&value.bookmark===legacyMovieHeading)return {...value,bookmark:movieHeading};
+  if(chapterNumber===1&&value&&typeof value==='object'&&'bookmark' in value&&typeof value.bookmark==='string'&&legacyAssistantHeadings.includes(value.bookmark))return {...value,bookmark:assistantHeading};
   return value;
 }
-function migrateLegacyHash(){if(chapterNumber===1&&location.hash==='#'+legacyMovieHeading){history.replaceState(null,'','#'+movieHeading);requestAnimationFrame(()=>document.getElementById(movieHeading)?.scrollIntoView());}}
+function migrateLegacyHash(){if(chapterNumber===1&&legacyAssistantHeadings.includes(location.hash.slice(1))){history.replaceState(null,'','#'+assistantHeading);requestAnimationFrame(()=>document.getElementById(assistantHeading)?.scrollIntoView());}}
 migrateLegacyHash();
 window.addEventListener('hashchange',migrateLegacyHash);
 function valid(x:unknown):x is Progress {if(!x||typeof x!=='object')return false;const p=x as Progress;return p.version===1&&(p.chapter===chapterNumber||(p.chapter===undefined&&chapterNumber===1))&&typeof p.complete==='boolean'&&(p.bookmark===null||(typeof p.bookmark==='string'&&!!document.getElementById(p.bookmark)&&!!document.querySelector(`.page-toc a[data-section="${CSS.escape(p.bookmark)}"]`)));}

@@ -2,9 +2,9 @@
 interface Props {kind:'layers'|'pipeline'|'project'}
 const {kind}=Astro.props;
 const configs={
-  layers:{title:'Separate the responsibilities',caption:'Figure 1. The backend coordinates prediction and storage. The database is not itself the model. Arrows show requests and returned results.',nodes:[['Frontend','Collect input; show result'],['Backend','Validate and coordinate'],['Model / calculation','Produce a prediction'],['Database','Keep durable records']]},
+  layers:{title:'Separate the responsibilities',caption:'Figure 1. The backend coordinates note lookup and storage. The database is not itself the model. Arrows show requests and returned results.',nodes:[['Frontend','Collect input; show result'],['Backend','Validate and coordinate'],['Note collection','Look up an authored note'],['Database','Keep durable records']]},
   pipeline:{title:'Make each transformation explainable',caption:'Figure 2. Preserve source context, check meaning as well as format, and keep the accepted records traceable to their origin.',nodes:[['Source','Input and its origin'],['Validate','Fields, types, units'],['Transform','Normalize; check quality'],['Persist','Records and provenance']]},
-  project:{title:'An actual local request, then a durable record',caption:'Figure 3. The Python client calls the service and validates the returned JSON. Only then does the client save a history row; the server keeps no prediction history.',nodes:[['Python client','Send size_mb = 3'],['Local API','Return 7.0 seconds'],['Python client','Check response fields'],['SQLite file','Append one history row']]},
+  project:{title:'An actual local request, then a durable record',caption:'Figure 3. The Python client calls the service and validates the returned JSON. Only then does the client save a history row; the server keeps no lookup history.',nodes:[['Python client','Send note_id = N01'],['Local API','Return Overfitting note'],['Python client','Check response fields'],['SQLite file','Append one history row']]},
 };
 const d=configs[kind],id='software-'+kind;
 ---
@@ -12,7 +12,7 @@ const d=configs[kind],id='software-'+kind;
   <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{d.title}</div>
   <div class="diagram-scroll" tabindex="0" role="region" aria-label={d.title}>
     <svg viewBox={kind==='layers'?'0 0 760 226':'0 0 760 116'} role="img" aria-labelledby={id+'-title '+id+'-desc'}>
-      <title id={id+'-title'}>{d.title}</title><desc id={id+'-desc'}>{kind==='layers'?'Frontend exchanges requests and results with backend. Backend calls model and accesses database.':d.nodes.map(n=>n.join(': ')).join(' → ')}</desc>
+      <title id={id+'-title'}>{d.title}</title><desc id={id+'-desc'}>{kind==='layers'?'Frontend exchanges requests and results with backend. Backend looks up a note and accesses the database.':d.nodes.map(n=>n.join(': ')).join(' → ')}</desc>
       <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/></marker></defs>
       {kind==='layers'?<>
         {d.nodes.map((n,i)=><g transform={'translate('+(i===3?282:28+254*i)+','+(i===3?142:22)+')'}>

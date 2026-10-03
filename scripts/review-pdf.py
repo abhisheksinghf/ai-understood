@@ -33,15 +33,15 @@ with pdfplumber.open(pdf_path) as pdf:
         all_text += text + '\n'
         outside = [c for c in page.chars if c['x0'] < 0 or c['x1'] > page.width + 1 or c['top'] < 0 or c['bottom'] > page.height + 1]
         report.append({'page':i+1,'words':len(text.split()),'outside_page':len(outside),'first_lines':text.splitlines()[:2]})
-    required = ['What is artificial', 'Same scores.', 'Exercise 8', 'Answer: B.', 'Mini glossary', 'Sources and where we go next']
+    required = ['What is artificial', 'Same scores.', 'Exercise 8', 'Answer: B.', 'Mini glossary', 'Sources and where we go next', 'personal learning assistant', 'N01']
     if chapter == 2:
-        required = ['concepts connect.', 'Who chooses the next step?', 'Investigate', 'Exercise 5.', 'Answer: B.', 'Quick-reference glossary', 'Levels of AGI']
+        required = ['concepts connect.', 'Who chooses the next step?', 'Investigate', 'Exercise 5.', 'Answer: B.', 'Quick-reference glossary', 'Levels of AGI', 'study notes', 'overfitting']
     if chapter == 3:
-        required = ['models learn.', 'Predict. Compare. Adjust.', 'Training experiment, printable results.', '8.2963', 'Exercise 5.', 'Answer: B.', 'Quick-reference glossary', 'Python for AI']
+        required = ['models learn.', 'Predict. Compare. Adjust.', 'Training experiment, printable results.', '8.2963', 'Exercise 5.', 'Answer: B.', 'Quick-reference glossary', 'Python for AI', 'price units', '1,000 sq ft']
     if chapter == 4:
-        required = ['Python', 'for AI.', 'One row at a time.', '4.6667', 'runtime_report.json', 'Exercise 3:', 'Answer: A.', 'Quick-reference glossary', 'APIs']
+        required = ['Python', 'for AI.', 'One row at a time.', '4.6667', 'price_report.json', 'Exercise 3:', 'Answer: A.', 'Quick-reference glossary', 'APIs']
     if chapter == 5:
-        required = ['Software, APIs,', 'and data.', 'Same task. Different outcomes.', 'prediction_seconds', 'predictions.db', 'Exercise 3:', 'Answer: B.', 'Quick-reference glossary', 'linear algebra']
+        required = ['Software, APIs,', 'and data.', 'Same task. Different outcomes.', 'estimated_minutes', 'study_history.db', 'Exercise 3:', 'Answer: B.', 'Quick-reference glossary', 'linear algebra']
     if chapter == 6:
         required = ['linear algebra.', 'One vector. Five transformations.', '5.5', 'broadcasting', 'singular', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Probability and statistics']
     if chapter == 7:
@@ -49,11 +49,11 @@ with pdfplumber.open(pdf_path) as pdf:
     if chapter == 8:
         required = ['information theory.', 'Same curve. Different step sizes.', '2.90625', '0.188722', 'antiderivative', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Prompting and context']
     if chapter == 9:
-        required = ['context design.', 'Same evidence. Clearer instructions.', 'streaming_service', 'Moonlight Map', '105', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Chapter 10']
+        required = ['context design.', 'Same evidence. Clearer instructions.', 'exam_date', 'Overfitting', '20', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Chapter 10']
     if chapter == 10:
         required = ['with Python.', 'One workflow. Different outcomes.', 'review_required', 'invalid_input', 'Idempotency', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Chapter 11']
     if chapter == 11:
-        required = ['recommendation assistant.', 'What should we watch?', 'M001', 'no_match', 'review_required', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Chapter 12']
+        required = ['learning assistant.', 'What should I study next?', 'N01', 'no_match', 'review_required', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Chapter 12']
     if chapter == 12:
         required = ['for machine learning.', 'Same rows. Different preparation.', '110', '127.5', 'Exercise 3:', 'Answer: C.', 'Quick-reference glossary', 'Chapter 13']
     if chapter == 13:

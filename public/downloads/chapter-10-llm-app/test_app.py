@@ -78,7 +78,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_contract_boundaries(self):
         valid = app.load_json(app.extract_text(GOOD))
-        for field, value in (("recommendation",""), ("streaming_service",42), ("streaming_service",""),
+        for field, value in (("recommendation",""), ("exam_date",42), ("exam_date",""),
                              ("evidence_ids",[]), ("evidence_ids",["S1","S1"]),
                              ("evidence_ids",[{}]), ("open_questions",[42])):
             report = copy.deepcopy(valid); report[field] = value
@@ -88,11 +88,11 @@ class WorkflowTests(unittest.TestCase):
     def test_unsupported_claim_is_not_verified(self):
         result, _, _ = self.run_case("unsupported")
         self.assertEqual(result["status"], "review_required")
-        self.assertIn("ExampleFlix", result["candidate"]["streaming_service"])
+        self.assertIn("2026-12-01", result["candidate"]["exam_date"])
         self.assertIn("does not establish truth", result["trace"][-1]["detail"])
 
     def test_envelope_variation(self):
-        self.assertEqual(app.load_json(app.extract_text(GOOD))["streaming_service"], None)
+        self.assertEqual(app.load_json(app.extract_text(GOOD))["exam_date"], None)
         for envelope, code in (({},"not_completed"), ([],"bad_envelope"),
                                ({"status":"completed","output":[]},"no_text"),
                                ({"status":"completed","output":[None]},"bad_envelope")):

@@ -8,24 +8,26 @@ import {chapter03Questions} from '../data/chapter03';
 <div className="learning-card">
 <p className="eyebrow">WHAT YOU WILL BE ABLE TO EXPLAIN</p>
 <p>Trace a prediction through loss and a parameter update. Separate training, validation, and testing. Recognize underfitting, overfitting, leakage, and changing data. Explain why a well-trained model can still give a wrong answer.</p>
-<p><strong>Reading path:</strong> Follow one small runtime example, try the training experiment, and complete three core exercises. The optional mathematics can wait. You need Chapters 1–2 and basic arithmetic.</p>
+<p><strong>Reading path:</strong> Follow one small house-price example, try the training experiment, and complete three core exercises. The optional mathematics can wait. You need Chapters 1–2 and basic arithmetic.</p>
 </div>
 
 ## 1. Learning starts with a task and examples
 
-Suppose an operations assistant must estimate a job's runtime **before the job starts**. The input is job size; the output is a number of seconds. Predicting a numerical value is a **regression** task. Predicting a category, as in Chapter 2, is **classification**.
+Suppose we want to estimate a house’s sale price **before it sells**. The input is floor area; the output is a price. Predicting a numerical value is a **regression** task. Predicting a category, as in Chapter 2, is **classification**.
 
-A **dataset** is a collection of examples. Each row below describes one fictional completed job. The **feature** is information supplied to the model; the **label** or **target** is the answer it should learn to predict.
+A **dataset** is a collection of examples. Each row below describes one fictional completed house sale. The **feature** is information supplied to the model; the **label** or **target** is the answer it should learn to predict.
 
-| Training example | Feature x: size, in thousands of records | Target y: actual runtime, in seconds |
+| Training example | Feature x: area, in 1,000 sq ft | Target y: sale price, in units of ₹10 lakh |
 |---|---|---|
 | A | 1 | 3 |
 | B | 2 | 5 |
 | C | 3 | 7 |
 
-These three rows are deliberately clean **synthetic data**, created to make the arithmetic visible. They are not enough to establish a useful production predictor. Real runtime also depends on hardware, competing work, and the kind of processing.
+Here **1 price unit = ₹10 lakh = ₹1,000,000**. Row A means a 1,000 sq ft home sold for ₹30 lakh. Scaling keeps the arithmetic small; it does not change what we are predicting.
 
-The prediction moment matters. Job size may be available before execution; the eventual finish time is not. A model trained with information unavailable at that moment cannot be evaluated fairly for the intended use.
+These three rows are deliberately clean **synthetic data**, created to make the arithmetic visible. They are not enough to establish a useful production predictor. Real house prices also depend on location, condition, and market conditions.
+
+The prediction moment matters. Floor area may be available before sale; the final transaction price is not. A model trained with information unavailable at that moment cannot be evaluated fairly for the intended use.
 
 ## 2. A prediction becomes a measurable error
 
@@ -35,9 +37,9 @@ $$
 \hat{y}=wx+1
 $$
 
-Read this as: **predicted runtime = weight × job size + 1 second**. The hat on y means “predicted.” The **weight w** is a parameter we will learn. Here the constant +1 is fixed; in a more general straight-line model, the intercept can also be learned.
+Read this as: **predicted price = weight × floor area + 1**, using the scaled units above. The hat on y means “predicted.” The **weight w** is a parameter we will learn. Here the constant +1 is fixed; in a more general straight-line model, the intercept can also be learned. The fixed +1 means one price unit, not a claim about the value of a zero-area home.
 
-Start at w = 1. The three predictions are 2, 3, and 4 seconds. Compare each with its actual value:
+Start at w = 1. The three predictions are 2, 3, and 4 price units (₹20, ₹30, and ₹40 lakh). Compare each with its actual value:
 
 | Example | Predicted | Actual | Error: predicted − actual | Squared error |
 |---|---|---|---|---|
@@ -48,21 +50,21 @@ Start at w = 1. The three predictions are 2, 3, and 4 seconds. Compare each with
 A **loss function** gives a numerical penalty for predictions. We will use **mean squared error (MSE)**: square each error, add the results, and divide by the number of examples.
 
 $$
-\text{MSE}=\frac{1+4+9}{3}=\frac{14}{3}\approx4.67\ \text{seconds}^2
+\text{MSE}=\frac{1+4+9}{3}=\frac{14}{3}\approx4.67\ \text{price units}^2
 $$
 
-Squaring prevents positive and negative errors from cancelling and gives larger errors more influence. The units are squared seconds, not seconds. At w = 2, the predictions become 3, 5, and 7, so this training MSE is zero.
+Squaring prevents positive and negative errors from cancelling and gives larger errors more influence. The units are squared price units, not rupees or price units. At w = 2, the predictions become 3, 5, and 7, so this training MSE is zero.
 
-That is a perfect fit to **these three rows**. It does not establish perfect performance on future jobs. [Google's loss lesson](https://developers.google.com/machine-learning/crash-course/linear-regression/loss) explains common regression losses.
+That is a perfect fit to **these three rows**. It does not establish perfect performance on future house sales. [Google's loss lesson](https://developers.google.com/machine-learning/crash-course/linear-regression/loss) explains common regression losses.
 
 <details className="optional-depth">
 <summary>Go deeper: loss, objective, and evaluation metric</summary>
 
 A training **objective** is what the learning procedure tries to optimize. It can be the average loss alone or include other terms, such as a penalty discouraging excessive model complexity.
 
-An **evaluation metric** is a measure used to judge the result. It can match the loss, but need not. Here, mean absolute error (MAE) at w = 1 is (1 + 2 + 3) / 3 = 2 seconds. MAE is easier to interpret in the original units; MSE gives large errors more weight.
+An **evaluation metric** is a measure used to judge the result. It can match the loss, but need not. Here, mean absolute error (MAE) at w = 1 is (1 + 2 + 3) / 3 = 2 price units, or ₹20 lakh. MAE is easier to interpret in the original units; MSE gives large errors more weight.
 
-The chosen metric must also reflect the task. A small average error might hide a few severely underestimated runtimes. Examine errors on large jobs and any cases that matter operationally. Classification and language modeling often use different losses; not every model is trained with MSE.
+The chosen metric must also reflect the task. A small average error might hide a few severely underestimated prices. Examine errors by area, location, and other groups relevant to the intended use. Classification and language modeling often use different losses; not every model is trained with MSE.
 
 </details>
 
@@ -80,7 +82,7 @@ The distinction is useful: **w is a learned parameter; the learning rate is a hy
 
 A **batch** is the set of examples used for one update. An **epoch** is one pass through the training set. Our tiny experiment uses all three examples per update, so one step is also one epoch here. With many batches, one epoch usually contains many steps.
 
-Training repeatedly predicts, compares, and adjusts. **Inference** uses the fitted parameter to predict a new runtime. Reading that output, or supplying a new input, does not by itself update the weight.
+Training repeatedly predicts, compares, and adjusts. **Inference** uses the fitted parameter to predict a new house price. Reading that output, or supplying a new input, does not by itself update the weight.
 
 <details className="optional-depth">
 <summary>Optional mathematics: calculate the first update</summary>
@@ -100,7 +102,7 @@ w_{\text{new}}=w-0.10\frac{dL}{dw}
 =1-0.10(-9.3333)\approx1.9333
 $$
 
-The new training MSE is approximately 0.0207 squared seconds. A fresh start with rate 0.25 instead gives w ≈ 3.3333 and MSE ≈ 8.2963: worse than the initial 4.6667.
+The new training MSE is approximately 0.0207 squared price units. A fresh start with rate 0.25 instead gives w ≈ 3.3333 and MSE ≈ 8.2963: worse than the initial 4.6667.
 
 The interface displays rounded values but calculates with full numerical precision. These learning rates make sense for this tiny, scaled dataset; they are not universal recommendations.
 
@@ -114,9 +116,9 @@ Press **Train one step** and watch the weight, line, and loss change. This is an
 
 <LearningLab client:load />
 
-Try three steps at 0.10, then switch to 0.25 for a fresh run. With the larger rate, the line alternates across the training points and the errors grow. The experiment stops if loss exceeds 100 squared seconds or after 20 steps; these are demonstration limits.
+Try three steps at 0.10, then switch to 0.25 for a fresh run. With the larger rate, the line alternates across the training points and the errors grow. The experiment stops if loss exceeds 100 squared price units or after 20 steps; these are demonstration limits.
 
-The separate validation examples deliberately contain small deviations from the straight line. At w = 2, they have MSE 0.04 even though training MSE is zero. A training score and a new-example score answer different questions.
+The separate validation examples deliberately contain small deviations from the straight line: (1.5, 4.2) and (2.5, 5.8), meaning 1,500 sq ft at ₹42 lakh and 2,500 sq ft at ₹58 lakh. At w = 2, they have MSE 0.04 even though training MSE is zero. A training score and a new-example score answer different questions.
 
 **Observe before continuing:** Which value changed during training? Did opening the validation check change it? The validation check only measures the current model. Selecting a learning rate based on that check would be a development decision.
 
@@ -130,9 +132,9 @@ The separate validation examples deliberately contain small deviations from the 
 - **Validation set:** compare choices such as model size, learning rate, and when to stop. It influences development choices, even if it is not used in gradient updates.
 - **Test set:** assess the selected system after those choices are fixed. Repeatedly tuning to its results turns it into development data.
 
-There is no universally correct split percentage. The split should imitate the use case. For future job prediction, train on earlier jobs and evaluate on later periods. If near-duplicate jobs from one run appear in both sets, apparent performance may be misleading.
+There is no universally correct split percentage. The split should imitate the use case. For future sale-price prediction, train on earlier sales and evaluate on later periods. If duplicate listings of the same sale appear in both sets, apparent performance may be misleading.
 
-**Data leakage** happens when information that should be unavailable enters training or model selection. Using a job's actual finish time as an input to a pre-start prediction is leakage. Fitting preprocessing on all examples before splitting can also leak information. [scikit-learn's common pitfalls guide](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage) explains prevention.
+**Data leakage** happens when information that should be unavailable enters training or model selection. Using the final transaction price as an input to a pre-sale prediction leaks the answer itself. Fitting preprocessing on all examples before splitting can also leak information. [scikit-learn's common pitfalls guide](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage) explains prevention.
 
 <details className="optional-depth">
 <summary>Go deeper: validation is useful, but not unlimited evidence</summary>
@@ -141,15 +143,15 @@ Trying many alternatives on one validation set can gradually overfit your choice
 
 **Cross-validation** rotates which development examples are used for fitting and validation across several splits. It can reduce dependence on one split, but it does not excuse leakage or remove the need for an appropriate final evaluation.
 
-Respect time and grouping during splitting. Several records from the same viewer, movie, or processing batch may be dependent. The split must match whether deployment will encounter new groups, future records from existing groups, or both.
+Respect time and grouping during splitting. Several records from the same home or housing development may be dependent. The split must match whether deployment will encounter new groups, future records from existing groups, or both.
 
 </details>
 
 ## 6. Underfitting and overfitting
 
-**Underfitting** means the fitted model misses useful structure. A constant runtime estimate may miss the relationship between job size and runtime. Both training and validation errors can remain high. Causes can include an unsuitable model, missing features, or insufficient optimization.
+**Underfitting** means the fitted model misses useful structure. A constant price estimate may miss the relationship between floor area and price. Both training and validation errors can remain high. Causes can include an unsuitable model, missing features, or insufficient optimization.
 
-**Overfitting** means fitting peculiarities of the training examples that do not help on relevant new cases. A flexible model might memorize individual job IDs or noisy timing fluctuations. Its training error can be excellent while validation error is worse.
+**Overfitting** means fitting peculiarities of the training examples that do not help on relevant new cases. A flexible model might memorize individual property IDs or noisy sale-price fluctuations. Its training error can be excellent while validation error is worse.
 
 <LearningDiagrams kind="fit" />
 
@@ -165,13 +167,13 @@ Poor performance is not one problem with one fix. Use the error to decide what t
 
 | What you observe | Possible explanation | A useful check |
 |---|---|---|
-| Similar jobs have different runtimes | Measurement noise or missing information, such as server load | Check measurement definitions and available features |
-| Good average results, poor results on large jobs | Those jobs may be rare in training | Compare error and sample count by job-size group |
+| Similar-size homes sell for different prices | Measurement noise or missing information, such as location | Check measurement definitions and available features |
+| Good average results, poor results on large homes | Those homes may be rare in training | Compare error and sample count by floor-area group |
 | Excellent offline results, poor live results | Leakage or mismatched preparation | Reproduce exactly what was available at prediction time |
-| Results worsen after a hardware change | **Distribution shift:** deployment data or relationships differ | Compare recent inputs and errors with the development period |
-| The model uses a job name as a shortcut | A correlation may not remain useful outside the sample | Test across job families and relevant future periods |
+| Results worsen in a different city | **Distribution shift:** deployment data or relationships differ | Compare recent inputs and errors with the development period |
+| The model uses a property ID as a shortcut | A correlation may not remain useful outside the sample | Test across locations and relevant future periods |
 
-A relationship in data is not automatically causal. Larger jobs may often run overnight on faster machines. Changing the job size alone may not reproduce the association learned from that mixture.
+A relationship in data is not automatically causal. Larger homes in a dataset may also be in more expensive neighborhoods. Increasing floor area alone may not reproduce the price association learned from that mixture.
 
 Also distinguish estimation from certainty. Our line gives a point estimate, not a guarantee or an uncertainty interval. A plausible-looking number can still be wrong.
 
@@ -188,14 +190,14 @@ For classification, a model's numeric score is not automatically a calibrated pr
 
 ## 8. The learning signal can take different forms
 
-The runtime example uses **supervised learning**: inputs are paired with target answers. The broader learning landscape includes other signals:
+The house-price example uses **supervised learning**: inputs are paired with target answers. The broader learning landscape includes other signals:
 
 | Approach | Where the signal comes from | Example |
 |---|---|---|
-| Supervised learning | Target values or categories supplied with examples | Job size paired with measured runtime |
+| Supervised learning | Target values or categories supplied with examples | Floor area paired with a completed sale price |
 | Self-supervised learning | Targets constructed from the data itself | Use earlier text to predict a later token |
-| Unsupervised learning | Structure in data without supplied task labels | Group movie reviews by similar patterns |
-| Reinforcement learning | Rewards from actions and outcomes during interaction | Learn a scheduling policy in a simulator |
+| Unsupervised learning | Structure in data without supplied task labels | Group customers by similar shopping habits |
+| Reinforcement learning | Rewards from actions and outcomes during interaction | Learn to navigate a maze from rewards for reaching the exit |
 
 These categories are useful descriptions, not perfectly exclusive boxes. Self-supervised learning is often discussed within unsupervised learning, and a system can combine several approaches.
 
@@ -211,7 +213,7 @@ Later training can use instruction examples or feedback about preferred response
 
 A language model's learned patterns may not contain a current fact, may reflect an unreliable source, or may not be enough to resolve an ambiguous request. During generation it can produce a fluent continuation that is incorrect or unsupported: a **hallucination**.
 
-For our movie assistant, missing streaming availability should remain unknown. A plausible service name is not established by fluent wording. Supplying a catalog entry through RAG changes the model's context; fine-tuning changes its parameters. Both still need evaluation.
+For our learning assistant, a missing exam date should remain unknown. A plausible date is not established by fluent wording. Supplying a study note through RAG changes the model's context; fine-tuning changes its parameters. Both still need evaluation.
 
 **The practical habit:** name the symptom before changing the system. Missing documents suggest investigating retrieval. Incorrect arithmetic suggests using exact code. A misleading offline score suggests checking evaluation and leakage. Do not assume every failure requires a bigger model.
 
@@ -221,13 +223,13 @@ For our movie assistant, missing streaming availability should remain unknown. A
 
 For the three training rows, use w = 1.5 and the same fixed +1. Calculate the predictions and MSE. Is the loss better than the initial w = 1? Does that establish good future performance?
 
-<details className="solution"><summary>Reveal the calculation</summary><p>Predictions are 2.5, 4, and 5.5 seconds. Errors are −0.5, −1, and −1.5; squared errors are 0.25, 1, and 2.25. MSE = 3.5 / 3 ≈ 1.1667 squared seconds, lower than 4.6667. This establishes a better fit to these rows under MSE, not good performance on future jobs.</p></details>
+<details className="solution"><summary>Reveal the calculation</summary><p>Predictions are 2.5, 4, and 5.5 price units (₹25, ₹40, and ₹55 lakh). Errors are −0.5, −1, and −1.5; squared errors are 0.25, 1, and 2.25. MSE = 3.5 / 3 ≈ 1.1667 squared price units, lower than 4.6667. This establishes a better fit to these rows under MSE, not good performance on future house sales.</p></details>
 
 ### Exercise 2: find the leakage
 
-A team predicts runtime before a job starts. Its dataset includes size, machine type, and the actual finish timestamp. It fits feature-normalization values on the whole dataset before creating a test split. Identify two problems and correct them.
+A team predicts house prices before sale. It uses floor area, location, and the final transaction price as input features. It fits feature-normalization values on the whole dataset before creating a test split. Identify two problems and correct them.
 
-<details className="solution"><summary>Reveal the explanation</summary><p>The actual finish timestamp is future information, so remove it from pre-start inputs. Fitting normalization on the whole dataset lets test information affect preparation. Split appropriately first, fit preparation on the training portion, then apply that fitted transformation to validation and test data. Keep the final test separate from development choices.</p></details>
+<details className="solution"><summary>Reveal the explanation</summary><p>The final transaction price is the target, available only after sale, so remove it from pre-sale input features. Fitting normalization on the whole dataset lets test information affect preparation. Split appropriately first, fit preparation on the training portion, then apply that fitted transformation to validation and test data. Keep the final test separate from development choices.</p></details>
 
 ### Exercise 3: investigate the gap
 
@@ -238,13 +240,13 @@ After more training, training MSE drops from 2 to 0.2, while validation MSE rise
 <details className="optional-depth">
 <summary>Extra practice: connect training with inference</summary>
 
-**Exercise 4.** At w = 2, predict the runtime for 2.5 thousand records. If the observed runtime is 5.8 seconds, what is the squared error? Did making the prediction update w?
+**Exercise 4.** At w = 2, predict the price of a 2,500 sq ft home (x = 2.5). If its actual sale price is ₹58 lakh (y = 5.8), what is the squared error? Did making the prediction update w?
 
-<details className="solution"><summary>Reveal the calculation</summary><p>The prediction is 2 × 2.5 + 1 = 6 seconds. Squared error is (6 − 5.8)² = 0.04 squared seconds. Neither making this prediction nor measuring its error changes w; a training update would be a separate operation.</p></details>
+<details className="solution"><summary>Reveal the calculation</summary><p>The prediction is 2 × 2.5 + 1 = 6 price units, or ₹60 lakh. Squared error is (6 − 5.8)² = 0.04 squared price units. Neither making this prediction nor measuring its error changes w; a training update would be a separate operation.</p></details>
 
-**Exercise 5.** A model performs well on old hardware and poorly on a new platform. Must it be overfitting?
+**Exercise 5.** A model performs well in its training city and poorly in another city. Must it be overfitting?
 
-<details className="solution"><summary>Reveal the explanation</summary><p>No. The input-to-runtime relationship may have changed: distribution shift. Check hardware and workload differences, preprocessing consistency, and recent error cases before choosing a remedy. Several causes can coexist.</p></details>
+<details className="solution"><summary>Reveal the explanation</summary><p>No. The area-to-price relationship may differ: distribution shift. Check location and market differences, preprocessing consistency, and recent error cases before choosing a remedy. Several causes can coexist.</p></details>
 
 </details>
 

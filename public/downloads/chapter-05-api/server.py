@@ -2,7 +2,8 @@
 import argparse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
-import math
+from pathlib import Path
+import re
 from urllib.parse import urlsplit
 
 
@@ -10,15 +11,18 @@ def reject_constant(value):
     raise ValueError(f"Non-JSON number: {value}")
 
 
-def make_prediction(payload):
+NOTES = json.loads(Path(__file__).with_name("notes.json").read_text(encoding="utf-8"))
+
+
+def lookup_note(payload):
     if not isinstance(payload, dict):
-        raise ValueError("Send a JSON object with size_mb.")
-    size = payload.get("size_mb")
-    if type(size) not in (int, float) or not 0 <= size <= 1_000_000:
-        raise ValueError("size_mb must be a number from 0 to 1000000.")
-    if not math.isfinite(size):
-        raise ValueError("size_mb must be finite.")
-    return {"prediction_seconds": 2.0 * size + 1.0, "model_version": "demo-v1"}
+        raise ValueError("Send a JSON object with note_id.")
+    note_id = payload.get("note_id")
+    if not isinstance(note_id, str) or re.fullmatch(r"N[0-9]{2}", note_id) is None:
+        raise ValueError("note_id must be a string such as N01.")
+    if note_id not in NOTES:
+        raise LookupError("Note not found.")
+    return {"note_id": note_id, **NOTES[note_id], "source_version": "notes-v1"}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -41,7 +45,7 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(404, {"error": "Unknown endpoint."})
 
     def do_POST(self):
-        if urlsplit(self.path).path != "/predict":
+        if urlsplit(self.path).path != "/notes/lookup":
             self.send_json(404, {"error": "Unknown endpoint."})
             return
         if self.headers.get_content_type() != "application/json":
@@ -58,9 +62,12 @@ class Handler(BaseHTTPRequestHandler):
         try:
             text = self.rfile.read(length).decode("utf-8")
             payload = json.loads(text, parse_constant=reject_constant)
-            result = make_prediction(payload)
+            result = lookup_note(payload)
         except (ValueError, UnicodeError, RecursionError):
-            self.send_json(400, {"error": "Send a JSON object with numeric size_mb from 0 to 1000000."})
+            self.send_json(400, {"error": "Send a JSON object with note_id such as N01."})
+            return
+        except LookupError:
+            self.send_json(404, {"error": "Note not found."})
             return
         except TimeoutError:
             self.send_json(408, {"error": "Request body timed out."})
@@ -83,7 +90,7 @@ if __name__ == "__main__":
     try:
         with create_server(args.port) as server:
             print(f"Local API: http://127.0.0.1:{server.server_port}", flush=True)
-            print("Stop with Ctrl+C. Fixed formula only; no model training.", flush=True)
+            print("Stop with Ctrl+C. Exact note lookup only; no model training.", flush=True)
             server.serve_forever()
     except KeyboardInterrupt:
         print("\nStopped.")

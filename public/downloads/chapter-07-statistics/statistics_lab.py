@@ -9,12 +9,12 @@ def alert_counts(base_rate=0.01, recall=0.90, false_positive_rate=0.05, total=10
             raise ValueError("Probabilities must be finite numbers from 0 to 1.")
     if type(total) is not int or total <= 0:
         raise ValueError("Total must be a positive integer.")
-    failures = total * base_rate
-    healthy = total - failures
-    true_positive = failures * recall
-    false_negative = failures - true_positive
-    false_positive = healthy * false_positive_rate
-    true_negative = healthy - false_positive
+    spam_count = total * base_rate
+    legitimate = total - spam_count
+    true_positive = spam_count * recall
+    false_negative = spam_count - true_positive
+    false_positive = legitimate * false_positive_rate
+    true_negative = legitimate - false_positive
     alerts = true_positive + false_positive
     return {
         "true_positive": true_positive, "false_negative": false_negative,
@@ -37,18 +37,18 @@ def known_sigma_interval(mean, sigma, n):
 
 
 def main():
-    runtimes = [2, 3, 3, 4, 8]
-    print(f"Mean: {statistics.mean(runtimes):.1f} s; median: {statistics.median(runtimes):.1f} s")
-    print(f"Sample variance: {statistics.variance(runtimes):.1f} s^2")
-    print(f"Sample SD: {statistics.stdev(runtimes):.3f} s")
+    delivery_days = [2, 3, 3, 4, 8]
+    print(f"Mean: {statistics.mean(delivery_days):.1f} days; median: {statistics.median(delivery_days):.1f} days")
+    print(f"Sample variance: {statistics.variance(delivery_days):.1f} days^2")
+    print(f"Sample SD: {statistics.stdev(delivery_days):.3f} days")
     for base_rate in (0.01, 0.10):
         counts = alert_counts(base_rate=base_rate)
         print(f"Base rate {base_rate:.0%}: {counts['true_positive']:.0f} true alerts, "
               f"{counts['false_positive']:.0f} false alerts; "
-              f"P(failure | alert) = {counts['precision']:.2%}")
+              f"P(spam | alert) = {counts['precision']:.2%}")
     for n in (25, 100):
         low, high = known_sigma_interval(mean=1, sigma=4, n=n)
-        print(f"Known-SD normal example, n={n}: [{low:.3f}, {high:.3f}] s")
+        print(f"Known-SD normal example, n={n}: [{low:.3f}, {high:.3f}] days")
     none = alert_counts(base_rate=0, false_positive_rate=0)
     print(f"No alerts: conditional probability = {none['precision']} (undefined)")
 

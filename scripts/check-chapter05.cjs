@@ -20,7 +20,7 @@ const base='http://127.0.0.1:4321',route='/chapters/05-software-apis-and-data/';
   assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'false');
   const missing=await page.locator('a[href^="#"]').evaluateAll(as=>as.filter(a=>a.hash&&!document.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash));
   assert.deepEqual(missing,[]);
-  assert.ok(await page.locator('.chapter-content').innerText().then(text=>text.includes('{"size_mb": "3"}')));
+  assert.ok(await page.locator('.chapter-content').innerText().then(text=>text.includes('{"note_id": 3}')));
   await page.screenshot({path:path.join(out,'desktop.png')});
   await page.locator('figure.diagram').first().screenshot({path:path.join(out,'architecture.png')});
   await page.getByRole('button',{name:'Search Chapter 5'}).click();
@@ -42,7 +42,7 @@ const base='http://127.0.0.1:4321',route='/chapters/05-software-apis-and-data/';
     assert.equal(await page.locator('[data-api="boundary"]').innerText(),boundary);
     assert.equal(await page.getByRole('button',{name:'Send sample request'}).isEnabled(),false);
     if(id==='limited')assert.match(await page.locator('[data-api="response"]').innerText(),/Retry-After: 2/);
-    if(id==='bad-input')assert.match(await explorer.locator('.api-message-grid pre').first().innerText(),/-1/);
+    if(id==='bad-input')assert.match(await explorer.locator('.api-message-grid pre').first().innerText(),/"note_id": 3/);
   }
   assert.deepEqual(calls,[]);page.off('request',onRequest);
   await explorer.screenshot({path:path.join(out,'explorer-schema.png')});

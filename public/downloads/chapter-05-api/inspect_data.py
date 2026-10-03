@@ -4,16 +4,16 @@ import sqlite3
 
 
 def main():
-    database = Path(__file__).with_name("predictions.db")
+    database = Path(__file__).with_name("study_history.db")
     if not database.exists():
-        raise SystemExit("Run client.py successfully first to create predictions.db.")
+        raise SystemExit("Run client.py successfully first to create study_history.db.")
     connection = sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)
     try:
         rows = connection.execute(
-            "SELECT id, size_mb, prediction_seconds FROM predictions "
-            "WHERE prediction_seconds >= ? ORDER BY id", (5.0,)
+            "SELECT id, note_id, estimated_minutes FROM note_history "
+            "WHERE estimated_minutes >= ? ORDER BY id", (15,)
         ).fetchall()
-        print("id | size_mb | prediction_seconds (at least 5)")
+        print("id | note_id | estimated_minutes (at least 15)")
         for row in rows:
             print(" | ".join(str(value) for value in row))
         print(f"{len(rows)} matching row(s)")

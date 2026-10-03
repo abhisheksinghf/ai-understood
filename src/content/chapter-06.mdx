@@ -57,13 +57,13 @@ The **shape** records the size of each axis. A vector with two coordinates belon
 
 <AlgebraDiagrams kind="shapes" />
 
-For this chapter's synthetic runtime example, let **x = [3, 2]** mean **[file size in MB, number of queued jobs]**. Feature order is part of the contract. Swapping the entries changes their meaning even when the shape still matches. This extends Chapter 5's example with a second feature; it is not real performance data.
+For this chapter, let **x = [3, 2]** locate a point: **3 units horizontally and 2 vertically**. These are dimensionless geometric coordinates. Coordinate order is part of the contract; swapping the entries moves the point even though its shape stays the same. In ML, vector entries can instead represent named features.
 
 A batch of 8 sequences, each with 32 positions and 64 numerical features, can be stored as an 8 × 32 × 64 tensor. Name the axes before doing arithmetic. The [D2L linear algebra introduction](https://d2l.ai/chapter_preliminaries/linear-algebra.html) gives more examples of these objects.
 
 ## 3. Add, scale, and measure a vector
 
-For geometry, use dimensionless coordinates **u = [3, 4]** and **v = [1, −1]**, separate from the runtime features. Add corresponding entries: u + v = [4, 3]. Multiply every entry to scale: 2u = [6, 8]. A negative scalar reverses direction; multiplying by zero produces the zero vector.
+For geometry, use dimensionless coordinates **u = [3, 4]** and **v = [1, −1]**, in the same geometric plane. Add corresponding entries: u + v = [4, 3]. Multiply every entry to scale: 2u = [6, 8]. A negative scalar reverses direction; multiplying by zero produces the zero vector.
 
 A **linear combination** scales vectors and adds them. For example, 2u + v = [7, 7]. Geometrically, place arrows head to tail to add them.
 
@@ -84,7 +84,7 @@ For nonzero u, dividing by its norm creates a **unit vector**: u / 5 = [0.6, 0.8
 
 The L1 norm adds absolute values: for [3, −4], it is 7. The L2 norm is √(9 + 16) = 5. The infinity norm takes the largest absolute entry: 4. These measure size in different ways and appear in distance measures and regularization.
 
-Do not blindly measure distance between raw features with different units. A coordinate measured in bytes can dominate one measured in seconds. Feature scaling uses a stated convention to make comparisons appropriate; fit any learned scaling statistics on training data, then reuse them for validation and test data.
+Do not blindly measure distance between raw features with different units. For example, a house-area coordinate measured in square feet can dominate a bedroom count. Feature scaling uses a stated convention to make comparisons appropriate; fit any learned scaling statistics on training data, then reuse them for validation and test data.
 
 Unit-length normalization acts on a vector's magnitude. Standardizing a feature using its mean and standard deviation is a different operation, introduced with statistics next chapter.
 
@@ -92,14 +92,14 @@ Unit-length normalization acts on a vector's magnitude. Standardizing a feature 
 
 ## 4. Use a dot product to combine evidence
 
-The **dot product** multiplies corresponding coordinates and sums the results. It produces one scalar, not another vector. With the two runtime features x = [3, 2], weights w = [2, 0.5], and bias b = 1:
+The **dot product** multiplies corresponding coordinates and sums the results. It produces one scalar, not another vector. With coordinates x = [3, 2], weights w = [2, 0.5], and bias b = 1:
 
 $$
 \hat{y}=\mathbf{w}^{\mathsf T}\mathbf{x}+b
-=2\times3+0.5\times2+1=8\text{ seconds}
+=2\times3+0.5\times2+1=8
 $$
 
-Read the two contributions separately: 6 seconds associated with file size, 1 second with queue count, then the 1-second intercept. The weights carry the matching units: seconds per MB and seconds per queued job. The numbers are chosen for arithmetic, not estimated from observations.
+Read the contributions separately: twice the horizontal coordinate gives 6; half the vertical coordinate gives 1; the intercept adds 1. This affine map assigns the point the scalar output 8. All values are dimensionless. The same weighted-sum operation combines features in a prediction model, where units and feature meanings must also match.
 
 The superscript T means **transpose**. It turns the column-vector representation of w into a row, so a 1 × 2 row can multiply a 2 × 1 column. We also write the same operation as w · x.
 
@@ -137,7 +137,7 @@ Later, embeddings will represent documents as vectors. Similarity is useful only
 
 ## 6. Turn a batch into a matrix calculation
 
-Put one example in each row of a **design matrix** X. Here its two columns mean size in MB and queued jobs:
+Put one example in each row of a **design matrix** X. Here its two columns contain horizontal and vertical coordinates:
 
 $$
 X=\begin{bmatrix}1&0\\2&1\\3&2\end{bmatrix},\qquad
@@ -267,7 +267,7 @@ For m = 3, d = 2, h = 4, the shape calculation is (3 × 2)(2 × 4) → (3 × 4).
 
 Use x = [4, 2], w = [2, 0.5], and b = 1. What is the prediction? What would happen if you swapped the input entries but kept the weights unchanged?
 
-<details className="solution"><summary>Reveal the calculation</summary><p>The intended prediction is 2 × 4 + 0.5 × 2 + 1 = 10 seconds. Swapping gives 2 × 2 + 0.5 × 4 + 1 = 7. Both shapes are valid, but the swapped feature meanings violate the contract.</p></details>
+<details className="solution"><summary>Reveal the calculation</summary><p>The intended prediction is 2 × 4 + 0.5 × 2 + 1 = 10. Swapping gives 2 × 2 + 0.5 × 4 + 1 = 7. Both shapes are valid, but the swapped coordinate meanings violate the contract.</p></details>
 
 ### Exercise 2: predict an output shape
 

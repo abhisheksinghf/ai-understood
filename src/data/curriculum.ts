@@ -1,7 +1,7 @@
 export const parts = [
   { title: 'Understanding the AI landscape', chapters: ['What is artificial intelligence?', 'How AI, ML, deep learning, GenAI, and LLMs connect', 'How models learn—and why they make mistakes'] },
   { title: 'Programming & mathematical foundations', chapters: ['Python for AI', 'Software, APIs, and data fundamentals', 'Algebra and linear algebra for AI', 'Probability and statistics for AI', 'Calculus, optimization, and information theory'] },
-  { title: 'Your first LLM application', chapters: ['Prompting and context design', 'Building an LLM application with Python', 'Project 1: a movie-recommendation assistant'] },
+  { title: 'Your first LLM application', chapters: ['Prompting and context design', 'Building an LLM application with Python', 'Project 1: a personal learning assistant'] },
   { title: 'Data & classical machine learning', chapters: ['Preparing data for machine learning', 'Supervised learning: regression and classification', 'Unsupervised learning and other learning approaches', 'Evaluating and improving ML models'] },
   { title: 'Search, embeddings & RAG', chapters: ['Information retrieval: how search works', 'Embeddings and vector search', 'Building a RAG system step by step', 'Improving and evaluating RAG'] },
   { title: 'Deep learning & LLM internals', chapters: ['Neural networks from first principles', 'Training and debugging neural networks', 'CNNs, sequence models, and transfer learning', 'NLP, tokenization, and language modeling', 'Attention and transformers explained', 'How LLMs are trained and generate text', 'Efficient and advanced LLM systems'] },

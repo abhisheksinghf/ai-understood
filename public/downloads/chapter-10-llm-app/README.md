@@ -13,7 +13,7 @@ py -m unittest -v test_app.py
 
 Use your working `python` or `python3` instead of `py` when needed. An optional virtual environment can be created with `py -m venv .venv`; on Windows run `.venv\Scripts\python.exe app.py`.
 
-Default mode makes no network calls, skips retry waits, and prints results without writing recommendation files. `review_required` means structure and source-ID membership passed; evidence still needs review. The unsupported fixture deliberately passes these checks with an unsupported ExampleFlix availability claim. This is a limitation demonstration, not verified output.
+Default mode makes no network calls, skips retry waits, and prints results without writing recommendation files. `review_required` means structure and source-ID membership passed; evidence still needs review. The unsupported fixture deliberately passes these checks with an unsupported 2026-12-01 exam timing claim. This is a limitation demonstration, not verified output.
 
 Cases: success, transient, authentication, refusal, incomplete, malformed, wrong_type, unknown_source, unsupported, invalid_input. `--attempts` permits 1 (default) or 2 TOTAL attempts. Only selected temporary provider failures are eligible for a retry. No retry repairs a refusal, truncated output, or invalid recommendation automatically.
 

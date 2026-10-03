@@ -1,7 +1,7 @@
 ---
 interface Props {kind:'spread'|'bayes'|'interval'}
 const {kind}=Astro.props;
-const labels={spread:['The average and the middle need not agree','Figure 1. Each circle is one runtime observation. The two stacked circles at 3 seconds are separate jobs. Mean = 4 seconds; median = 3 seconds.'],bayes:['Follow both routes to an alert','Figure 2. Of 10,000 hypothetical jobs, 100 fail and 9,900 are healthy. The alert branches contribute 90 true alerts and 495 false alerts: 585 total. Expected counts under the stated rates.'],interval:['More independent observations narrow uncertainty in the mean','Figure 3. Known population SD = 4 seconds; assumed normal, independent prediction errors. Holding the observed mean at 1 second, quadrupling n halves interval width. These are two formula comparisons, not sampled datasets.']};
+const labels={spread:['The average and the middle need not agree','Figure 1. Each circle is one delivery observation. The two stacked circles at 3 days are separate deliveries. Mean = 4 days; median = 3 days.'],bayes:['Follow both routes to an alert','Figure 2. Of 10,000 hypothetical emails, 100 are spam and 9,900 are legitimate. The alert branches contribute 90 true alerts and 495 false alerts: 585 total. Expected counts under the stated rates.'],interval:['More independent observations narrow uncertainty in the mean','Figure 3. Known population SD = 4 days; assumed normal, independent prediction errors. Holding the observed mean at 1 day, quadrupling n halves interval width. These are two formula comparisons, not sampled datasets.']};
 const id='statistics-'+kind;
 ---
 <figure class="diagram">
@@ -16,24 +16,24 @@ const id='statistics-'+kind;
         <line x1="360" x2="360" y1="83" y2="155" stroke="var(--accent)" stroke-width="2"/>
         {[[2,140],[3,140],[3,119],[4,140],[8,140]].map(([x,y])=><circle cx={80+x*70} cy={y} r="8" fill="var(--accent)"/>)}
         <text x="290" y="42" text-anchor="middle" class="node-title">Median = 3</text><text x="360" y="75" text-anchor="middle" class="node-title">Mean = 4</text>
-        <text x="640" y="105" text-anchor="middle" class="node-detail">one slower job</text><text x="395" y="217" text-anchor="middle" class="node-detail">Runtime (seconds)</text>
+        <text x="640" y="105" text-anchor="middle" class="node-detail">one slower delivery</text><text x="395" y="217" text-anchor="middle" class="node-detail">Delivery time (days)</text>
       </>}
       {kind==='bayes'&&<>
         <path d="M174 144 H208 V70 H242 M208 144 V218 H242 M423 70 H458 V42 H498 M458 70 V105 H498 M423 218 H458 V184 H498 M458 218 V246 H498" fill="none" stroke="var(--accent)" stroke-width="2"/>
-        <rect x="10" y="112" width="164" height="64" rx="8" class="node"/><text x="92" y="138" text-anchor="middle" class="node-title">10,000 jobs</text><text x="92" y="159" text-anchor="middle" class="node-detail">hypothetical total</text>
-        <rect x="242" y="39" width="181" height="62" rx="8" class="node node-accent"/><text x="333" y="65" text-anchor="middle" class="node-title">100 failed · 1%</text><text x="333" y="86" text-anchor="middle" class="node-detail">base rate</text>
-        <rect x="242" y="187" width="181" height="62" rx="8" class="node"/><text x="333" y="213" text-anchor="middle" class="node-title">9,900 healthy</text><text x="333" y="234" text-anchor="middle" class="node-detail">99% of all jobs</text>
-        <rect x="498" y="16" width="245" height="48" rx="6" class="node node-accent"/><text x="620" y="36" text-anchor="middle" class="node-title">90 true alerts</text><text x="620" y="55" text-anchor="middle" class="node-detail">90% of failed jobs</text>
-        <text x="512" y="111" class="node-detail">10 missed · 10% of failed jobs</text>
-        <rect x="498" y="160" width="245" height="48" rx="6" class="node"/><text x="620" y="180" text-anchor="middle" class="node-title">495 false alerts</text><text x="620" y="199" text-anchor="middle" class="node-detail">5% of healthy jobs</text>
-        <text x="512" y="251" class="node-detail">9,405 silent · 95% of healthy jobs</text>
+        <rect x="10" y="112" width="164" height="64" rx="8" class="node"/><text x="92" y="138" text-anchor="middle" class="node-title">10,000 emails</text><text x="92" y="159" text-anchor="middle" class="node-detail">hypothetical total</text>
+        <rect x="242" y="39" width="181" height="62" rx="8" class="node node-accent"/><text x="333" y="65" text-anchor="middle" class="node-title">100 spam · 1%</text><text x="333" y="86" text-anchor="middle" class="node-detail">base rate</text>
+        <rect x="242" y="187" width="181" height="62" rx="8" class="node"/><text x="333" y="213" text-anchor="middle" class="node-title">9,900 legitimate</text><text x="333" y="234" text-anchor="middle" class="node-detail">99% of all emails</text>
+        <rect x="498" y="16" width="245" height="48" rx="6" class="node node-accent"/><text x="620" y="36" text-anchor="middle" class="node-title">90 true alerts</text><text x="620" y="55" text-anchor="middle" class="node-detail">90% of spam emails</text>
+        <text x="512" y="111" class="node-detail">10 missed · 10% of spam</text>
+        <rect x="498" y="160" width="245" height="48" rx="6" class="node"/><text x="620" y="180" text-anchor="middle" class="node-title">495 false alerts</text><text x="620" y="199" text-anchor="middle" class="node-detail">5% of legitimate emails</text>
+        <text x="512" y="251" class="node-detail">9,405 silent · 95% of legitimate</text>
       </>}
       {kind==='interval'&&<>
         <line x1="170" x2="710" y1="173" y2="173" class="plot-axis"/>
         {[-1,0,1,2,3].map(n=><g><line x1={170+(n+1)*135} x2={170+(n+1)*135} y1="170" y2="180" class="plot-axis"/><text x={170+(n+1)*135} y="199" text-anchor="middle" class="node-detail">{n}</text></g>)}
         <line x1="440" x2="440" y1="20" y2="173" stroke="var(--gold)" stroke-dasharray="4 5"/>
         {[[25,-.568,2.568,65],[100,.216,1.784,133]].map(([n,lo,hi,y])=><g><text x="16" y={y+5} class="node-title">n = {n}</text><line x1={170+(lo+1)*135} x2={170+(hi+1)*135} y1={y} y2={y} stroke="var(--accent)" stroke-width="3"/>{[lo,hi].map(x=><g><line x1={170+(x+1)*135} x2={170+(x+1)*135} y1={y-8} y2={y+8} stroke="var(--accent)" stroke-width="2"/><text x={170+(x+1)*135} y={y-17} text-anchor="middle" class="node-detail">{x}</text></g>)}<circle cx="440" cy={y} r="5" fill="var(--accent)"/></g>)}
-        <text x="440" y="226" text-anchor="middle" class="node-detail">Population mean prediction error (seconds) · observed mean = 1 s</text>
+        <text x="440" y="226" text-anchor="middle" class="node-detail">Population mean prediction error (days) · observed mean = 1 day</text>
       </>}
     </svg>
   </div>

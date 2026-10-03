@@ -2,8 +2,8 @@
 interface Props {kind:'loop'|'split'|'fit'}
 const {kind}=Astro.props;
 const configs={
-  loop:{title:'Learning changes the weight; prediction uses the weight',desc:'Training inputs enter the current model to produce predictions. Loss compares predictions with target runtimes. The optimizer updates the weight, which returns to the model for another step. The label supplies the comparison, not a feature at prediction time.',caption:'Figure 1. One training loop. The runtime target is used to measure loss, not supplied as an input feature for a new prediction.',height:244},
-  split:{title:'Three datasets, three responsibilities',desc:'Training data fits parameters and preprocessing. Validation data guides development choices. After those choices are fixed, test data measures performance. For future-runtime prediction, split earlier, middle, and later time periods to resemble deployment.',caption:'Figure 3. The roles matter more than a fixed percentage. Validation guides choices; the test set stays separate until the chosen system is assessed.',height:234},
+  loop:{title:'Learning changes the weight; prediction uses the weight',desc:'Training inputs enter the current model to produce predictions. Loss compares predictions with target sale prices. The optimizer updates the weight, which returns to the model for another step. The label supplies the comparison, not a feature at prediction time.',caption:'Figure 1. One training loop. The sale-price target is used to measure loss, not supplied as an input feature for a new prediction.',height:244},
+  split:{title:'Three datasets, three responsibilities',desc:'Training data fits parameters and preprocessing. Validation data guides development choices. After those choices are fixed, test data measures performance. For future sale-price prediction, split earlier, middle, and later time periods to resemble deployment.',caption:'Figure 3. The roles matter more than a fixed percentage. Validation guides choices; the test set stays separate until the chosen system is assessed.',height:234},
   fit:{title:'Lower training loss can coexist with worse validation loss',desc:'Schematic curves: training loss falls as training continues. Validation loss first falls, then rises. A checkpoint near the low validation loss may be selected for early stopping. The curves are illustrative, with no measured values.',caption:'Figure 4. Schematic learning curves, not results from the tiny experiment. Use a consistent loss for comparison and investigate the data before diagnosing overfitting.',height:304}
 };
 const d=configs[kind],id='learning-'+kind;
@@ -17,7 +17,7 @@ const d=configs[kind],id='learning-'+kind;
       {kind==='loop'&&<>
         <text x="477" y="27" text-anchor="middle" class="node-title">Measured targets y</text>
         <line x1="477" x2="477" y1="37" y2="64" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
-        {[['Training inputs x','Job sizes'],['Predict','Use current weight w'],['Compare','Compute training loss'],['Adjust w','Optimizer + step size']].map((n,i)=><g transform={'translate('+(15+190*i)+',74)'}>
+        {[['Training inputs x','Floor areas'],['Predict','Use current weight w'],['Compare','Compute training loss'],['Adjust w','Optimizer + step size']].map((n,i)=><g transform={'translate('+(15+190*i)+',74)'}>
           <rect width="164" height="66" rx="8" class={i===3?'node node-accent':'node'}/>
           <text x="82" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="82" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
           {i<3&&<line x1="168" y1="33" x2="184" y2="33" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
@@ -34,7 +34,7 @@ const d=configs[kind],id='learning-'+kind;
           <text x="111" y="78" text-anchor="middle" class="node-detail">{n[2]}</text>
         </g>)}
         <line x1="22" x2="731" y1="180" y2="180" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
-        <text x="126" y="208" text-anchor="middle" class="node-detail">Earlier jobs</text><text x="377" y="208" text-anchor="middle" class="node-detail">Later development period</text><text x="628" y="208" text-anchor="middle" class="node-detail">Final held-out period</text>
+        <text x="126" y="208" text-anchor="middle" class="node-detail">Earlier sales</text><text x="377" y="208" text-anchor="middle" class="node-detail">Later development period</text><text x="628" y="208" text-anchor="middle" class="node-detail">Final held-out period</text>
       </>}
       {kind==='fit'&&<>
         <text x="55" y="23" class="node-detail">Loss · lower is better</text>

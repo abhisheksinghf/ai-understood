@@ -1,48 +1,72 @@
-# Chapter 11: movie recommendation project
+# Chapter 11: study suggestion project
 
-Python 3.10+; standard library only. All movie titles and services are fictional. Extract every file into one folder. Run commands from that folder. This project makes no network calls unless you explicitly choose `--draft live`.
+Python 3.10+; standard library only. Note content is authored; learning profiles, estimates, and exam metadata are teaching examples. Extract every file into one folder. Run commands from that folder. This project makes no network calls unless you explicitly choose `--draft live`.
 
 ```powershell
-py movie_app.py
+py study_app.py
 py evaluate.py
-py -m unittest -v test_movie_app.py
+py -m unittest -v test_study_app.py
 ```
 
-Use your working `python` or `python3` instead of `py` if needed. Edit `preferences.json`: choose `genre` from any, adventure, comedy, action, drama, sci-fi; use whole `max_minutes` from 30 to 240; set `prefer_light` to true or false; and put distinct known movie IDs in `seen_ids`. The default suggests Moonlight Map (M001). Streaming service remains null.
+Use your working `python` or `python3` instead of `py` if needed. Edit `preferences.json`: choose `topic` from any, learning, data, search, math, optimization; use whole `max_minutes` from 5 to 120; set `prefer_introductory` to true or false; and put distinct known note IDs in `completed_ids`. The default suggests Overfitting (N01). Exam date remains null.
 
-Hard constraints: matching genre (unless any), known runtime at or below the time limit, not already seen. Soft preference: give eligible light-tone movies score 1 if prefer_light is true; otherwise 0. Sort by descending score, ascending runtime, then ascending movie ID. The score is a hand-written rule, not a probability, rating, or learned taste prediction. A serious movie remains eligible when light tone is only preferred.
+Hard constraints: matching topic (unless any), known study-time estimate at or below the time limit, not already completed. Soft preference: give eligible introductory-level notes score 1 if prefer_introductory is true; otherwise 0. Sort by descending score, ascending study-time estimate, then ascending note ID. The score is a hand-written rule, not a probability, rating, or learned prediction of learning benefit. An advanced note remains eligible when introductory level is only preferred.
 
-The output includes catalog version, request, catalog-based recommendation, ranked eligible IDs, and decisions for all catalog rows. `no_match` is a normal result and does not silently relax constraints. Catalog shape and preferences are validated; missing runtime is represented as null and excluded from a time-limited search. An empty but valid catalog returns no_match. Invalid inputs print an error and exit 2. The program reads only the selected files and prints results; it does not save personal preferences or output files automatically.
+The output includes catalog version, request, catalog-based recommendation, ranked eligible IDs, and decisions for all catalog rows. `no_match` is a normal result and does not silently relax constraints. Catalog shape and preferences are validated; missing study-time estimate is represented as null and excluded from a time-limited search. An empty but valid catalog returns no_match. Invalid inputs print an error and exit 2. The program reads only the selected files and prints results; it does not save personal preferences or output files automatically.
 
 ## Add an explanation stage
 
 ```powershell
-py movie_app.py --draft template
-py movie_app.py --draft unsupported
+py study_app.py --draft template
+py study_app.py --draft unsupported
 ```
 
-These commands exercise the real Chapter 10 response-validation workflow using an authored template provider, not an LLM. The second deliberately inserts ExampleFlix in the draft's streaming_service even though the source does not support it. Structural checks pass and the draft says review_required. The separate recommendation.streaming_service stays null. Do not treat a draft as a verified replacement for the catalog-based card.
+These commands exercise the real Chapter 10 response-validation workflow using an authored template provider, not an LLM. The second deliberately inserts 2026-12-01 in the draft's exam_date even though the source does not support it. Structural checks pass and the draft says review_required. The separate recommendation.exam_date stays null. Do not treat a draft as a verified replacement for the catalog-based card.
 
-The request passes preferences (S1), only the selected movie's facts (S2), and its availability entry (S3). A missing match makes zero provider calls. A requested draft uses one total attempt, no retries. Provider failures keep the baseline card and set a failure status under draft; the CLI exits 1. A completed but unverified draft, a baseline result, and no_match exit 0. Exit 0 does not mean model claims are true.
+The request passes preferences (S1), only the selected note's facts (S2), and its exam timing entry (S3). A missing match makes zero provider calls. A requested draft uses one total attempt, no retries. Provider failures keep the baseline card and set a failure status under draft; the CLI exits 1. A completed but unverified draft, a baseline result, and no_match exit 0. Exit 0 does not mean model claims are true.
 
 ## Optional live explanation
 
 Reuse the Chapter 10 credential setup: set OPENAI_API_KEY and OPENAI_MODEL locally for a model that supports Responses and strict Structured Outputs. No model ID or access is assumed. Keep keys outside source code and the handbook browser. Only then explicitly run:
 
 ```powershell
-py movie_app.py --draft live
+py study_app.py --draft live
 ```
 
 This transmits selected fictional records and preferences to the API and can incur charges. No live call was made for this edition. Do not put real sensitive records in the catalog or preferences. The copied adapter uses a 30-second network-operation timeout, not a total deadline; store:false is not a zero-retention guarantee. See Chapter 10 for provider boundaries and data controls. The tests inject fake HTTP only and do not establish live model quality or availability.
 
 ## Files and evaluation
 
-- `movie_app.py`: validation, filtering, ranking, catalog-based card, optional draft orchestration, CLI.
+- `study_app.py`: validation, filtering, ranking, catalog-based card, optional draft orchestration, CLI.
 - `catalog.json`, `preferences.json`: explicit inputs; all metadata is synthetic.
 - `eval_cases.json`, `evaluate.py`: 12 authored policy acceptance cases. Expected IDs are written in advance, not generated by the recommender.
-- `test_movie_app.py`: boundaries, missing values, stable ties, failure handling, and fake HTTP integration.
-- `llm_core.py`, `provider.py`, `errors.py`: Chapter 10's existing service/validation code, reused without its standalone CLI. Run movie_app.py as the entry point.
+- `test_study_app.py`: boundaries, missing values, stable ties, failure handling, and fake HTTP integration.
+- `llm_core.py`, `provider.py`, `errors.py`: Chapter 10's existing service/validation code, reused without its standalone CLI. Run study_app.py as the entry point.
 
-Change a case's expected_id to an incorrect value and evaluate.py exits 1. Passing all prepared cases does not measure viewer enjoyment, recommendation diversity, or LLM factual accuracy. Add new cases when changing policy; keep a separate held-out set if tuning a learned system later.
+Change a case's expected_id to an incorrect value and evaluate.py exits 1. Passing all prepared cases does not measure learner learning benefit, recommendation diversity, or LLM factual accuracy. Add new cases when changing policy; keep a separate held-out set if tuning a learned system later.
 
 Official references: [Google recommendation architecture](https://developers.google.com/machine-learning/recommendation/overview/types), [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), [Python unittest](https://docs.python.org/3/library/unittest.html).
+
+
+## Shared learning-assistant example
+
+- N01 Overfitting (20 minutes), N02 Gradient descent (15), and N03 Features and labels (10)
+  keep Chapter 5's authored text and identifiers. This extended snapshot is study-notes-v2.
+- N04 Train-validation splits (25), N05 Embeddings (45), N06 Matrix multiplication (12),
+  and N07 Backpropagation (unknown time) extend the practice catalog.
+- S1/S2/S3 identify records inside a prompt, not permanent note identities. S1 holds
+  learner preferences, S2 supplies note facts, and S3 supplies timetable evidence.
+- exam_date is copied timetable metadata for the selected topic. Null means no date
+  was supplied. It never means that no exam exists. Dates here are invented.
+- Study estimates do not guarantee completion. completed_ids is user-declared history,
+  not an inferred mastery score. Difficulty labels are authored, not predictions.
+- Later prerequisite records should reference note IDs with prerequisite_ids; quiz
+  attempts should keep question ID, note ID, response, rubric/version, and score
+  separate from note content. Neither exists in this initial selector yet.
+- Later scheduling examples should keep versioned timetable records, available time
+  slots with a timezone, and user-confirmed revision sessions separate from notes.
+  A suggested plan must not silently create or modify calendar events.
+
+This project suggests one note and optionally drafts an explanation. It does not
+perform semantic retrieval, quiz generation, prerequisite enforcement, mastery
+assessment, or calendar scheduling. Those capabilities belong to later chapters.
