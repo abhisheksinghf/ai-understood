@@ -1,0 +1,56 @@
+---
+interface Props {kind:'loop'|'split'|'fit'}
+const {kind}=Astro.props;
+const configs={
+  loop:{title:'Learning changes the weight; prediction uses the weight',desc:'Training inputs enter the current model to produce predictions. Loss compares predictions with target runtimes. The optimizer updates the weight, which returns to the model for another step. The label supplies the comparison, not a feature at prediction time.',caption:'Figure 1. One training loop. The runtime target is used to measure loss, not supplied as an input feature for a new prediction.',height:244},
+  split:{title:'Three datasets, three responsibilities',desc:'Training data fits parameters and preprocessing. Validation data guides development choices. After those choices are fixed, test data measures performance. For future-runtime prediction, split earlier, middle, and later time periods to resemble deployment.',caption:'Figure 3. The roles matter more than a fixed percentage. Validation guides choices; the test set stays separate until the chosen system is assessed.',height:234},
+  fit:{title:'Lower training loss can coexist with worse validation loss',desc:'Schematic curves: training loss falls as training continues. Validation loss first falls, then rises. A checkpoint near the low validation loss may be selected for early stopping. The curves are illustrative, with no measured values.',caption:'Figure 4. Schematic learning curves, not results from the tiny experiment. Use a consistent loss for comparison and investigate the data before diagnosing overfitting.',height:304}
+};
+const d=configs[kind],id='learning-'+kind;
+---
+<figure class="diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{d.title}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={d.title}>
+    <svg viewBox={'0 0 760 '+d.height} role="img" aria-labelledby={id+'-title '+id+'-desc'}>
+      <title id={id+'-title'}>{d.title}</title><desc id={id+'-desc'}>{d.desc}</desc>
+      <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/></marker></defs>
+      {kind==='loop'&&<>
+        <text x="477" y="27" text-anchor="middle" class="node-title">Measured targets y</text>
+        <line x1="477" x2="477" y1="37" y2="64" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        {[['Training inputs x','Job sizes'],['Predict','Use current weight w'],['Compare','Compute training loss'],['Adjust w','Optimizer + step size']].map((n,i)=><g transform={'translate('+(15+190*i)+',74)'}>
+          <rect width="164" height="66" rx="8" class={i===3?'node node-accent':'node'}/>
+          <text x="82" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="82" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
+          {i<3&&<line x1="168" y1="33" x2="184" y2="33" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
+        </g>)}
+        <path d="M667 145 V192 H287 V146" fill="none" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <text x="477" y="218" text-anchor="middle" class="node-detail">Repeat with the updated parameter</text>
+      </>}
+      {kind==='split'&&<>
+        <text x="15" y="23" class="lane-label">SPLIT BEFORE FITTING DATA-DEPENDENT PREPARATION</text>
+        {[['Training','Fit the model','Learn preprocessing'],['Validation','Compare choices','Choose a checkpoint'],['Test','Assess the chosen system','Keep out of tuning']].map((n,i)=><g transform={'translate('+(15+i*251)+',43)'}>
+          <rect width="222" height="105" rx="9" class={i===2?'node node-accent':'node'}/>
+          <text x="111" y="29" text-anchor="middle" class="node-title">{n[0]}</text>
+          <text x="111" y="55" text-anchor="middle" class="node-detail">{n[1]}</text>
+          <text x="111" y="78" text-anchor="middle" class="node-detail">{n[2]}</text>
+        </g>)}
+        <line x1="22" x2="731" y1="180" y2="180" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <text x="126" y="208" text-anchor="middle" class="node-detail">Earlier jobs</text><text x="377" y="208" text-anchor="middle" class="node-detail">Later development period</text><text x="628" y="208" text-anchor="middle" class="node-detail">Final held-out period</text>
+      </>}
+      {kind==='fit'&&<>
+        <text x="55" y="23" class="node-detail">Loss · lower is better</text>
+        <line x1="55" x2="55" y1="38" y2="254" class="connector"/><line x1="55" x2="511" y1="254" y2="254" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <path d="M68 56 C147 151 220 213 489 235" fill="none" stroke="var(--accent)" stroke-width="3"/>
+        <path d="M68 76 C174 198 263 216 320 168 S424 90 489 58" fill="none" stroke="var(--blue)" stroke-width="3" stroke-dasharray="8 5"/>
+        <line x1="249" x2="249" y1="178" y2="254" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <text x="150" y="276" class="node-detail">Consider an earlier checkpoint</text>
+        <text x="505" y="298" text-anchor="end" class="node-detail">Training continues →</text>
+        <rect x="536" y="53" width="207" height="179" rx="9" class="node"/>
+        <line x1="553" x2="584" y1="80" y2="80" stroke="var(--accent)" stroke-width="3"/><text x="595" y="85" class="node-title">Training</text>
+        <line x1="553" x2="584" y1="111" y2="111" stroke="var(--blue)" stroke-width="3" stroke-dasharray="8 5"/><text x="595" y="116" class="node-title">Validation</text>
+        <text x="553" y="154" class="node-detail">A widening gap can warn</text><text x="553" y="173" class="node-detail">of overfitting. It is a clue,</text><text x="553" y="192" class="node-detail">not a complete diagnosis.</text>
+        <text x="553" y="219" class="lane-label">ILLUSTRATIVE CURVES</text>
+      </>}
+    </svg>
+  </div>
+  <figcaption>{d.caption}</figcaption>
+</figure>

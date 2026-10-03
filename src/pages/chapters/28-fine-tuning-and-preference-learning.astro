@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-28.mdx';
+import raw from '../../content/chapter-28.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Fine-tuning and preference learning" chapter chapterNumber={28} headings={headings} searchSections={searchSections} tocTitles={["Choose a target","Build demonstrations","Understand SFT","Full tuning & LoRA","Quantized adaptation","Create preferences","Reward learning & RL","Direct preferences","Evaluate & deploy","Explore & practice","Knowledge check","Beyond language"]} searchPlaceholder="Try “LoRA”, “DPO”, or “loss mask”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 07 · Adaptation &amp; multimodal AI</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 28</span><span class="edition">DEMONSTRATE · COMPARE · ADAPT</span></div>
+    <h1>Teach useful behavior.<br/><em>Learn from examples and choices.</em></h1>
+    <p class="hero-description">See how demonstrations and preferences guide learning,<br class="desktop-break"/> then inspect what adaptation actually changes.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 20–25 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-define-the-behavior-you-want-to-teach" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-28.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">EXAMPLES → UPDATES → EVALUATION</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you distinguish a demonstration from a preference?</h2><p>Explain SFT, trace a low-rank update, and show why fitting preferences does not prove that an answer is true.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 28 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Generative AI beyond language</h3><p>Explore how generative models create images and other kinds of data.</p><a class="text-button" href="/chapters/27-choosing-between-prompting-rag-tools-and-fine-tuning/">← Revisit Chapter 27</a></div><a class="primary-button" href="/chapters/29-generative-ai-beyond-language/">Read Chapter 29 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 28 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

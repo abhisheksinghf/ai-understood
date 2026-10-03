@@ -1,0 +1,18 @@
+{
+  "description": "Six original fictional movie sentences. The repeated sentence intentionally changes frequency counts. This is a visible teaching corpus, not an evaluation benchmark.",
+  "corpus": [
+    "this movie is fun .",
+    "this movie is warm .",
+    "this movie is fun .",
+    "this film is slow .",
+    "a fun movie feels warm .",
+    "a slow film feels long ."
+  ],
+  "samples": ["this movie is fun.", "movies!", " Movie night!", "café 🎬"],
+  "prefixes": ["this movie is", "this film is", "a fun movie"],
+  "scores": {
+    "familiar": "this movie is fun .",
+    "recombined": "this movie feels long .",
+    "unknown": "this movie is dazzling ."
+  }
+}

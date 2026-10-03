@@ -1,0 +1,193 @@
+import EvaluationDiagrams from '../components/EvaluationDiagrams.astro';
+import EvaluationLab from '../components/EvaluationLab';
+import Quiz from '../components/Quiz';
+import {chapter15Questions} from '../data/chapter15';
+
+<p className="chapter-intro">A model can look impressive on one number and still make the wrong mistakes. Evaluation connects predictions to a clear task, an honest comparison, and a decision about what to improve next.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>The main question:</strong> does this model help with the problem we actually care about, on examples it did not learn from?</p><p><strong>The practical path:</strong> count errors, choose meaningful metrics, compare against a baseline, protect the test set, and investigate recurring failures.</p><p><strong>Reading path:</strong> concise explanations, three diagrams, an interactive evaluation workbench, and a Python workbook. Expand the deeper notes for extra detail.</p></div>
+
+## 1. Define success before comparing scores
+
+For our movie classifier, **positive means an observed thumbs-up**. One example is a viewer–movie event; the prediction estimates whether that viewer will like that movie. This is different from predicting a star rating or ranking a whole catalog.
+
+Decide which errors matter. An unwanted suggestion can waste a viewer's attention; a missed like can hide a film they would enjoy. Choose a primary comparison rule and useful secondary measures before searching for a winning model. Hard requirements, such as a 120-minute runtime limit, still need their own checks.
+
+Always include a **baseline**. In this chapter's 12 validation events, only three are likes. Predicting thumbs-down for everyone gets nine correct: **75% accuracy, but zero likes found**. A headline accuracy score needs context.
+
+Our explorer uses a new synthetic snapshot: two sets of **authored, frozen probabilities**, labeled A and B, plus observed labels. It calculates real metrics but trains no model. A separate authored training summary, 6 likes among 24 events, supplies the constant baseline probability $6/24=0.25$. These are teaching fixtures, not results from Chapter 13's fitted models or a real recommendation service.
+
+## 2. Protect the boundary between choosing and testing
+
+Use **training data** to fit model parameters. Use **validation data** to choose model families, features, regularization, stopping points, or thresholds. Use a **test set** to assess the procedure after those choices are fixed. A threshold is part of the delivered system, even if changing it does not retrain the model.
+
+<EvaluationDiagrams kind="boundary" />
+
+The split should resemble deployment. For unseen viewers, keep a viewer's events together; for future events, respect time. Stratification preserves class proportions but does not, by itself, prevent viewer overlap or future information from leaking backward.
+
+Fit learned imputation, scaling, PCA, and feature selection inside the training boundary. Apply the saved transformation to held-out rows. This remains necessary even when the preprocessing is unsupervised. See scikit-learn's [data-leakage guide](https://scikit-learn.org/stable/common_pitfalls.html).
+
+<details className="optional-depth"><summary>Go deeper: cross-validation and nested selection</summary><p>In <strong>k-fold cross-validation</strong>, divide development data into k folds. For each round, fit a fresh pipeline on the other folds and evaluate on the held-out fold. A three-fold schedule is: train on B+C, validate on A; train on A+C, validate on B; train on A+B, validate on C. Fit preprocessing again inside each round. Use group-aware or time-aware folds when the prediction setting requires them.</p><p>Fold scores show sensitivity to the chosen data. Their simple mean weights folds equally; pooling errors weights examples equally, which differs when fold sizes differ. Fold standard deviation is not automatically a confidence interval because the fitted models share training data.</p><p>If the same cross-validation scores select the best configuration, reporting that best score alone can be optimistic. An untouched test set or <strong>nested cross-validation</strong> separates selection from assessment: inner folds choose settings; outer folds evaluate that selection process. See the primary <a href="https://scikit-learn.org/stable/modules/cross_validation.html">cross-validation guide</a> and <a href="https://scikit-learn.org/stable/auto_examples/model_selection/plot_nested_cross_validation_iris.html">nested-CV example</a>. The current workbook compares supplied scores; it does not fit cross-validation models.</p></details>
+
+## 3. Read the confusion matrix before the headline
+
+Every binary decision belongs to one of four outcomes. A **true positive (TP)** finds a like; a **false positive (FP)** predicts a like for an observed dislike. A **true negative (TN)** correctly predicts a dislike; a **false negative (FN)** misses a like. “True” means agreement with the recorded label, whose quality still matters.
+
+<EvaluationDiagrams kind="confusion" />
+
+For Candidate A at threshold 0.50, the counts are TP = 3, FP = 2, TN = 7, FN = 0. Different metrics ask different questions:
+
+| Metric | Calculation | Result | Question answered |
+| --- | --- | --- | --- |
+| Accuracy | $(TP+TN)/n$ | 10/12 = 83.33% | What fraction of all decisions is correct? |
+| Precision | $TP/(TP+FP)$ | 3/5 = 60% | Of predicted likes, how many are actual likes? |
+| Recall | $TP/(TP+FN)$ | 3/3 = 100% | Of actual likes, how many did we find? |
+| F1 | $2TP/(2TP+FP+FN)$ | 6/8 = 0.75 | How do precision and recall combine? |
+
+F1 is their harmonic mean, not their ordinary average. It ignores true negatives and does not encode every possible error cost. See Google's [classification-metrics explanation](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall).
+
+<details className="optional-depth"><summary>Go deeper: undefined values, class balance, and averaging</summary><p>If no events are predicted positive, precision divides by zero. We show <strong>Undefined</strong> and write JSON null, rather than pretending it is perfect precision. Recall is undefined if there are no actual positives. F1 is undefined when 2TP + FP + FN is zero. A library may choose a reporting convention; know which one it uses.</p><p><strong>Specificity</strong> is TN/(TN+FP), the fraction of actual negatives recognized. <strong>Balanced accuracy</strong> averages recall and specificity, giving both classes equal weight regardless of their frequency; it is undefined here if a class is absent. For multiple classes, <strong>macro</strong> averaging treats class-level scores equally, <strong>weighted</strong> averaging weights them by class support, and <strong>micro</strong> averaging pools counts before computing the metric. State both the averaging rule and the class counts. See the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html">classification-report reference</a>.</p></details>
+
+## 4. Choose a threshold for a reason
+
+We predict thumbs-up when $p\ge t$. Changing $t$ changes decisions, not the supplied probabilities. Raising it shrinks the set predicted positive: false positives cannot increase and recall cannot increase on a fixed dataset. **Precision need not improve at every step**, because both its numerator and denominator change.
+
+One explicit comparison rule is weighted error cost:
+
+$$
+C=c_{FP}\,FP+c_{FN}\,FN.
+$$
+
+Our default teaching assumption gives each unwanted suggestion cost 1 and each missed like cost 3. Candidate A at threshold **0.60** has one FP and no FN, so cost is 1. Candidate B at **0.70** has no FP and one FN, so cost is 3. Both have **91.67% accuracy**. Reverse the costs and B becomes preferable under that rule.
+
+Choose these assumptions from the application's goals, then select a policy using validation data. Do not claim that 0.60 is universally optimal; it is best among this workbook's preset choices under one authored scenario. See scikit-learn's [threshold-selection guide](https://scikit-learn.org/stable/modules/classification_threshold.html).
+
+## 5. Separate ranking quality from one operating point
+
+A **ROC curve** sweeps thresholds and plots recall against the false positive rate, $FP/(FP+TN)$. One threshold is one operating point. **ROC-AUC** summarizes the area under the whole curve, rather than the decisions at the currently selected threshold.
+
+For a positive–negative pair, AUC gives credit 1 when the positive has a higher score, 0 when lower, and 1/2 for a tie. Candidate A orders **25 of 27** positive–negative pairs correctly: AUC is $25/27\approx0.9259$. Its threshold can move while that ordering stays fixed. This is not 92.59% accuracy at a chosen cutoff.
+
+A **precision–recall curve** instead shows precision against recall as the threshold changes. It focuses attention on finding positives without filling the suggested set with negatives, which is useful when positives are rare. Class prevalence affects interpretation and comparison. See Google's [ROC and AUC guide](https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc).
+
+<details className="optional-depth"><summary>Go deeper: AUC ties, average precision, and top-K results</summary><p>A constant score gives ROC-AUC 0.5 when both classes are present, because every positive–negative pair ties. Our ROC implementation processes equal scores together; ordering tied rows arbitrarily must not change the result. ROC-AUC is undefined with only one observed class. The curve's axes are rates, not probability calibration or business value.</p><p><strong>Average precision (AP)</strong> summarizes precision over increases in recall. It is not generally identical to a trapezoidal area under a precision–recall curve. For ranked movie lists, <strong>precision@K</strong> asks how many of the top K results are relevant; <strong>recall@K</strong> asks how much known relevant material those results recover. A relevance label and a candidate set must be defined first. A high whole-catalog AUC does not guarantee a useful top-five list. We develop retrieval metrics in Part 5; this explorer implements ROC-AUC, not AP or top-K ranking. See the primary <a href="https://scikit-learn.org/stable/modules/generated/sklearn.metrics.average_precision_score.html">AP reference</a> and Stanford's <a href="https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-ranked-retrieval-results-1.html">ranked-retrieval explanation</a>.</p></details>
+
+## 6. Match the metric to numerical predictions
+
+For a star-rating regressor, Chapter 13's **MAE** measures average absolute error; **RMSE** takes the square root of average squared error, emphasizing large misses. Both use rating units. Inspect residuals too: similar overall errors can hide consistent underprediction for one type of movie.
+
+**R-squared** compares squared error with predicting the mean target on the evaluation set:
+
+$$
+R^2=1-\frac{\sum_i(y_i-\hat y_i)^2}{\sum_i(y_i-\bar y)^2}.
+$$
+
+For observed ratings `[1, 3, 5]`, the mean is 3 and the denominator is 8. Predicting `[3, 3, 3]` gives $R^2=0$; predicting `[5, 5, 5]` gives $1-20/8=-1.5$. **R-squared can be negative**; it is not “percent accurate.” With a constant target, this denominator is zero. See the [R-squared reference](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.r2_score.html) for library conventions.
+
+That evaluation-set mean defines the R-squared formula; a deployed constant baseline must still be fitted from training data. Compare models on the same examples, target units, and metric definition. Do not compare regression RMSE directly with classification F1.
+
+## 7. Check probabilities and the strength of the evidence
+
+**Calibration** asks whether predictions near 0.8 correspond to likes about 80% of the time across suitable cases. A **reliability diagram** compares average prediction with observed positive frequency in probability bins. A sigmoid or a good ranking does not automatically give calibrated probabilities.
+
+**Log loss** penalizes assigning low probability to the observed outcome. The binary **Brier score** averages $(p-y)^2$. Smaller is better for both, but neither is a pure calibration measure: they also reflect other aspects of predictive quality. See scikit-learn's [calibration guide](https://scikit-learn.org/stable/modules/calibration.html).
+
+Our candidates have the same AUC, approximately 0.9259, but different log losses: A is 0.4485; B is 0.3681. The supplied probability values differ even when the overall ranking score agrees. These 12 synthetic events cannot establish reliable real-world calibration or superiority.
+
+<details className="optional-depth"><summary>Go deeper: uncertainty and comparing the same cases</summary><p>Report sample sizes alongside metrics. One additional mistake changes accuracy by 1/12, about 8.33 percentage points, in this validation set. An apparent improvement on very few events can be fragile. Compare candidates on the same examples; otherwise, differences in difficulty can masquerade as model improvements.</p><p>When estimating uncertainty, preserve the unit of dependence: repeated events from one viewer should not automatically count as independent people. A bootstrap comparison can resample viewers and compute the paired metric difference for each resample. Time dependence needs a suitable time-aware method. These intervals assess sampling variability under assumptions, not protection from leakage or distribution shift; see Chapter 7's uncertainty discussion.</p><p>The workbook clips probabilities to [10⁻¹⁵, 1 − 10⁻¹⁵] only when computing log loss, so endpoint mistakes remain finite in JSON. The mathematical loss for a confidently impossible observed outcome is infinite. Brier scores, decisions, and AUC use the original scores. No confidence interval or fitted calibrator is produced by this demo.</p></details>
+
+## 8. Improve the cause of errors, not just the score
+
+Inspect examples and meaningful **slices** before choosing an intervention. At threshold 0.50, Candidate A gets four of six short-history events correct and all six long-history events correct. That suggests investigating the short-history cases; it does not prove history length caused the errors. Each slice is tiny and has a different positive rate.
+
+<EvaluationDiagrams kind="improve" />
+
+| Observed pattern | Investigate | Possible response |
+| --- | --- | --- |
+| Training and validation both perform poorly | Missing signal, wrong target, excessive constraints | Improve features or labels; reconsider capacity |
+| Training is strong, validation much worse | Leakage, excessive flexibility, unrepresentative split | Fix the split; regularize; collect relevant data |
+| Failures concentrate in one slice | Label quality, coverage, missing context | Inspect cases; improve that data or use a fallback |
+| Ranking is useful but decisions are costly | Threshold and error assumptions | Tune the policy on validation |
+
+These are hypotheses, not diagnoses from a score alone. Record the data version, feature pipeline, candidate settings, split, metric, and result. Change something for a stated reason and compare again. **An ablation** removes or changes one component to test its contribution; it supports a narrower claim than changing everything at once.
+
+<details className="optional-depth"><summary>Go deeper: learning curves and tuning without chasing noise</summary><p>A <strong>learning curve</strong> compares training and validation performance as training-set size grows. A <strong>validation curve</strong> changes a setting such as regularization while holding the evaluation protocol fixed. Poor training performance can suggest underfitting; a persistent gap can suggest variance or a data mismatch. These patterns guide investigation, not automatic conclusions. See the <a href="https://scikit-learn.org/stable/modules/learning_curve.html">learning-curve guide</a>.</p><p><strong>Grid search</strong> tries a preset combination list; <strong>random search</strong> samples settings from specified distributions. More trials also create more opportunities to win through validation noise. Keep a deliberate search budget and an independent final assessment. <strong>Early stopping</strong> uses validation behavior to decide when training ends, so the stopping choice also belongs to selection.</p><p>Class weighting or resampling may help some imbalanced tasks, but apply resampling only inside training folds; preserve the held-out population you intend to measure. Do not oversample before splitting, where copies can cross the boundary. If probabilities or the class balance change, revisit calibration and thresholds. See the primary <a href="https://scikit-learn.org/stable/modules/grid_search.html">parameter-search guide</a>.</p></details>
+
+## 9. Explore the evaluation workbench
+
+Start with Candidate A and threshold 0.50. Check the four counts and **83.33% accuracy, 60% precision, 100% recall**. Select the constant baseline and explain its 75% accuracy. With no predicted likes, precision is undefined.
+
+Return to A and raise the threshold to 0.85. Precision becomes 100%, but recall falls to 33.33%. AUC and log loss stay fixed. Compare the short- and long-history slices, then change the cost assumption and inspect which preset configuration wins on validation.
+
+<EvaluationLab client:load />
+
+The fixed comparison tries A and B at thresholds 0.40, 0.50, 0.60, 0.70, and 0.85. It always uses **all validation events** and minimizes total weighted error cost; exact ties keep the first listed configuration. The manual controls above explore individual policies and slices. A lower total cost on a smaller slice is not automatically better: inspect the event count and cost per event too.
+
+## 10. Run the workbook and practice
+
+<a className="download-link" href="/downloads/chapter-15-model-evaluation.zip" download>Download the model evaluation workbook ZIP ↗</a>
+
+Extract its four files together. Python 3.10 or newer is enough; no third-party packages, credentials, or API calls are needed.
+
+```powershell
+py evaluate.py
+py evaluate.py --candidate baseline
+py evaluate.py --threshold 0.85
+py evaluate.py --slice short
+py evaluate.py --cost unwanted
+py -m unittest -v test_evaluate.py
+```
+
+Use `python` or `python3` if that is your installed command. The script reads `movie_predictions.json` beside itself and prints JSON, leaving input files unchanged. Invalid data or out-of-range probabilities and thresholds stop with an error and exit code 2.
+
+After fixing the **selection rule and cost assumption**, run `py evaluate.py --evaluate-test`. It selects using validation, then evaluates that selected policy on all eight test events. Manual `--candidate`, `--threshold`, and `--slice` settings affect the exploration report, not which policy gets this final test. The flag encourages a workflow; the local test labels are not secret or access-controlled. Retuning after seeing them would make them development data.
+
+### Exercise 1: explain three different percentages
+
+Using TP = 3, FP = 2, TN = 7, FN = 0, calculate accuracy, precision, and recall. Why are their denominators different?
+
+<details className="solution"><summary>Reveal the reasoning</summary><p>Accuracy is (3 + 7)/12 = 83.33%, across all events. Precision is 3/(3 + 2) = 60%, across predicted likes. Recall is 3/(3 + 0) = 100%, across actual likes. The model finds every recorded like but also suggests two movies whose events were labeled dislikes.</p></details>
+
+### Exercise 2: choose between equal accuracies
+
+A at threshold 0.60 makes one FP and zero FN. B at 0.70 makes zero FP and one FN. Compare costs when FP costs 1 and FN costs 3; then reverse those weights.
+
+<details className="solution"><summary>Reveal the reasoning</summary><p>First, A costs 1 and B costs 3, so A wins under that rule. Reversing the weights makes A cost 3 and B cost 1. Both still have 11/12 accuracy. The preferable decision policy depends on which error matters more, not just the number correct.</p></details>
+
+### Exercise 3: keep test feedback out of selection
+
+In a copy of the JSON, flip the test event E013's observed label from 1 to 0. Run the default command and then `--evaluate-test`. Which outputs should change?
+
+<details className="solution"><summary>Reveal the reasoning</summary><p>The validation report, comparison, and selected configuration must stay unchanged. Only the final-test report changes: the default selected A/0.60 predicts positive for E013, so one test true positive becomes a false positive. The tests check this boundary. Restore the original snapshot before comparing handbook results; do not tune using the changed test labels.</p></details>
+
+## 11. Check your understanding
+
+<Quiz questions={chapter15Questions} client:load />
+
+## 12. Make a claim your evidence supports
+
+You can now connect **task → evaluation split → baseline → metrics and error costs → validation selection → final assessment**. Improvement means a useful change under that full procedure, not merely a larger number somewhere in a report.
+
+Offline movie labels also have limits: unobserved feedback is not automatically a dislike, and feedback about shown movies does not reveal how viewers would react to every unseen film. Before deployment, assess coverage, latency, cost, and the actual product outcome. Monitor whether the data and results change over time; later production chapters develop that loop.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning here |
+| --- | --- |
+| Baseline | Simple reference system measured on the same task |
+| Validation / test | Data for choosing / data for assessment after choosing |
+| Confusion matrix | Counts of correct and incorrect decisions by observed class |
+| Precision / recall | Correct among predicted positives / found among actual positives |
+| F1 | Harmonic combination of precision and recall |
+| Threshold | Cutoff converting scores into decisions |
+| ROC-AUC | Ranking summary across a sweep of thresholds |
+| Calibration | Agreement between predicted probabilities and observed frequencies |
+| MAE / RMSE | Absolute-error average / root mean squared error |
+| R-squared | Squared-error comparison with an evaluation-set mean reference |
+| Cross-validation | Repeated fitting and evaluation across held-out folds |
+| Slice / ablation | A meaningful data subset / a controlled component change |
+
+</details>
+
+<div className="chapter-references"><p><strong>Primary references:</strong> Google's <a href="https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall">classification metrics</a> and <a href="https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc">ROC/AUC</a>; scikit-learn's <a href="https://scikit-learn.org/stable/modules/cross_validation.html">cross-validation</a>, <a href="https://scikit-learn.org/stable/common_pitfalls.html">leakage prevention</a>, <a href="https://scikit-learn.org/stable/modules/calibration.html">calibration</a>, and <a href="https://scikit-learn.org/stable/modules/learning_curve.html">learning curves</a>. All movies, labels, and candidate scores in the workbook are original synthetic teaching data.</p><p><strong>Next: Chapter 16 — Information retrieval: how search works.</strong> Begin Part 5 by finding relevant material before building embeddings and RAG.</p></div>

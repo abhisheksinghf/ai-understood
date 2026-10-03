@@ -1,0 +1,52 @@
+---
+interface Props { kind: string }
+const { kind } = Astro.props;
+const configs: Record<string, { title: string; caption: string; lanes: { label: string; nodes: [string,string][] }[] }> = {
+  anatomy: { title: 'An AI application has several responsibilities', caption: 'Figure 1. A model output becomes useful through preparation, application policies, and review. Feedback can inform later improvements; it does not automatically retrain the model.', lanes: [
+    { label: 'FROM INFORMATION TO A USEFUL RESULT', nodes: [['Input', 'Viewer preferences'], ['Prepare', 'Check and organize'], ['Model', 'Score candidate movies'], ['Policy & review', 'Suggest or ask a question']] },
+  ] },
+  rules: { title: 'Two ways to specify behavior', caption: 'Figure 2. Explicit rules encode chosen conditions directly. Learning fits a model from examples. Both approaches still require evaluation.', lanes: [
+    { label: 'EXPLICIT RULES', nodes: [['Developer', 'Writes conditions'], ['Rule', 'Phrase is present?'], ['New message', 'Apply the condition'], ['Decision', 'Flag or accept']] },
+    { label: 'LEARNED PATTERNS', nodes: [['Examples', 'Messages + labels'], ['Training', 'Fit model parameters'], ['New message', 'Run the fitted model'], ['Policy', 'Turn score into action']] },
+  ] },
+  training: { title: 'Fitting a model and using a model are different', caption: 'Figure 3. Training adjusts parameters against an objective. Inference uses the fitted state. The training procedure repeats the comparison-and-adjustment step across examples.', lanes: [
+    { label: 'TRAINING · PARAMETERS CHANGE', nodes: [['Examples', 'Inputs and targets'], ['Current model', 'Make predictions'], ['Compare & adjust', 'Loss guides updates'], ['Fitted model', 'Evaluate before use']] },
+    { label: 'INFERENCE · FITTED PARAMETERS ARE USED', nodes: [['New input', 'An unseen message'], ['Fitted model', 'Compute an output'], ['Score', 'Spam-like: 0.82'], ['Decision policy', 'Flag, accept, or review']] },
+  ] },
+  tasks: { title: 'One input can support different tasks', caption: 'Figure 4. The desired output defines the task. A single model family can be used in more than one kind of application.', lanes: [
+    { label: 'PREDICTIVE TASK', nodes: [['Movie + preferences', 'Genre and length'], ['Ranker', 'Estimate preference'], ['Ranking', 'Moonlight Map first'], ['Evaluation', 'Is the ranking useful?']] },
+    { label: 'GENERATIVE TASK', nodes: [['Movie + preferences', 'Same evidence'], ['Generator', 'Compose a draft'], ['Explanation', 'Why this movie fits'], ['Evaluation', 'Are claims supported?']] },
+  ] },
+  assistant: { title: 'Design the assistant around evidence', caption: 'Figure 5. Generation explains a suggestion. Code checks structure and runtime limits; a reviewer checks claims. A purchase is a separate, authorized action.', lanes: [
+    { label: 'DRAFTING', nodes: [['Movie catalog', 'Keep source details'], ['Instructions', 'Preferences + constraints'], ['Generate', 'Draft from evidence'], ['Suggestion', 'Mark unknown facts']] },
+    { label: 'CHECKING AND USE', nodes: [['Suggestion', 'A proposal to review'], ['Code checks', 'Fields, types, lengths'], ['Human review', 'Evidence + uncertainty'], ['Approved use', 'Purchase only if allowed']] },
+  ] },
+  choice: { title: 'Choose the method from the problem', caption: 'Figure 6. Start with the output you need, choose a simple baseline, and evaluate whether extra complexity helps. Real applications often combine several rows.', lanes: [
+    { label: 'EXACT OPERATION', nodes: [['Known inputs', 'Amounts or IDs'], ['Known rule', 'A precise operation'], ['Ordinary code', 'Calculate or validate'], ['Check', 'Verify exact result']] },
+    { label: 'PATTERNS OR COMPOSITION', nodes: [['Varied input', 'Language or images'], ['Baseline', 'Rules, search, template'], ['Compare AI', 'Learn or generate'], ['Evaluate', 'Quality, cost, errors']] },
+  ] },
+};
+const c = configs[kind];
+const height = c.lanes.length * 116 + 18;
+const id = `diagram-${kind}`;
+---
+<figure class="diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{c.title}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={c.title}>
+    <svg viewBox={`0 0 760 ${height}`} role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+      <title id={`${id}-title`}>{c.title}</title>
+      <desc id={`${id}-desc`}>{c.lanes.map(l=> `${l.label}: ${l.nodes.map(n=>n.join(', ')).join(' → ')}.`).join(' ')}</desc>
+      <defs><marker id={`${id}-arrow`} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor" /></marker></defs>
+      {c.lanes.map((lane,i) => <g transform={`translate(0,${i*116})`}>
+        <text x="12" y="21" class="lane-label">{lane.label}</text>
+        {lane.nodes.map((node,j) => <g transform={`translate(${12+j*190},37)`}>
+          <rect width="164" height="66" rx="9" class={j===2 ? 'node node-accent' : 'node'} />
+          <text x="82" y="27" text-anchor="middle" class="node-title">{node[0]}</text>
+          <text x="82" y="47" text-anchor="middle" class="node-detail">{node[1]}</text>
+          {j<3 && <line x1="169" y1="33" x2="183" y2="33" class="connector" marker-end={`url(#${id}-arrow)`}/>}
+        </g>)}
+      </g>)}
+    </svg>
+  </div>
+  <figcaption>{c.caption}</figcaption>
+</figure>

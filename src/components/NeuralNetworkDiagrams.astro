@@ -1,0 +1,27 @@
+---
+interface Props {kind:'neuron'|'network'|'learning'}
+const {kind}=Astro.props;
+const labels={neuron:['A neuron is a small calculation','Figure 1. Weight each input, add a bias, then apply an activation. With x = (1, 0), weights (0.3, -0.2), and bias 0.1, the sigmoid output is about 0.5987.'],network:['Two inputs. Three hidden units. One output.','Figure 2. Every input connects to every hidden unit, and every hidden unit connects to the output. Each of the four computed units has a bias. Hidden activations become the output layer’s inputs.'],learning:['Prediction goes forward; gradients flow backward','Figure 3. Forward propagation computes a prediction and loss. Backpropagation applies the chain rule to calculate gradients. The optimizer updates parameters for the next pass. Inference uses only the forward path.']};
+const id='nn-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox="0 0 760 280" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='neuron'&&<>
+ {[['Inputs','x₁ = 1, x₂ = 0'],['Weighted sum + bias','z = 0.3(1) − 0.2(0) + 0.1'],['Activation','p = sigmoid(0.4)']].map(([a,b],i)=><g><rect x={12+254*i} y="60" width="228" height="112" rx="7" class={i===1?'node node-accent':'node'}/><text x={126+254*i} y="96" text-anchor="middle" class="node-title">{a}</text><text x={126+254*i} y="128" text-anchor="middle" class="node-detail">{b}</text><text x={126+254*i} y="153" text-anchor="middle" class="node-detail">{['Known features','z = 0.4','p ≈ 0.5987'][i]}</text></g>)}
+ {[0,1].map(i=><line x1={242+254*i} x2={263+254*i} y1="116" y2="116" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="380" y="220" text-anchor="middle" class="node-title">Weights control contributions; the bias shifts the starting point.</text><text x="380" y="249" text-anchor="middle" class="node-detail">Probability is a model estimate. The 0.5 decision threshold is a separate choice.</text>
+</>}
+{kind==='network'&&<>
+ {[100,190].flatMap(y=>[65,140,215].map(v=><line x1="171" y1={y} x2="345" y2={v} stroke="var(--accent)" stroke-opacity=".45" stroke-width="1.4"/>))}
+ {[65,140,215].map(y=><line x1="405" y1={y} x2="599" y2="140" stroke="var(--accent)" stroke-opacity=".55" stroke-width="1.4"/>)}
+ <text x="140" y="26" text-anchor="middle" class="lane-label">INPUT FEATURES</text><text x="375" y="26" text-anchor="middle" class="lane-label">HIDDEN LAYER · tanh</text><text x="630" y="26" text-anchor="middle" class="lane-label">OUTPUT · sigmoid</text>
+ {[100,190].map((y,i)=><g><circle cx="140" cy={y} r="30" class="node"/><text x="140" y={y+5} text-anchor="middle" class="node-title">{'x'+(i+1)}</text><text x="140" y={y+49} text-anchor="middle" class="node-detail">{i===0?'Adventure':'Romance'}</text></g>)}
+ {[65,140,215].map((y,i)=><g><circle cx="375" cy={y} r="30" class="node node-accent"/><text x="375" y={y+5} text-anchor="middle" class="node-title">{'h'+(i+1)}</text></g>)}
+ <circle cx="630" cy="140" r="30" class="node node-accent"/><text x="630" y="145" text-anchor="middle" class="node-title">p(like)</text><text x="630" y="192" text-anchor="middle" class="node-detail">No label needed to predict</text>
+ <text x="380" y="271" text-anchor="middle" class="node-title">6 hidden weights + 3 hidden biases + 3 output weights + 1 output bias = 13</text>
+</>}
+{kind==='learning'&&<>
+ {[['Features x','Known movie attributes'],['Network fθ(x)','Current parameters θ'],['Prediction p','Compare with label y'],['Mean loss L','One number to minimize']].map(([a,b],i)=><g><rect x={10+190*i} y="55" width="170" height="87" rx="7" class={i===1?'node node-accent':'node'}/><text x={95+190*i} y="88" text-anchor="middle" class="node-title">{a}</text><text x={95+190*i} y="118" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1,2].map(i=><line x1={181+190*i} x2={197+190*i} y1="98" y2="98" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <path d="M665 150 V194 H285 V150" fill="none" stroke="var(--accent)" stroke-width="1.6" marker-end={'url(#'+id+'-arrow)'}/><text x="475" y="181" text-anchor="middle" class="node-detail">Backpropagate: ∂L/∂θ</text><text x="380" y="239" text-anchor="middle" class="node-title">Optimizer: θnew = θold − learning rate × gradient</text><text x="380" y="265" text-anchor="middle" class="node-detail">Compute all gradients at the old parameters before updating them together.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

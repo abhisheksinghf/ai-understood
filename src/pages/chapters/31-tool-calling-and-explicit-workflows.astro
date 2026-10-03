@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-31.mdx';
+import raw from '../../content/chapter-31.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Tool calling and explicit workflows" chapter chapterNumber={31} headings={headings} searchSections={searchSections} tocTitles={["What a tool call means","Define a contract","Follow the call loop","Validate & authorize","Make steps explicit","Handle different failures","Retry without duplicates","Check results","Python workbook","Explore & practice","Knowledge check","From workflows to agents"]} searchPlaceholder="Try “idempotency”, “permission”, or “checkpoint”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 08 · Tools, workflows &amp; agents</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 31</span><span class="edition">REQUEST · VALIDATE · EXECUTE</span></div>
+    <h1>From words to actions.<br/><em>Make each step explicit.</em></h1>
+    <p class="hero-description">Give an assistant useful tools,<br class="desktop-break"/> then follow the checks, actions, and results.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-a-tool-call-is-a-request-to-run-code" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-31.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">REQUEST → CHECK → EXECUTE → VERIFY</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain what actually happened?</h2><p>Distinguish a request from an executed action, protect the write boundary, and explain how a workflow handles uncertain outcomes.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 31 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Building AI agents</h3><p>Let the model choose more of the next steps while keeping clear contracts, permissions, and stopping conditions.</p><a class="text-button" href="/chapters/30-multimodal-ai-images-documents-audio-and-video/">← Revisit Chapter 30</a></div><a class="primary-button" href="/chapters/32-building-ai-agents/">Read Chapter 32 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 31 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

@@ -1,0 +1,21 @@
+---
+interface Props{kind:'stages'|'rubric'|'loop'}
+const {kind}=Astro.props;
+const labels={stages:['Find the first lost fact','Figure 1. Follow a required fact from the source collection into retrieval, packed context, and the answer. Inspect the earliest gap before choosing an intervention.'],rubric:['Three different questions about the same answer','Figure 2. Context support, correct attached citations, and coverage of the requested facts are distinct. An answer can pass one check while failing another.'],loop:['Improve on development data; confirm separately','Figure 3. Use development cases to diagnose and tune. Freeze the candidate and evaluation rules before a separate test, then monitor a staged rollout. Reusing test failures for tuning makes them development data.']};const id='rag-eval-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox="0 0 760 250" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='stages'&&<>
+ {[['Sources','Fact exists?'],['Retrieved','Fact found?'],['Context','Fact included?'],['Answer','Fact used correctly?']].map(([a,b],i)=><g><rect x={12+190*i} y="45" width="166" height="100" rx="7" class={i===2?'node node-accent':'node'}/><text x={95+190*i} y="85" text-anchor="middle" class="node-title">{a}</text><text x={95+190*i} y="115" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1,2].map(i=><line x1={180+190*i} x2={199+190*i} y1="96" y2="96" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="380" y="192" text-anchor="middle" class="node-title">C retrieves all required facts, but its small context drops half.</text><text x="380" y="224" text-anchor="middle" class="node-detail">Retrieval recall = 100% does not imply context recall = 100%.</text>
+</>}
+{kind==='rubric'&&<>
+ {[['Context support','Does any supplied passage','support this claim?'],['Citation support','Does the attached source','support this claim?'],['Task completeness','Are all requested facts','correctly covered?']].map(([a,b,c],i)=><g><rect x={15+255*i} y="40" width="223" height="125" rx="7" class="node node-accent"/><text x={126+255*i} y="78" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="113" text-anchor="middle" class="node-detail">{b}</text><text x={126+255*i} y="137" text-anchor="middle" class="node-detail">{c}</text></g>)}
+ <text x="380" y="205" text-anchor="middle" class="node-title">“Runtime: 110 minutes” can be supported yet omit the plot.</text>
+</>}
+{kind==='loop'&&<>
+ {[['Development','Diagnose → change → compare'],['Frozen test','Independent confirmation'],['Staged rollout','Monitor → keep or roll back']].map(([a,b],i)=><g><rect x={15+255*i} y="42" width="223" height="99" rx="7" class={i===1?'node node-accent':'node'}/><text x={126+255*i} y="80" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="113" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1].map(i=><line x1={241+i*255} x2={266+i*255} y1="91" y2="91" stroke="var(--accent)" stroke-width="1.6" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="380" y="190" text-anchor="middle" class="node-title">Record corpus, model, prompt, grader, settings, and uncertainty.</text><text x="380" y="222" text-anchor="middle" class="node-detail">This chapter's 8 visible cases are development examples only.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

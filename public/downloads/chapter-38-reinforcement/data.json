@@ -1,0 +1,13 @@
+{
+  "states": {
+    "start": [
+      {"id":"quick","label":"Recommend a familiar movie","next":"terminal","satisfaction":2,"clicks":4},
+      {"id":"ask","label":"Ask one preference question","next":"known","satisfaction":-1,"clicks":-1}
+    ],
+    "known": [
+      {"id":"generic","label":"Recommend a generic movie","next":"terminal","satisfaction":1,"clicks":3},
+      {"id":"match","label":"Recommend the matched movie","next":"terminal","satisfaction":6,"clicks":1}
+    ]
+  },
+  "note":"Deterministic fictional movie sessions. All numbers are teaching reward units; the clicks objective is a proxy score, not a literal count."
+}

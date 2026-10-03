@@ -1,0 +1,8 @@
+{
+ "styles": {"calm":{"label":"Calm poster","mean":[-1.25,-0.75]},"adventure":{"label":"Adventure poster","mean":[1.25,0.75]}},
+ "variance":0.25,
+ "seeds":[7,42,123],
+ "retained":[0.95,0.8,0.6,0.4,0.2,0.05,0.005],
+ "axes":["Cool to warm","Spare to busy"],
+ "terminal_signal":0.001
+}

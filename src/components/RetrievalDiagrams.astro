@@ -1,0 +1,24 @@
+---
+interface Props {kind:'index'|'ranking'|'bridge'}
+const {kind}=Astro.props;
+const labels={index:['Invert the direction of lookup','Figure 1. Start with documents containing words. Build one posting list per term so a query can jump to matching movie IDs. Counts and positions add scoring and phrase information.'],ranking:['Eligibility, matching, and ordering answer different questions','Figure 2. Runtime requirements decide eligibility. Query terms identify candidates. Ranking orders those candidates; top-K limits how many are shown. Full-catalog statistics stay fixed in our lab.'],bridge:['Retrieval supplies evidence; generation writes an answer','Figure 3. In a future RAG application, retrieve useful source passages first, then provide them with the question to a generator. Check that the answer is supported by those sources.']};
+const id='retrieval-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox="0 0 760 260" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='index'&&<>
+  <rect x="15" y="30" width="270" height="170" rx="8" class="node"/><text x="35" y="60" class="node-title">Movie summaries</text><text x="35" y="91" class="node-detail">M004: space … rescue</text><text x="35" y="122" class="node-detail">M005: … space for a kitchen</text><text x="35" y="153" class="node-detail">M008: space rescue … rescue … space</text><text x="35" y="180" class="node-detail">+ five other summaries</text>
+  <line x1="300" x2="425" y1="112" y2="112" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/><text x="362" y="97" text-anchor="middle" class="node-detail">analyze + index</text>
+  <rect x="445" y="30" width="300" height="170" rx="8" class="node node-accent"/><text x="465" y="60" class="node-title">Term → posting list</text><text x="465" y="94" class="node-detail">space → M004, M005, M008</text><text x="465" y="127" class="node-detail">rescue → M001, M002, M004, M008</text><text x="465" y="167" class="node-detail">M008 has “space” twice: positions 1, 9</text>
+  <text x="380" y="239" text-anchor="middle" class="node-title">df(space) = 3 documents; tf(space, M008) = 2 occurrences.</text>
+</>}
+{kind==='ranking'&&<>
+  {[['Eligible','known runtime under 120'],['Match','OR union / AND intersection'],['Rank','score the matching summaries'],['Return','show the top K']].map(([a,b],i)=><g><rect x={8+i*190} y="43" width="173" height="105" rx="7" class={i===2?'node node-accent':'node'}/><text x={94+i*190} y="82" text-anchor="middle" class="node-title">{a}</text><text x={94+i*190} y="113" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1,2].map(i=><line x1={183+i*190} x2={195+i*190} y1="93" y2="93" stroke="var(--accent)" stroke-width="1.4" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <text x="380" y="188" text-anchor="middle" class="node-detail">Unknown runtime cannot satisfy a known-runtime requirement.</text><text x="380" y="232" text-anchor="middle" class="node-title">A higher relevance score cannot override a hard filter.</text>
+</>}
+{kind==='bridge'&&<>
+  {[['Question','What should I watch?'],['Retrieve','find source passages'],['Generate','answer with that context']].map(([a,b],i)=><g><rect x={12+i*255} y="32" width="226" height="94" rx="7" class={i===1?'node node-accent':'node'}/><text x={125+i*255} y="67" text-anchor="middle" class="node-title">{a}</text><text x={125+i*255} y="100" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1].map(i=><line x1={241+i*255} x2={261+i*255} y1="79" y2="79" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <text x="380" y="168" text-anchor="middle" class="node-detail">Search quality: did we retrieve the needed evidence?</text><text x="380" y="196" text-anchor="middle" class="node-detail">Answer quality: did the response use that evidence correctly?</text><text x="380" y="239" text-anchor="middle" class="node-title">Finding a passage does not make every claim in it reliable.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

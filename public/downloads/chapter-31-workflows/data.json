@@ -1,0 +1,19 @@
+{
+  "notice": "Fictional catalog and scripted tool proposals. No model, network, credentials or real account is used.",
+  "movies": [
+    {"movie_id":"M001","title":"Moonlight Map","runtime_minutes":95,"regions":["IN","GB"]},
+    {"movie_id":"M002","title":"Neon Chase","runtime_minutes":108,"regions":["GB"]}
+  ],
+  "scenarios": [
+    {"id":"happy","label":"Successful lookup and save"},
+    {"id":"bad_json","label":"Malformed JSON arguments"},
+    {"id":"extra_field","label":"Unexpected account field"},
+    {"id":"unknown_tool","label":"Tool outside the allowlist"},
+    {"id":"unknown_movie","label":"Well-shaped but unknown movie ID"},
+    {"id":"unavailable","label":"Movie unavailable in this region"},
+    {"id":"changed_movie","label":"Write targets a different movie"},
+    {"id":"read_timeout","label":"First lookup times out"},
+    {"id":"lost_receipt","label":"Save commits, response is lost"},
+    {"id":"bad_result","label":"Lookup returns the wrong movie"}
+  ]
+}

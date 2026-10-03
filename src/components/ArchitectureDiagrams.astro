@@ -1,0 +1,25 @@
+---
+interface Props{kind:'cnn'|'sequence'|'transfer'}
+const {kind}=Astro.props;
+const labels={cnn:['A poster becomes a learned representation','Figure 1. A CNN reuses local filters across a poster. Activations and later layers form richer representations; pooling reduces spatial detail, and a task head maps features to an output. Shapes show one illustrative design.'],sequence:['One recurrent cell, reused across viewing events','Figure 2. The same parameters process each event. Arrows carry hidden state, so later states depend on earlier events. The three boxes are uses of one cell, not three independent learned layers.'],transfer:['Reuse a backbone; choose where learning may happen','Figure 3. A pretrained backbone supplies features to a new task head. First train the head with the backbone frozen; then optionally unfreeze selected layers and compare on validation. Freezing parameters and evaluation mode are separate controls.']};
+const id='architecture-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox="0 0 760 252" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='cnn'&&<>
+ {[['Poster tensor','3 × 64 × 64','RGB channels'],['Conv + ReLU','16 × 64 × 64','3 × 3 · pad 1'],['Max pool','16 × 32 × 32','2 × 2 · stride 2'],['Features → head','Task output','e.g. poster category']].map(([a,b,c],i)=><g><rect x={10+191*i} y="48" width="166" height="126" rx="7" class={i===1?'node node-accent':'node'}/><text x={93+191*i} y="80" text-anchor="middle" class="node-title">{a}</text><text x={93+191*i} y="117" text-anchor="middle" class="node-title">{b}</text><text x={93+191*i} y="148" text-anchor="middle" class="node-detail">{c}</text></g>)}
+ {[0,1,2].map(i=><path d={`M${178+191*i} 111h20`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="380" y="218" text-anchor="middle" class="node-title">Local connections + shared filters → fewer parameters</text><text x="380" y="242" text-anchor="middle" class="node-detail">Batch dimension omitted. A filter spans every input channel.</text>
+</>}
+{kind==='sequence'&&<>
+ {[['Adventure','x₁ = +1'],['Adventure','x₂ = +1'],['Romance','x₃ = −1']].map(([a,b],i)=><g><text x={147+235*i} y="33" text-anchor="middle" class="node-title">{a} · {b}</text><path d={`M${147+235*i} 45v24`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/><rect x={62+235*i} y="78" width="170" height="80" rx="7" class="node node-accent"/><text x={147+235*i} y="109" text-anchor="middle" class="node-title">Shared RNN cell</text><text x={147+235*i} y="136" text-anchor="middle" class="node-detail">hₜ = tanh(Wxₜ + Uhₜ₋₁ + b)</text><text x={147+235*i} y="188" text-anchor="middle" class="node-title">{['h₁ = 0.6640','h₂ = 0.8117','h₃ = −0.3749'][i]}</text></g>)}
+ {[0,1].map(i=><path d={`M${234+235*i} 118h59`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="380" y="231" text-anchor="middle" class="node-detail">Authored scalar example: W = 0.8, U = 0.5, b = 0, initial state h₀ = 0.</text>
+</>}
+{kind==='transfer'&&<>
+ <rect x="22" y="61" width="206" height="100" rx="7" class="node"/><text x="125" y="98" text-anchor="middle" class="node-title">Target movie inputs</text><text x="125" y="132" text-anchor="middle" class="node-detail">Use the expected preprocessing</text>
+ <rect x="276" y="61" width="210" height="100" rx="7" class="node node-accent"/><text x="381" y="96" text-anchor="middle" class="node-title">Pretrained backbone</text><text x="381" y="125" text-anchor="middle" class="node-detail">Stage 1: freeze parameters</text><text x="381" y="146" text-anchor="middle" class="node-detail">Stage 2: optionally adapt</text>
+ <rect x="536" y="61" width="202" height="100" rx="7" class="node node-accent"/><text x="637" y="98" text-anchor="middle" class="node-title">New task head</text><text x="637" y="132" text-anchor="middle" class="node-detail">Train on target labels</text>
+ {[230,488].map(x=><path d={`M${x} 111h43`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="380" y="206" text-anchor="middle" class="node-title">Validate the choice → freeze the policy → evaluate independently</text><text x="380" y="234" text-anchor="middle" class="node-detail">The workbench demonstrates freezing with hand-set weights; it does not load this pretrained system.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

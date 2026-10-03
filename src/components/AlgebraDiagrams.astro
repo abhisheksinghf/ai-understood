@@ -1,0 +1,47 @@
+---
+interface Props {kind:'shapes'|'vectors'|'product'}
+const {kind}=Astro.props;
+const labels={shapes:['Keep the axes visible','Figure 1. Scalars have no array axes. A vector can be represented as a column; a matrix has row and column axes. ML tensors can add more named axes.'],vectors:['The same coordinates explain length and addition','Figure 2. Left: the right triangle gives the length of u = [3, 4] as 5. Right: place v = [1, −1] at the tip of u to reach u + v = [4, 3].'],product:['One row-column calculation for each result','Figure 3. Three rows, two input features, one output per row. The matching inner size is 2. These outputs are before the separate +1 bias.']};
+const id='algebra-'+kind;
+---
+<figure class="diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}>
+    <svg viewBox={kind==='vectors'?'0 0 760 250':'0 0 760 214'} role="img" aria-labelledby={id+'-title '+id+'-desc'}>
+      <title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc>
+      <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+      {kind==='shapes'&&<>
+        {['Scalar','Column vector','Matrix','Three-axis tensor'].map((name,i)=><g transform={'translate('+(10+190*i)+',12)'}><rect class="node" width="170" height="187" rx="8"/><text x="85" y="25" text-anchor="middle" class="node-title">{name}</text></g>)}
+        <text x="95" y="111" text-anchor="middle" class="algebra-number">1</text><text x="95" y="177" text-anchor="middle" class="node-detail">one value</text>
+        {[3,2].map((v,i)=><text x="285" y={92+30*i} text-anchor="middle" class="algebra-number">{v}</text>)}
+        <path d="M263 65 H255 V136 H263 M307 65 H315 V136 H307" class="algebra-bracket"/><text x="285" y="177" text-anchor="middle" class="node-detail">2 × 1 representation</text>
+        {[[1,0],[2,1],[3,2]].map((row,i)=>row.map((v,j)=><text x={455+40*j} y={77+26*i} text-anchor="middle" class="algebra-number">{v}</text>))}
+        <path d="M434 54 H428 V143 H434 M516 54 H522 V143 H516" class="algebra-bracket"/><text x="475" y="177" text-anchor="middle" class="node-detail">3 rows × 2 columns</text>
+        {[0,1,2].map(i=><rect x={627+8*i} y={65+10*i} width="60" height="49" rx="3" class={i===2?'node node-accent':'node'}/>)}
+        <text x="665" y="155" text-anchor="middle" class="node-detail">batch × position × feature</text><text x="665" y="177" text-anchor="middle" class="node-detail">8 × 32 × 64</text>
+      </>}
+      {kind==='vectors'&&<>
+        <text x="168" y="25" text-anchor="middle" class="node-title">Length: 3² + 4² = 5²</text><text x="558" y="25" text-anchor="middle" class="node-title">Addition: u + v = [4, 3]</text>
+        {[46,434].map(x=><g><line x1={x} y1="210" x2={x} y2="45" class="plot-axis"/><line x1={x-8} y1="202" x2={x+174} y2="202" class="plot-axis"/></g>)}
+        <line x1="46" y1="202" x2="142" y2="74" stroke="var(--accent)" stroke-width="3" marker-end={'url(#'+id+'-arrow)'}/>
+        <path d="M46 202 H142 V74" stroke="var(--gold)" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+        <text x="88" y="225" class="node-title">3</text><text x="155" y="144" class="node-title">4</text><text x="71" y="131" class="node-title">5</text><text x="135" y="61" class="node-detail">u = [3, 4]</text>
+        <line x1="434" y1="202" x2="530" y2="74" stroke="var(--accent)" stroke-width="3" marker-end={'url(#'+id+'-arrow)'}/>
+        <line x1="530" y1="74" x2="562" y2="106" stroke="var(--accent)" stroke-width="3" marker-end={'url(#'+id+'-arrow)'}/>
+        <line x1="434" y1="202" x2="562" y2="106" stroke="var(--gold)" stroke-width="2" stroke-dasharray="5 4"/>
+        <text x="473" y="120" class="node-title">u</text><text x="551" y="75" class="node-title">v</text><text x="578" y="111" class="node-title">[4, 3]</text><text x="522" y="166" class="node-detail">u + v</text>
+      </>}
+      {kind==='product'&&<>
+        {[['X · 3 × 2',105],['w · 2 × 1',374],['Xw · 3 × 1',638]].map(([name,x])=><text x={x} y="31" text-anchor="middle" class="node-title">{name}</text>)}
+        <rect x="42" y="136" width="126" height="34" rx="4" fill="var(--accent-soft)"/>
+        {[[1,0],[2,1],[3,2]].map((row,i)=>row.map((v,j)=><text x={78+j*54} y={80+i*39} text-anchor="middle" class="algebra-number">{v}</text>))}
+        {[2,.5].map((v,i)=><text x="374" y={99+i*39} text-anchor="middle" class="algebra-number">{v}</text>)}
+        {[2,4.5,7].map((v,i)=><text x="638" y={80+i*39} text-anchor="middle" class="algebra-number">{v}</text>)}
+        <path d="M43 52 H35 V172 H43 M167 52 H175 V172 H167 M337 74 H329 V150 H337 M411 74 H419 V150 H411 M601 52 H593 V172 H601 M675 52 H683 V172 H675" class="algebra-bracket"/>
+        <text x="250" y="119" text-anchor="middle" class="algebra-number">×</text><text x="506" y="119" text-anchor="middle" class="algebra-number">=</text>
+        <text x="380" y="199" text-anchor="middle" class="node-detail">Highlighted row: 3 × 2 + 2 × 0.5 = 7</text>
+      </>}
+    </svg>
+  </div>
+  <figcaption>{labels[kind][1]}</figcaption>
+</figure>

@@ -1,0 +1,408 @@
+{
+  "version": "rag-evaluation-v1",
+  "provenance": "Public teaching development set, not a held-out benchmark. All movie facts are fictional. Audit support and coverage labels are authored judgments, not model-grader outputs.",
+  "source": {
+    "version": "movie-rag-v1",
+    "provenance": "Fictional learning catalog. Titles, runtimes, and summaries are unchanged from Chapter 16; source revisions are added for this workbook.",
+    "movies": [
+      {
+        "id": "M001",
+        "title": "Moonlight Map",
+        "revision": 1,
+        "runtime_minutes": 105,
+        "summary": "A funny adventure follows friends on a treasure rescue across an island."
+      },
+      {
+        "id": "M002",
+        "title": "City Sprint",
+        "revision": 1,
+        "runtime_minutes": 140,
+        "summary": "A city rescue team races through traffic to stop a robbery."
+      },
+      {
+        "id": "M003",
+        "title": "Forest Signal",
+        "revision": 1,
+        "runtime_minutes": 115,
+        "summary": "Friends follow a forest signal on a gentle adventure to help a lost explorer."
+      },
+      {
+        "id": "M004",
+        "title": "Quiet Orbit",
+        "revision": 1,
+        "runtime_minutes": 110,
+        "summary": "A space crew plans a rescue near a silent planet."
+      },
+      {
+        "id": "M005",
+        "title": "Cafe Chaos",
+        "revision": 1,
+        "runtime_minutes": 90,
+        "summary": "A funny comedy about friends opening a cafe with no space for a kitchen."
+      },
+      {
+        "id": "M006",
+        "title": "Winter Road",
+        "revision": 1,
+        "runtime_minutes": 100,
+        "summary": "A quiet drama about a family reunited on a winter road."
+      },
+      {
+        "id": "M007",
+        "title": "Unlisted Voyage",
+        "revision": 1,
+        "runtime_minutes": null,
+        "summary": "Astronauts save a stranded pilot beyond a distant moon."
+      },
+      {
+        "id": "M008",
+        "title": "Parallel World",
+        "revision": 1,
+        "runtime_minutes": 118,
+        "summary": "A space rescue becomes a rescue mission when a space station loses contact."
+      }
+    ],
+    "queries": [
+      {
+        "question": "What is Quiet Orbit about?",
+        "search": "Quiet Orbit",
+        "field": "summary",
+        "id": "plot"
+      },
+      {
+        "question": "How long is Quiet Orbit?",
+        "search": "Quiet Orbit runtime",
+        "field": "runtime",
+        "id": "runtime"
+      },
+      {
+        "question": "Where can I stream Quiet Orbit?",
+        "search": "Quiet Orbit streaming",
+        "field": "streaming",
+        "id": "streaming"
+      },
+      {
+        "question": "Give one movie about a rescue in outer space, with its synopsis.",
+        "search": "space rescue",
+        "field": "summary",
+        "id": "space"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "id": "Q1",
+      "question": "What is Quiet Orbit about?",
+      "search": "Quiet Orbit",
+      "field": "summary",
+      "gold": [
+        "M004:summary"
+      ],
+      "reason": "The requested fact is present."
+    },
+    {
+      "id": "Q2",
+      "question": "How long is Quiet Orbit?",
+      "search": "Quiet Orbit runtime",
+      "field": "runtime",
+      "gold": [
+        "M004:runtime"
+      ],
+      "reason": "The requested fact is present."
+    },
+    {
+      "id": "Q3",
+      "question": "What is Winter Road about?",
+      "search": "Winter Road",
+      "field": "summary",
+      "gold": [
+        "M006:summary"
+      ],
+      "reason": "The requested fact is present."
+    },
+    {
+      "id": "Q4",
+      "question": "What is Forest Signal about?",
+      "search": "Forest Signal",
+      "field": "summary",
+      "gold": [
+        "M003:summary"
+      ],
+      "reason": "The requested fact is present."
+    },
+    {
+      "id": "Q5",
+      "question": "How long is Unlisted Voyage?",
+      "search": "Unlisted Voyage runtime",
+      "field": "runtime",
+      "gold": [],
+      "reason": "The requested fact is absent from this source snapshot."
+    },
+    {
+      "id": "Q6",
+      "question": "Where can I stream Quiet Orbit?",
+      "search": "Quiet Orbit streaming",
+      "field": "streaming",
+      "gold": [],
+      "reason": "The requested fact is absent from this source snapshot."
+    },
+    {
+      "id": "Q7",
+      "question": "What is Parallel World about?",
+      "search": "Parallel World",
+      "field": "summary",
+      "gold": [
+        "M008:summary"
+      ],
+      "reason": "The requested fact is present."
+    },
+    {
+      "id": "Q8",
+      "question": "How long is Moonlight Map?",
+      "search": "Moonlight Map runtime",
+      "field": "runtime",
+      "gold": [
+        "M001:runtime"
+      ],
+      "reason": "The requested fact is present."
+    }
+  ],
+  "facts": [
+    {
+      "id": "M001:summary",
+      "movie_id": "M001",
+      "text": "A funny adventure follows friends on a treasure rescue across an island."
+    },
+    {
+      "id": "M001:runtime",
+      "movie_id": "M001",
+      "text": "Runtime: 105 minutes."
+    },
+    {
+      "id": "M002:summary",
+      "movie_id": "M002",
+      "text": "A city rescue team races through traffic to stop a robbery."
+    },
+    {
+      "id": "M002:runtime",
+      "movie_id": "M002",
+      "text": "Runtime: 140 minutes."
+    },
+    {
+      "id": "M003:summary",
+      "movie_id": "M003",
+      "text": "Friends follow a forest signal on a gentle adventure to help a lost explorer."
+    },
+    {
+      "id": "M003:runtime",
+      "movie_id": "M003",
+      "text": "Runtime: 115 minutes."
+    },
+    {
+      "id": "M004:summary",
+      "movie_id": "M004",
+      "text": "A space crew plans a rescue near a silent planet."
+    },
+    {
+      "id": "M004:runtime",
+      "movie_id": "M004",
+      "text": "Runtime: 110 minutes."
+    },
+    {
+      "id": "M005:summary",
+      "movie_id": "M005",
+      "text": "A funny comedy about friends opening a cafe with no space for a kitchen."
+    },
+    {
+      "id": "M005:runtime",
+      "movie_id": "M005",
+      "text": "Runtime: 90 minutes."
+    },
+    {
+      "id": "M006:summary",
+      "movie_id": "M006",
+      "text": "A quiet drama about a family reunited on a winter road."
+    },
+    {
+      "id": "M006:runtime",
+      "movie_id": "M006",
+      "text": "Runtime: 100 minutes."
+    },
+    {
+      "id": "M007:summary",
+      "movie_id": "M007",
+      "text": "Astronauts save a stranded pilot beyond a distant moon."
+    },
+    {
+      "id": "M008:summary",
+      "movie_id": "M008",
+      "text": "A space rescue becomes a rescue mission when a space station loses contact."
+    },
+    {
+      "id": "M008:runtime",
+      "movie_id": "M008",
+      "text": "Runtime: 118 minutes."
+    }
+  ],
+  "configurations": [
+    {
+      "id": "narrow",
+      "label": "A \u00b7 One candidate",
+      "k": 1,
+      "budget": 50
+    },
+    {
+      "id": "wide",
+      "label": "B \u00b7 Three candidates",
+      "k": 3,
+      "budget": 50
+    },
+    {
+      "id": "tight",
+      "label": "C \u00b7 Smaller context",
+      "k": 3,
+      "budget": 20
+    }
+  ],
+  "audit": {
+    "question": "What is Quiet Orbit about, and how long is it?",
+    "required": [
+      "plot",
+      "runtime"
+    ],
+    "sources": [
+      {
+        "id": "M004:r1:plot",
+        "text": "A space crew plans a rescue near a silent planet."
+      },
+      {
+        "id": "M004:r1:facts",
+        "text": "Runtime: 110 minutes."
+      },
+      {
+        "id": "M006:r1:facts",
+        "text": "Runtime: 100 minutes."
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "complete",
+        "label": "Complete and supported",
+        "claims": [
+          {
+            "text": "Quiet Orbit follows a space crew planning a rescue near a silent planet.",
+            "citations": [
+              "M004:r1:plot"
+            ],
+            "supported_by": [
+              "M004:r1:plot"
+            ],
+            "covers": [
+              "plot"
+            ]
+          },
+          {
+            "text": "Quiet Orbit lasts 110 minutes.",
+            "citations": [
+              "M004:r1:facts"
+            ],
+            "supported_by": [
+              "M004:r1:facts"
+            ],
+            "covers": [
+              "runtime"
+            ]
+          }
+        ],
+        "note": "Both required facts are covered and both citations support their attached claims."
+      },
+      {
+        "id": "partial",
+        "label": "Supported but incomplete",
+        "claims": [
+          {
+            "text": "Quiet Orbit lasts 110 minutes.",
+            "citations": [
+              "M004:r1:facts"
+            ],
+            "supported_by": [
+              "M004:r1:facts"
+            ],
+            "covers": [
+              "runtime"
+            ]
+          }
+        ],
+        "note": "A perfectly supported runtime still omits the requested plot."
+      },
+      {
+        "id": "wrong_citation",
+        "label": "Right fact, wrong citation",
+        "claims": [
+          {
+            "text": "Quiet Orbit lasts 110 minutes.",
+            "citations": [
+              "M006:r1:facts"
+            ],
+            "supported_by": [
+              "M004:r1:facts"
+            ],
+            "covers": [
+              "runtime"
+            ]
+          }
+        ],
+        "note": "The runtime is supported elsewhere in the context, but its attached citation describes Winter Road."
+      },
+      {
+        "id": "uncited",
+        "label": "Supported but uncited",
+        "claims": [
+          {
+            "text": "Quiet Orbit lasts 110 minutes.",
+            "citations": [],
+            "supported_by": [
+              "M004:r1:facts"
+            ],
+            "covers": [
+              "runtime"
+            ]
+          }
+        ],
+        "note": "Context support and citation coverage are different. With no citation links, citation precision is undefined."
+      },
+      {
+        "id": "wrong_movie",
+        "label": "True fact about the wrong movie",
+        "claims": [
+          {
+            "text": "Winter Road lasts 100 minutes.",
+            "citations": [
+              "M006:r1:facts"
+            ],
+            "supported_by": [
+              "M006:r1:facts"
+            ],
+            "covers": []
+          }
+        ],
+        "note": "This claim is faithful to the context and correctly cited, yet answers neither required Quiet Orbit fact."
+      },
+      {
+        "id": "fabricated",
+        "label": "Unsupported streaming claim",
+        "claims": [
+          {
+            "text": "Quiet Orbit is available on StreamBox.",
+            "citations": [
+              "M004:r1:facts"
+            ],
+            "supported_by": [],
+            "covers": []
+          }
+        ],
+        "note": "The source ID exists, but the source does not support streaming availability. The reference contains no such fact."
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "vocabulary": ["<eos>", "<user>", "<assistant>", "comedy", "drama", "is", "warm", "fun", "thoughtful", "slow", ".", "Moonlight", "Map", "Quiet", "Harbor"],
+  "pretraining": ["comedy is warm .", "comedy is fun .", "comedy is warm .", "drama is thoughtful .", "drama is slow .", "drama is thoughtful ."],
+  "demonstrations": [
+    {"genre": "comedy", "reply": "Moonlight Map ."},
+    {"genre": "comedy", "reply": "Moonlight Map ."},
+    {"genre": "drama", "reply": "Quiet Harbor ."},
+    {"genre": "drama", "reply": "Quiet Harbor ."}
+  ],
+  "prompts": {"comedy": ["<user>", "comedy", "<assistant>"], "drama": ["<user>", "drama", "<assistant>"], "prose": ["comedy", "is"]},
+  "pretrain_steps": 80,
+  "learning_rate": 3,
+  "seed": 42
+}

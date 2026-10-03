@@ -1,0 +1,32 @@
+{
+  "note":"Authored movie examples. Graph values are features, not probabilities. Promotion counts and review annotations are fictional.",
+  "graph":{
+    "nodes":[
+      {"id":"A","title":"Harbor Lights","value":1},
+      {"id":"B","title":"Starlit Journey","value":0},
+      {"id":"C","title":"Quiet Orbit","value":0},
+      {"id":"D","title":"City Beats","value":0},
+      {"id":"E","title":"Hidden Reel","value":0.4}
+    ],
+    "edges":[["A","B"],["B","C"],["C","D"]],
+    "shortcut":["A","D"]
+  },
+  "causal":{
+    "unbalanced":[
+      {"group":"High interest","withN":80,"withY":64,"withoutN":20,"withoutY":18},
+      {"group":"Low interest","withN":20,"withY":4,"withoutN":80,"withoutY":24}
+    ],
+    "balanced":[
+      {"group":"High interest","withN":50,"withY":40,"withoutN":50,"withoutY":45},
+      {"group":"Low interest","withN":50,"withY":10,"withoutN":50,"withoutY":15}
+    ]
+  },
+  "reviews":[
+    {"id":"R1","text":"The slow beginning gives way to a warm ending.","p":0.5,"label":1},
+    {"id":"R2","text":"Lovely scenery, but the story left me cold.","p":0.55,"label":0},
+    {"id":"R3","text":"Beautiful performances made this worth watching.","p":0.8,"label":1},
+    {"id":"R4","text":"An exciting premise becomes a disappointing film.","p":0.2,"label":0},
+    {"id":"R5","text":"Perfect, another two hours I will never get back.","p":0.99,"label":0},
+    {"id":"R6","text":"Never again. Nothing in this movie worked for me.","p":0.02,"label":0}
+  ]
+}

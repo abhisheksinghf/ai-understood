@@ -1,0 +1,8 @@
+import type {Question} from '../components/Quiz';
+export const chapter06Questions:Question[]=[
+  {q:'What is the dot product of [3, 2] and [2, 0.5]?',options:['[6, 1]','8','7'],correct:2,explanation:'Multiply corresponding entries and add: 3 × 2 + 2 × 0.5 = 7. The vector [6, 1] is the elementwise product. A separate bias of 1 would make the prediction 8.'},
+  {q:'X has shape 5 × 3 and W has shape 3 × 2. What is the shape of XW?',options:['5 × 2','3 × 3','2 × 5'],correct:0,explanation:'The inner dimensions match. Five example rows are mapped to two output columns, giving 5 × 2.'},
+  {q:'Two nonzero vectors have cosine similarity 1. Must they have the same length?',options:['Yes. They must be identical.','No. They have the same direction but may differ in magnitude.','No. They must be perpendicular.'],correct:1,explanation:'Cosine divides out the lengths. For example, [3, 4] and [6, 8] have lengths 5 and 10 but cosine similarity 1.'},
+  {q:'A projection turns both [2, 1] and [2, −3] into [2, 0]. Can its output uniquely identify the input?',options:['Yes, if we use more decimal places.','Yes, by taking the transpose.','No. It discarded information and has no inverse on the whole plane.'],correct:2,explanation:'The second coordinate was lost. No amount of precision or transposition restores which of those inputs was used.'},
+  {q:'Can the zero vector be normalized to unit length by dividing by its norm?',options:['Yes; its norm is 1.','No; its norm is 0, so that division is undefined.','Yes; choose any direction without changing the vector.'],correct:1,explanation:'The zero vector has zero length and no direction. Dividing it by its norm cannot produce a unit vector; the operation is undefined.'},
+];

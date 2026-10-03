@@ -1,0 +1,17 @@
+{
+  "version": "movie-supervised-v1",
+  "rows": [
+    {"event_id":"S01","viewer_id":"V01","split":"train","history_like_fraction":0,"rating":1,"liked":0},
+    {"event_id":"S02","viewer_id":"V02","split":"train","history_like_fraction":0.2,"rating":2,"liked":0},
+    {"event_id":"S03","viewer_id":"V03","split":"train","history_like_fraction":0.4,"rating":3,"liked":1},
+    {"event_id":"S04","viewer_id":"V04","split":"train","history_like_fraction":0.6,"rating":3,"liked":0},
+    {"event_id":"S05","viewer_id":"V05","split":"train","history_like_fraction":0.8,"rating":4,"liked":1},
+    {"event_id":"S06","viewer_id":"V06","split":"train","history_like_fraction":1,"rating":5,"liked":1},
+    {"event_id":"S07","viewer_id":"V07","split":"validation","history_like_fraction":0.1,"rating":1,"liked":0},
+    {"event_id":"S08","viewer_id":"V08","split":"validation","history_like_fraction":0.45,"rating":3,"liked":1},
+    {"event_id":"S09","viewer_id":"V09","split":"validation","history_like_fraction":0.9,"rating":5,"liked":1},
+    {"event_id":"S10","viewer_id":"V10","split":"test","history_like_fraction":0.15,"rating":2,"liked":0},
+    {"event_id":"S11","viewer_id":"V11","split":"test","history_like_fraction":0.55,"rating":3,"liked":0},
+    {"event_id":"S12","viewer_id":"V12","split":"test","history_like_fraction":0.85,"rating":4,"liked":1}
+  ]
+}

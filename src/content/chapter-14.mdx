@@ -1,0 +1,187 @@
+import UnsupervisedDiagrams from '../components/UnsupervisedDiagrams.astro';
+import UnsupervisedLab from '../components/UnsupervisedLab';
+import Quiz from '../components/Quiz';
+import {chapter14Questions} from '../data/chapter14';
+
+<p className="chapter-intro">Sometimes we have descriptions of movies but no viewer ratings to predict. We can still look for groups, compress a representation, or flag unusual records. The key is to understand what the discovered structure actually tells us.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>Two practical tools:</strong> k-means groups nearby movies; PCA stores a smaller representation while discarding some detail.</p><p><strong>The wider map:</strong> distinguish supervised, self-supervised, semi-supervised, and reinforcement learning by where their learning signal comes from.</p><p><strong>Reading path:</strong> short core explanations, three diagrams, a working movie explorer, and a Python workbook. Open the deeper notes when you want the extra detail.</p></div>
+
+## 1. Look for structure without supplied outcome labels
+
+In Chapter 13, every training event had an outcome: a rating or a thumbs-up. **Unsupervised learning** instead looks for structure in inputs without being given the desired output label for each example. There is still an objective, such as making groups compact or reducing reconstruction error.
+
+Imagine arranging a movie catalog into shelves before collecting viewer feedback. **Clustering** groups movies under a chosen notion of similarity. **Dimensionality reduction** represents movies with fewer coordinates. **Anomaly detection** scores how unusual a record is under some learned pattern.
+
+Our new, synthetic snapshot contains nine fictional movies with two invented scores: **action** and **humor**, each from 0 to 10. These are authored descriptions, not objective measurements or actual audience feedback. No genre, cluster, or rating target is supplied. The input features can involve human judgment even when the learning task is unsupervised.
+
+## 2. Decide what “similar” means
+
+Represent a movie as a point $x=(\text{action},\text{humor})$. Moonlight Map is $(2,3)$; Forest Signal is $(3,4)$. Their squared Euclidean distance is:
+
+$$
+d^2=(2-3)^2+(3-4)^2=2.
+$$
+
+Their ordinary distance is $\sqrt{2}$. Movies are “close” here because of these two scores; language, runtime, plot, and a viewer's taste are absent from the representation.
+
+If we multiply the humor coordinate by 3, the same squared distance becomes $1+9=10$. Its humor contribution grows **ninefold** because the changed difference is squared. Feature choice, scale, and weighting can change the groups you discover.
+
+<details className="optional-depth"><summary>Go deeper: scaling is part of the definition</summary><p>A runtime measured in minutes may dominate a 0–1 preference feature unless the representation handles their scales. Standardization can help, but equal variance is a modeling choice, not a guarantee that features deserve equal importance. Here both scores already use 0–10; the ×3 control deliberately changes their relative influence.</p><p>Euclidean distance is one option. Other representations may call for cosine similarity, categorical distances, or a learned metric. Whatever you choose must fit the method's assumptions: ordinary k-means uses squared Euclidean distances and arithmetic means. Do not substitute an arbitrary distance while assuming the same update is still valid.</p></details>
+
+## 3. Follow the k-means loop
+
+Choose a number of groups $k$ and an initial center for each. Assign each movie to its nearest center. Then move every center to the **mean** of its assigned points and assign movies again. Repeat until a stopping condition is met. The center is a **centroid**; it need not coincide with an actual film.
+
+<UnsupervisedDiagrams kind="loop" />
+
+The objective, often called **inertia**, is the sum of squared distances from points to their assigned centers:
+
+$$
+J=\sum_{i=1}^{n}\|x_i-\mu_{c_i}\|^2.
+$$
+
+Here $n$ counts movies, $c_i$ identifies movie $i$'s assigned cluster, and $\mu_{c_i}$ is that cluster's center. The assignment and mean updates each avoid increasing this objective, apart from numerical rounding. See scikit-learn's [k-means reference](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html).
+
+Our default uses $k=3$ and starts at Moonlight Map, Cafe Chaos, and Funny Mission. The first group contains six movies whose action scores sum to 23 and humor scores sum to 14. Its updated centroid is $(23/6,14/6)\approx(3.8333,2.3333)$. One update lowers inertia from **75 to 51.1667** and leaves the assignments unchanged.
+
+<details className="optional-depth"><summary>Go deeper: initialization, stopping, and empty groups</summary><p>“Spread start” in this workbook means fixed first, middle, and last rows for k = 3; for k = 2 it uses first and last. “First k” uses the first rows. These are reproducible teaching choices, not the probabilistic k-means++ initialization used by many libraries. Row order can therefore affect the starting points.</p><p>Step 0 already includes nearest-center assignments. Each button press updates means and then reassigns movies. We stop when those assignments no longer change, with a maximum of 50 updates. At an intermediate step, the centers are means of the <em>previous</em> groups; another update may be needed.</p><p>Distance ties go to the lowest center index. An empty group retains its old center. Duplicate coordinates can therefore leave fewer occupied groups than the requested k. Cluster numbers are arbitrary identifiers; exchanging C1 and C2 does not change a partition.</p></details>
+
+## 4. Ask whether the groups are useful
+
+A lower inertia means a tighter fit under the **same data and coordinates**. It does not establish correct genres or better recommendations. Our two starts with $k=3$ stop at 51.1667 and 55.3333: different locally stable solutions to the same problem. Trying multiple starts helps, but a stopping point is not proof of the best possible solution.
+
+Choosing $k$ is also a judgment. The best achievable inertia cannot increase when more centers are allowed, so minimizing it alone favors ever more groups. Individual runs may behave differently because of initialization. An **elbow plot** looks for diminishing improvement; a **silhouette score** compares within-group closeness with separation from another group. Neither identifies universally “true” clusters.
+
+Inspect movie members, check sensitivity to reasonable changes, and ask whether the grouping helps the intended task. Two features cannot reveal every meaningful pattern. K-means is especially limited when groups have strongly different shapes or densities; Google's [k-means limitations](https://developers.google.com/machine-learning/clustering/kmeans/advantages-disadvantages) explain these tradeoffs.
+
+<details className="optional-depth"><summary>Go deeper: other clustering families</summary><p><strong>Hierarchical clustering</strong> builds nested groups, often visualized as a dendrogram; choosing where to cut the hierarchy sets a grouping. <strong>DBSCAN</strong> groups density-connected points and can mark sparse points as noise, with neighborhood and density settings controlling the result. It does not require the same fixed k choice as k-means.</p><p>A <strong>Gaussian mixture model</strong> fits a mixture of probability distributions and can give a movie soft membership probabilities instead of only one group ID. Assumptions still matter: a soft assignment is not a viewer's liking probability. These methods answer related questions with different models; they are not implemented in this workbook. See the primary <a href="https://scikit-learn.org/stable/modules/clustering.html">clustering guide</a> and <a href="https://scikit-learn.org/stable/modules/mixture.html">mixture-model guide</a>.</p></details>
+
+## 5. Keep fewer coordinates with PCA
+
+**Principal component analysis (PCA)** centers the feature vectors, then finds perpendicular directions that capture successively smaller amounts of variance. Keeping only the first principal component, **PC1**, gives each movie one coordinate along the direction of greatest variance.
+
+<UnsupervisedDiagrams kind="compression" />
+
+With mean vector $\mu$ and unit direction $v$, the stored score and reconstructed point are:
+
+$$
+z=(x-\mu)\cdot v,\qquad \hat x=\mu+zv.
+$$
+
+This connects to Chapter 6's dot product and projection. For a hand calculation, take three points $(1,1),(2,2),(3,3)$. Their mean is $(2,2)$, and the principal direction is $(1,1)/\sqrt{2}$. The point $(3,3)$ has score $z=\sqrt{2}$ and reconstructs exactly. All three points already lie on one line, so this example loses no detail.
+
+Our nine movies do not lie on one line. Their PC1 retains **69.97% of total feature variance**. Cafe Chaos, $(2,9)$, reconstructs to about $(5.6886,5.5312)$: its low-action, high-humor character gets blurred. The retained percentage describes the representation, **not recommendation accuracy**. See the [PCA guide](https://scikit-learn.org/stable/modules/decomposition.html#pca).
+
+<details className="optional-depth"><summary>Go deeper: eigenvectors, reconstruction, and visual maps</summary><p>The covariance matrix summarizes how centered features vary together. Its eigenvectors provide PCA directions; their eigenvalues give variance along those directions. Our small implementation solves the two-dimensional case directly and divides covariance sums by n. Using n − 1 rescales the eigenvalues but leaves these directions and explained-variance ratios unchanged.</p><p>The movie mean is about (4.6667, 4.4444), and PC1's unit direction is (0.6851, 0.7285). Reversing the direction reverses every score but reconstructs the same points. With two retained components, these two-dimensional points can be reconstructed fully; with one, the mean squared reconstruction distance is 5.7459. If both features are constant, the variance ratio is undefined and the workbook stops with an error.</p><p>PCA creates combinations of features, rather than selecting one original feature. It is sensitive to feature scales and does not use a target to decide which variance matters. Nonlinear visualizations such as t-SNE or UMAP serve different goals; an apparent island in a two-dimensional map is not, by itself, evidence of a real category. Autoencoders learn another kind of compressed representation; we will meet them with neural networks.</p></details>
+
+## 6. Treat unusual as a reason to inspect
+
+**Anomaly detection** flags records that differ from a reference pattern. A catalog entry might be unusual because of an input error, a rare valid movie, or features that fail to describe it well. Unusual does not mean invalid or unpopular.
+
+For example, Cafe Chaos has the largest squared distance from its PCA reconstruction in our snapshot. That means it sits far from this particular one-dimensional representation. A distance from a cluster center would be a different score with different assumptions. Neither alone justifies removing the film.
+
+**Outlier detection** examines potentially unusual examples within the data being analyzed. **Novelty detection** typically learns a reference from data assumed to represent normal cases, then judges new examples. See scikit-learn's [outlier and novelty guide](https://scikit-learn.org/stable/modules/outlier_detection.html).
+
+This chapter fits the entire small collection to describe it. It makes no claim about held-out accuracy. If PCA, scaling, or clustering becomes a preprocessing stage for a future prediction task, fit that stage only on the appropriate training split and transform held-out examples using the saved fit. Unsupervised preprocessing can still leak information across Chapter 12's boundary.
+
+## 7. Find out where the learning signal comes from
+
+“No manually labeled target for every row” covers several different situations. Keep these three distinctions clear:
+
+| Approach | Movie example | Where the target or signal comes from |
+| --- | --- | --- |
+| Self-supervised | Hide a word in a synopsis and predict it | The original text supplies the missing word |
+| Semi-supervised | Learn a genre classifier using a few labeled synopses and many unlabeled ones | A combination of supplied labels and unlabeled structure |
+| Weak supervision | Use imperfect rules to suggest genre labels | Noisy heuristics or other indirect signals |
+
+**Self-supervised learning still has targets and a loss.** Masked-word prediction is one example; predicting a next token is another. Such training can produce representations later adapted to labeled tasks. The [BERT paper](https://arxiv.org/abs/1810.04805) demonstrates masked-language pretraining; [Data Programming](https://arxiv.org/abs/1605.07723) studies learning with noisy labeling functions.
+
+<UnsupervisedDiagrams kind="signals" />
+
+<details className="optional-depth"><summary>Go deeper: pseudo-labels can reinforce mistakes</summary><p>One semi-supervised method first trains on labeled examples, predicts labels for unlabeled ones, and adds selected predictions to training. These are <strong>pseudo-labels</strong>, not newly verified facts. A model confident in the wrong pattern can amplify its own mistakes. Useful unlabeled data and reliable assumptions about the data distribution matter; more rows do not guarantee improvement.</p><p>A rule saying “a synopsis containing ‘spaceship’ means science fiction” is weak supervision: it supplies an imperfect category guess. Hiding the actual word “spaceship” and recovering it is self-supervision: the original word is the target. These categories can overlap in a larger workflow, but their signals should remain explicit. See scikit-learn's <a href="https://scikit-learn.org/stable/modules/semi_supervised.html">semi-supervised learning guide</a>.</p></details>
+
+## 8. Separate feedback, label requests, and update schedules
+
+In **reinforcement learning (RL)**, a policy chooses actions using available state information, receives rewards from interaction, and is learned to improve expected cumulative reward. A recommendation system could choose a film to show, observe feedback, and learn a policy over repeated interactions. Reward design matters: a click may not represent long-term satisfaction. Merely collecting clicks does not make a system RL; those clicks could also become ordinary supervised labels.
+
+**Active learning** chooses which examples to ask someone to label—for example, requesting genre judgments for confusing synopses. **Online learning** updates a model as data arrives instead of only fitting one fixed batch. **Transfer learning** reuses knowledge learned on another task or dataset. These describe different aspects of learning and can be combined.
+
+Google's [machine-learning glossary](https://developers.google.com/machine-learning/glossary) defines these terms. Chapter 38 develops RL further. This chapter's executable experiment implements k-means and PCA; it does not train a language model or an RL policy.
+
+## 9. Explore groups and compressed coordinates
+
+Start with $k=3$, the spread start, and humor ×1. Move the centers once: confirm **75 → 51.1667** and inspect the group members. Switch to the first-row start and run again. Then choose $k=2$ and compare humor ×1 with ×3: Cafe Chaos changes its companions.
+
+Switch to PCA and inspect Cafe Chaos's dashed reconstruction difference. The chart always uses original score units. PCA uses the original unweighted scores, independent of the clustering controls.
+
+<UnsupervisedLab client:load />
+
+Compare inertia only when the data and feature coordinates match. Multiplying humor by 3 changes the objective's scale as well as the grouping. A larger number across these differently scaled experiments is not evidence that the new grouping is worse.
+
+## 10. Run the workbook and practice
+
+<a className="download-link" href="/downloads/chapter-14-unsupervised-learning.zip" download>Download the unsupervised learning workbook ZIP ↗</a>
+
+Extract its four files together. Python 3.10 or newer is sufficient; there are no third-party packages or API calls. Open a terminal in that folder:
+
+```powershell
+py unsupervised.py --steps 0
+py unsupervised.py --steps 1
+py unsupervised.py --start first
+py unsupervised.py --k 2 --humor-weight 3
+py unsupervised.py --mode pca
+py -m unittest -v test_unsupervised.py
+```
+
+Use `python` or `python3` if that is your working command. By default, the script reads `movie_features.json` beside itself, runs clustering until the stopping rule, and prints JSON. It leaves the input unchanged. `--steps 0` reports initialization; PCA prints the learned direction, scores, reconstructions, and residuals. Invalid input produces an error and exit code 2.
+
+### Exercise 1: change the geometry
+
+For Moonlight Map $(2,3)$ and Forest Signal $(3,4)$, calculate squared distance before and after multiplying humor by 3. Did the movie descriptions change?
+
+<details className="solution"><summary>Reveal the reasoning</summary><p>Originally, 1² + 1² = 2. With the second coordinate scaled, 1² + 3² = 10. The stored descriptions did not change; the representation used to measure similarity changed. The humor contribution increased from 1 to 9.</p></details>
+
+### Exercise 2: explain the fitted center
+
+The default first cluster has six members, with action sum 23 and humor sum 14. Find its updated centroid. Does its lower inertia establish the correct genre for those six films?
+
+<details className="solution"><summary>Reveal the reasoning</summary><p>Divide each sum by six: the centroid is (23/6, 14/6), or about (3.8333, 2.3333). Run the default one-step workbook to verify it and inertia 51.1667. The objective measures compactness under our chosen scores; no supplied genre labels or viewer outcomes establish a correct interpretation.</p></details>
+
+### Exercise 3: project and reconstruct
+
+For the three collinear points in Section 5, use mean $(2,2)$ and direction $(1,1)/\sqrt{2}$ to project $(3,3)$ and reconstruct it. Why is the movie example less exact?
+
+<details className="solution"><summary>Reveal the reasoning</summary><p>Centering gives (1,1); its dot product with the unit direction is 2/√2 = √2. Reconstruction is (2,2) + √2 × (1,1)/√2 = (3,3). These three points lie on the retained line, so no detail is lost. The nine movie points also vary perpendicular to their fitted line; storing just one coordinate discards that variation.</p></details>
+
+## 11. Check your understanding
+
+<Quiz questions={chapter14Questions} client:load />
+
+## 12. Connect the objective to the claim
+
+You can now trace **features → similarity or variance objective → fitted structure → interpretation**. A cluster is not a genre fact; a PCA coordinate is not a rating; an anomaly score is not a verdict.
+
+Before choosing a method, ask what data is available, where the learning signal comes from, and how usefulness will be checked. Discovered groups may help organize a catalog or create candidate recommendations, but Chapter 11's runtime and catalog constraints still need explicit checks.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning here |
+| --- | --- |
+| Unsupervised learning | Learn input structure without supplied outcome labels |
+| Cluster / centroid | A group / its mean feature vector in k-means |
+| Inertia | Sum of squared distances to assigned centers |
+| Initialization | Starting parameters before iterative fitting |
+| PCA / principal component | Linear dimensionality reduction / a learned variance direction |
+| Explained variance ratio | Fraction of total variance retained by selected components |
+| Reconstruction residual | Difference between an original and reconstructed point |
+| Anomaly | A record unusual under a specified reference pattern |
+| Self-supervision | Construct learning targets from the original data |
+| Semi-supervision / pseudo-label | Use labeled and unlabeled data / a model-generated target |
+| Weak supervision | Learn with noisy or indirect labeling signals |
+| Policy / reward | Rule for choosing actions / feedback optimized in RL |
+
+</details>
+
+<div className="chapter-references"><p><strong>Primary references:</strong> scikit-learn's <a href="https://scikit-learn.org/stable/modules/clustering.html">clustering</a>, <a href="https://scikit-learn.org/stable/modules/decomposition.html#pca">PCA</a>, <a href="https://scikit-learn.org/stable/modules/outlier_detection.html">anomaly detection</a>, and <a href="https://scikit-learn.org/stable/modules/semi_supervised.html">semi-supervised learning</a> guides; Google's <a href="https://developers.google.com/machine-learning/glossary">ML glossary</a>; the <a href="https://arxiv.org/abs/1810.04805">BERT</a> and <a href="https://arxiv.org/abs/1605.07723">Data Programming</a> papers. Examples, diagrams, and calculations use our original synthetic movie snapshot.</p><p><strong>Next: Chapter 15 — Evaluating and improving ML models.</strong> Choose useful metrics, compare models fairly, and diagnose the errors that matter.</p></div>

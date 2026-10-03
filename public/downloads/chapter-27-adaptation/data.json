@@ -1,0 +1,18 @@
+{
+  "knowledge": [{"id":"provided","label":"Facts already supplied"},{"id":"documents","label":"Authoritative documents"},{"id":"live","label":"Current external state"},{"id":"documents_live","label":"Documents + current state"}],
+  "methods": {"prompt":"Prompt baseline","rag":"RAG","readTool":"Live read tool","writeTool":"Write tool","fineTune":"Fine-tuning trial"},
+  "flags": {"writeAction":"Change a user's watchlist","behaviorGap":"Repeated behavior failures on a stable task","baselineTested":"Prompt baseline evaluated","examplesReady":"Representative demonstrations ready","evalReady":"Separate held-out evaluation ready"},
+  "commonChecks": ["Evaluate useful answers and exact constraints on held-out requests."],
+  "documentChecks": ["Check document permissions, freshness, retrieval coverage, and citation support."],
+  "liveChecks": ["Validate lookup inputs, region, timestamps, and handling of unavailable services."],
+  "actionChecks": ["Validate the target movie and account; require authorization for the requested action.","Check current state, make retries safe, and verify the actual execution result."],
+  "behaviorChecks": ["Measure the repeated failure on unseen cases; a training trial still needs a baseline comparison."],
+  "scenarios": [
+    {"id":"provided","title":"Explain a supplied movie card","description":"The user provides Moonlight Map's card and wants a two-sentence summary. All required facts are already in context.","config":{"knowledge":"provided","writeAction":false,"behaviorGap":false,"baselineTested":false,"examplesReady":false,"evalReady":false}},
+    {"id":"archive","title":"Answer from a large movie archive","description":"Explain why Moonlight Map fits the user's mood, citing evidence scattered across a large, permission-controlled archive.","config":{"knowledge":"documents","writeAction":false,"behaviorGap":false,"baselineTested":false,"examplesReady":false,"evalReady":false}},
+    {"id":"availability","title":"Check tonight's availability","description":"Find whether Moonlight Map is available in the user's region right now. This exercise assumes a live service is the source of truth.","config":{"knowledge":"live","writeAction":false,"behaviorGap":false,"baselineTested":false,"examplesReady":false,"evalReady":false}},
+    {"id":"watchlist","title":"Add a chosen movie","description":"The user explicitly asks to add movie M001 to their watchlist. The app must validate the request and execute an authorized state change.","config":{"knowledge":"provided","writeAction":true,"behaviorGap":false,"baselineTested":false,"examplesReady":false,"evalReady":false}},
+    {"id":"behavior","title":"Improve repeated explanation style","description":"The assistant repeatedly misses a stable house style. The team has not yet evaluated a clear prompt baseline or prepared independent training and evaluation examples.","config":{"knowledge":"provided","writeAction":false,"behaviorGap":true,"baselineTested":false,"examplesReady":false,"evalReady":false}},
+    {"id":"hybrid","title":"Recommend, verify, and save","description":"Use the archive, check current regional availability, and save a chosen movie with authorization. A tested baseline still misses the house style; curated demonstrations and a held-out evaluation are ready.","config":{"knowledge":"documents_live","writeAction":true,"behaviorGap":true,"baselineTested":true,"examplesReady":true,"evalReady":true}}
+  ]
+}

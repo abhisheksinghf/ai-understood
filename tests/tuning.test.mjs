@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {data,lora,preference,preferenceState} from '../src/lib/tuning.mjs';
+const close=(a,b,tol=1e-10)=>assert.ok(Math.abs(a-b)<tol,`${a} vs ${b}`);
+test('zero B preserves base output',()=>{for(const rank of [1,2]){const r=lora(rank,4,'initial');assert.deepEqual(r.output,r.baseOutput);assert.deepEqual(r.update,[0,0,0,0]);}});
+test('known LoRA output and counts',()=>{lora().output.forEach((v,i)=>close(v,[1.4,.5,-.2,1.1][i]));assert.equal(lora().trainableParameters,8);assert.equal(lora(2).trainableParameters,16);});
+test('merged and separate paths agree',()=>{for(const rank of [1,2]){const r=lora(rank,4);data.base.forEach((row,i)=>close(row.reduce((s,w,j)=>s+(w+r.delta[i][j])*data.input[j],0),r.output[i]));}});
+test('reference equality gives log two loss for either label',()=>{for(const reference of [.2,.5,.8])for(const chosen of ['A','B']){const r=preference(reference,.5,.5,0,chosen).final;close(r.loss,Math.log(2));close(r.pA,reference);close(r.kl,0);close(r.margin,0);}});
+test('one scalar step matches hand calculation',()=>{const p=preference(.5,.5,.5,1);assert.equal(p.initial.gradient,-.25);assert.equal(p.final.theta,.125);close(p.final.pA,.5312093733737563);});
+test('DPO analytical gradient matches finite differences',()=>{for(const theta of [-2,0,2])for(const beta of [.1,.5,1])for(const sign of [-1,1]){const e=1e-5,a=preferenceState(theta+e,.3,beta,sign).loss,b=preferenceState(theta-e,.3,beta,sign).loss;close((a-b)/(2*e),preferenceState(theta,.3,beta,sign).gradient,1e-8);}});
+test('bad label improves training fit while making grounded answer less likely',()=>{const p=preference(.5,.5,.5,40,'B');assert.ok(p.final.loss<p.initial.loss);assert.ok(p.final.pA<p.initial.pA);});
+test('supported trajectories remain finite normalized and improve pair loss',()=>{for(const reference of [.2,.5,.8])for(const beta of [.1,.5,1])for(const rate of [.1,.5,1])for(const chosen of ['A','B']){const p=preference(reference,beta,rate,40,chosen);for(const [i,r] of p.history.entries()){close(r.pA+r.pB,1);assert.ok(Object.values(r).every(Number.isFinite));if(i)assert.ok(r.loss<p.history[i-1].loss);}}});
+test('reports cannot mutate source matrices',()=>{const before=structuredClone(data),r=lora();r.A[0][0]=999;r.input[0]=999;assert.deepEqual(data,before);});
+test('invalid configurations fail explicitly',()=>{for(const args of [[0,2,'adapted'],[1,3,'adapted'],[1,2,'unknown'],[true,2,'initial']])assert.throws(()=>lora(...args));for(const args of [[0,.5,.5,1,'A'],[.5,0,.5,1,'A'],[.5,.5,.5,41,'A'],[.5,.5,.5,1,'C']])assert.throws(()=>preference(...args));});

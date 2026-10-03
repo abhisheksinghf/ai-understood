@@ -1,0 +1,14 @@
+event_id,viewer_id,movie_id,runtime_minutes,genre,liked,review_after
+E01,U01,M001,105, Adventure ,1,I enjoyed it.
+E02,U01,M002,140,action,0,Not for me.
+E03,U02,M003,115,ADVENTURE,1,I enjoyed it.
+E04,U02,M004,,sci-fi,0,Not for me.
+E05,U03,M005,90,comedy,1,I enjoyed it.
+E06,U03,M006,,drama,0,Not for me.
+E07,U04,M008,180,documentary,1,I enjoyed it.
+E08,U04,M009,200,adventure,0,Not for me.
+E09,U05,M010,80,comedy,1,I enjoyed it.
+E10,U05,M011,160,documentary,0,Not for me.
+E03,U02,M003,115,ADVENTURE,1,I enjoyed it.
+E11,U02,M005,-5,comedy,1,I enjoyed it.
+E12,U03,M001,105,adventure,,

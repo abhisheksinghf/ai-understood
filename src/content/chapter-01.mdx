@@ -1,0 +1,381 @@
+---
+title: What is artificial intelligence?
+description: Understand what AI does, how learning differs from rules, and where it belongs in a useful application.
+chapter: 1
+---
+
+import Diagram from '../components/Diagram.astro';
+import ThresholdLab from '../components/ThresholdLab';
+import Quiz from '../components/Quiz';
+
+<div className="chapter-intro">
+AI is bigger than a chat window. An email filter, an image recognizer, and a movie-recommendation assistant solve different problems. This chapter explains what connects them, how they work at a high level, and when to use them.
+</div>
+
+<div className="learning-card">
+<p className="eyebrow">Your destination</p>
+
+Explain AI in your own words, distinguish rules from learning, trace an AI application's decisions, and choose a sensible approach to a practical problem.
+
+**How to study:** Allow about 20–25 minutes for the core reading and diagrams. Try the experiment and three core exercises afterward. Expand optional notes, the Python lab, and extra practice when useful. No AI background or advanced mathematics is needed.
+</div>
+
+## 1. Begin with a problem, not a technology
+
+Imagine choosing a movie for tonight from 150 titles. You want a light adventure lasting no more than two hours. Genre filters, a written scoring rule, or a learned recommender might help. Choosing AI is a method decision; first define the problem.
+
+| Question | Movie-night example |
+|---|---|
+| **Input:** What information is available? | Viewer preferences and movie details |
+| **Task:** What should the system do? | Suggest a suitable movie |
+| **Output:** What should it return? | A ranked suggestion with a reason |
+| **Success:** How will we judge it? | Suggestions meet the time limit and suit the viewer |
+
+“Use AI” is vague. “Suggest an adventure under two hours that this viewer is likely to enjoy” is testable. If a simple genre-and-length filter solves the problem reliably, a model may be unnecessary.
+
+## 2. What does “artificial intelligence” mean?
+
+**Artificial intelligence is the field of building computational systems that perform tasks involving perception, language, reasoning, planning, learning, or decision-making.** This is a working definition; the field's boundaries are debated. See [Poole and Mackworth's introduction](https://artint.info/3e/html/ArtInt3e.Ch1.S1.html) for an agent-oriented perspective.
+
+AI includes search, logical rules, and learning methods. **Machine learning (ML)** is an approach within AI that fits models using data. The two terms are not interchangeable. [Google's ML introduction](https://developers.google.com/machine-learning/intro-to-ml/what-is-ml) explains this learning approach.
+
+**Capability** is a demonstrated ability on a task. **Reliability** is how consistently the system meets requirements across relevant situations. Recognizing some photographs does not prove an ability to plan trips—or even reliable recognition of every kind of photograph.
+
+<details className="optional-depth">
+<summary>Optional perspective: does AI think like a person?</summary>
+
+An aircraft flies without flapping its wings like a bird. Similarly, performing an intelligent-looking task does not establish human-like thought, consciousness, or feelings. Judge the demonstrated behavior and its limitations. Chapter 2 will map the major AI terms and their relationships.
+
+</details>
+
+## 3. Look inside an AI application
+
+A movie-ranking model is one component. The complete application must collect preferences, prepare movie details, obtain a ranking, and decide what to show.
+
+<Diagram kind="anatomy" />
+
+| Component | Role in the application |
+|---|---|
+| **Data and preparation** | Receive information and check or organize it before use |
+| **Algorithm** | A specified computational procedure, such as a method for fitting a model |
+| **Model** | A representation used to produce outputs; an ML model contains state fitted using data |
+| **Application logic** | Apply policies, such as sending uncertain cases for review |
+| **Interface** | Let people supply inputs and inspect results |
+| **Evaluation** | Compare results with defined requirements |
+
+The training algorithm is the **procedure**; the fitted model is the **resulting state used for predictions**. A model might output a preference score of 0.82. Adding a movie to a watchlist is a separate action, controlled by application policy. A score alone does not grant permission to act.
+
+## 4. The different kinds of work AI can do
+
+These capabilities can be combined in one application:
+
+| Capability | Meaning and example |
+|---|---|
+| **Perceive** | Extract information from sensory input, such as reading a movie poster |
+| **Classify** | Assign a category, such as a movie-review label, “positive” |
+| **Estimate** | Produce a number, such as a predicted viewer rating |
+| **Rank** | Order candidates, such as movies ordered by preference score |
+| **Generate** | Produce content, such as an explanation of a movie suggestion |
+| **Reason or solve** | Use relationships or constraints, such as checking whether two movies fit an evening |
+| **Plan** | Choose steps toward a goal, such as choosing a movie-night schedule |
+| **Learn** | Adjust a model from data or experience |
+
+Three distinctions prevent confusion:
+
+- **Prediction is broader than forecasting.** Identifying the language of an existing sentence predicts a label; forecasting estimates something in the future.
+- **Receiving input is not perception.** Loading an image reads data; recognizing its objects interprets that data.
+- **Planning is not execution.** Suggesting a rental and actually purchasing it are different operations.
+
+## 5. Explicit rules versus learned patterns
+
+A developer can write a spam rule directly:
+
+```python
+def should_flag(message):
+    return "claim your prize" in message.lower()
+```
+
+This catches “CLAIM YOUR PRIZE now.” It misses different wording such as “A reward awaits; send your account details.” It also flags a legitimate warning that quotes “claim your prize.” The rule follows a phrase, not the message's intent.
+
+In **supervised learning**, a training procedure uses examples paired with target answers, called **labels**. It adjusts model **parameters**—internal numerical values—to improve outputs against an objective. **Features** are input properties represented for the model, such as word counts or a numerical representation of the message.
+
+<Diagram kind="rules" />
+
+Rules provide directly specified behavior; learned models can capture patterns that are difficult to list manually. Both can fail and need testing. People still choose the data, model family, training procedure, and evaluation method.
+
+**Do not equate rules with “never AI.”** Classical AI includes rule-based expert systems and search. A simple phrase filter is usually called automation; reasoning over a knowledge base may be called symbolic AI. Ask which parts are specified, which are learned, and how each is checked.
+
+## 6. Training and inference: two different moments
+
+**Training** fits model parameters using data. **Inference** runs the fitted model on an input. Here, “inference” means model execution, not necessarily logical deduction.
+
+<Diagram kind="training" />
+
+During training, a **loss** measures how poorly outputs satisfy the training objective. The learning procedure uses it to guide parameter updates. During inference, many deployed models keep their parameters fixed while producing outputs for new inputs.
+
+A student who memorizes practice answers may fail unfamiliar questions. Likewise, **generalization** means useful performance on relevant new cases. Evaluate on examples that were not used to fit the model.
+
+- **Overfitting:** fitting training data so closely that performance on new cases suffers.
+- **Distribution shift:** incoming data differs from development data—for example, messages arrive in a previously untested language.
+
+**New context and feedback are not automatically training.** Supplying a document changes the information available for a response. Correcting a category may merely record feedback. Whether either updates the model depends on the application.
+
+## 7. Worked example: a score becomes a decision
+
+A **threshold** is a cutoff that turns a score into a decision. Our rule is: **flag a message when its score is greater than or equal to the threshold**.
+
+The eight messages below have synthetic labels and fixed illustrative scores. No model was trained for this demonstration. Higher scores mean “more spam-like,” but they are **not established probabilities**: 0.80 does not automatically mean an 80% chance of spam.
+
+<ThresholdLab client:visible />
+
+At the default threshold of **0.70**, A, B, and C are flagged:
+
+| Result | Messages | Meaning |
+|---|---|---|
+| Correct spam detection | A, B | Spam is caught |
+| **False positive** | C | A legitimate message is flagged |
+| **False negative** | D, F | Spam is missed |
+| Correct acceptance | E, G, H | Legitimate messages are left unflagged |
+
+There are five correct decisions out of eight:
+
+$$\text{Accuracy} = \frac{\text{correct decisions}}{\text{all decisions}} = \frac{5}{8} = 62.5\%$$
+
+Dividing 5 by 8 gives 0.625; multiplying by 100 expresses it as a percentage. Accuracy counts correct decisions but does not distinguish the costs of different mistakes. [More on classification measures](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall).
+
+**Try 0.40:** all four spam messages are caught, but two legitimate messages are flagged. Six decisions are correct: 75% accuracy on this tiny dataset. At 0.90, only A is flagged, so more spam is missed.
+
+**Only the policy changed; the scores did not.** Select a real application's threshold using representative validation examples and the costs of false alarms versus missed cases—not this teaching dataset.
+
+## 8. Predictive tasks and generative tasks
+
+**Predictive tasks** produce estimates, categories, scores, or rankings. **Generative tasks** produce content, such as text, images, audio, or code.
+
+<Diagram kind="tasks" />
+
+Consider these fictional movie-night notes:
+
+> The viewer wants a light adventure under 120 minutes. Moonlight Map is a 105-minute adventure comedy. City Sprint is a 140-minute action movie. The catalog does not list streaming services.
+
+A predictive model might rank **Moonlight Map above City Sprint** for this viewer. A generator might explain the suggestion:
+
+- **Supported draft:** “Try Moonlight Map: its genre matches your request and its 105-minute length fits your limit. The catalog does not say where to stream it.”
+- **Unsupported draft:** “Moonlight Map is free on StreamBox and you will definitely love it.” Neither streaming availability nor guaranteed enjoyment follows from the notes.
+
+All movie titles and the service name StreamBox in this example are fictional.
+
+**Grounding** ties an answer to supporting information. A **hallucination**, here, is incorrect or unsupported generated content presented as an answer. Check support, important omissions, and preserved meaning—not just fluent writing.
+
+<details className="optional-depth">
+<summary>Optional connection: can generation also involve prediction?</summary>
+
+Yes. A language model often generates text by repeatedly predicting a next **token**, a unit of text represented by the model. Its internal operation involves prediction; the application's output is generated content. The same model can also output one category label. Model mechanism and application task describe different levels.
+
+</details>
+
+## 9. Real-world walkthrough: a movie-recommendation assistant
+
+Our goal is a movie suggestion with a reason, known facts, and any missing information. Here is how the components work together:
+
+<Diagram kind="assistant" />
+
+1. **Specify the result.** Respect the viewer's genre and time preferences; separate catalog facts from predictions about taste.
+2. **Supply evidence.** Provide movie details, viewer preferences, and source references. **Retrieval-augmented generation (RAG)** supplies retrieved information to support an answer; we will build it later.
+3. **Generate a draft.** Request the required sections and explicit treatment of missing facts.
+4. **Validate.** Code checks required fields, movie lengths, and calculations. These checks do not prove factual accuracy.
+5. **Review claims.** A person checks the draft against evidence before approved use.
+6. **Improve deliberately.** Use reviewed errors to revise prompts, data handling, or models; then evaluate on separate examples.
+
+**A calculation can be correct while its interpretation is wrong.** A 120-minute limit minus Moonlight Map's 105-minute length leaves 15 minutes. That establishes that the movie fits the limit; it does not establish that the viewer will enjoy it.
+
+People who choose adventure films might also give them high ratings. **Correlation** is an association; **causation** is a claim that changing one factor affects another. That association alone does not prove that recommending any adventure film makes someone enjoy it.
+
+## 10. When should you use AI?
+
+A **baseline** is a simple reference solution used for comparison. Start there and add complexity when it measurably helps.
+
+<Diagram kind="choice" />
+
+| Need | Sensible first approach |
+|---|---|
+| Add known amounts; reject an empty field | Exact code, a formula, or a validation rule |
+| Find a known movie title | Exact search |
+| Find documents despite varied wording | Search; compare search by meaning (semantic retrieval) if needed |
+| Categorize varied movie reviews | Compare rules, a learned classifier, and a language model |
+| Explain a movie suggestion from catalog facts | A template or generative draft with evidence checks |
+| Rent a movie or change a subscription | Authorized application logic and an explicit approval policy |
+
+Before choosing, ask: **Is the task clear? Is the evidence available? What does an error cost? Can we measure usefulness? Would a simpler method suffice?** Include verification effort: faster drafting is not a gain if checking the draft takes longer than doing the original task.
+
+## 11. Limitations and misconceptions
+
+| Misconception | Better understanding |
+|---|---|
+| Confident wording proves correctness | Tone is not evidence; verify claims |
+| More data always helps | Irrelevant data, wrong labels, duplicates, or missing groups can reinforce errors |
+| A learned model must vary its answer | Many are deterministic: the same input and model state can give the same output; sampling can introduce variation |
+| One successful example proves readiness | Test ordinary, difficult, incomplete, and unanswerable cases |
+| A good average score is enough | Inspect the error types and whether the test resembles real use |
+
+Use public or synthetic data for initial practice. For workplace applications, use appropriate data permissions and an approved environment. Models still need the surrounding validation, access controls, and review introduced above.
+
+## 12. Optional Python lab: inspect a simple baseline
+
+The phrase rule from Section 5 can be checked against four examples. It gets two right, misses differently worded spam, and flags a legitimate warning. **The labels check the rule; they do not train it.**
+
+<details className="optional-depth">
+<summary>Optional lab: code, output, and a small experiment</summary>
+
+Run this with Python 3; no additional packages or account are needed.
+
+```python
+def should_flag(message):
+    return "claim your prize" in message.lower()
+
+examples = [
+    ("CLAIM YOUR PRIZE now", True),
+    ("A reward awaits; send your account details", True),
+    ("Training: avoid messages saying 'claim your prize'", False),
+    ("Tomorrow's project meeting agenda", False),
+]
+
+correct = 0
+for message, expected in examples:
+    predicted = should_flag(message)
+    correct += int(predicted == expected)
+    print(f"predicted={predicted}, expected={expected}")
+
+print(f"Correct decisions: {correct}/{len(examples)}")
+```
+
+Expected output:
+
+```text
+predicted=True, expected=True
+predicted=False, expected=True
+predicted=True, expected=False
+predicted=False, expected=False
+Correct decisions: 2/4
+```
+
+`int(True)` is 1 and `int(False)` is 0, so the counter increases for correct results. `len(examples)` counts the examples.
+
+Add another trigger phrase, predict what changes, then test new messages—including a legitimate message quoting that phrase. A broader rule can catch more spam and create more false alarms. These four cases demonstrate behavior; they do not estimate real-world performance.
+
+</details>
+
+<p><a className="download-link" href="/downloads/chapter-01-rule-baseline.py" download>Download the Python exercise →</a></p>
+
+## 13. Practice: explain, decide, and investigate
+
+Do these three core exercises first. Explain your reasoning before revealing an answer.
+
+### Exercise 1: explain it without buzzwords
+
+Explain AI in three sentences. Include a task, a method, and a limitation.
+
+<details className="solution"><summary>Show a sample answer</summary><p>AI builds systems for tasks such as recognizing information, using language, and choosing actions. A model fitted on viewers' past ratings can rank movies for a new request. Its errors must be evaluated because unfamiliar cases or misleading learned patterns can produce wrong suggestions.</p></details>
+
+### Exercise 2: calculate the mistakes
+
+Set the eight-message experiment to **0.60**. Which messages are flagged? Count false positives, false negatives, and correct decisions.
+
+<details className="solution"><summary>Show the calculation</summary><p>A, B, C, and D are flagged. A, B, D are correctly detected spam; C is one false positive. F is one false negative. E, G, H are correctly accepted. Six of eight decisions are correct: 75% accuracy.</p></details>
+
+### Exercise 3: check the evidence
+
+A draft claims: “Moonlight Map is free on StreamBox, and you will definitely love it.” What can the movie notes in Section 8 actually support?
+
+<details className="solution"><summary>Show the evidence check</summary><p>The notes support the genre, 105-minute length, and fit with the stated 120-minute limit. They do not establish a streaming service, price, or guaranteed enjoyment. Recommend it with a factual reason and keep availability unknown.</p></details>
+
+<details className="optional-depth">
+<summary>Optional practice: five more exercises with solutions</summary>
+
+### Exercise 4: choose the first approach
+
+Choose an approach for adding amounts, detecting an absent ID, grouping movie reviews, and explaining a recommendation.
+
+<details className="solution"><summary>Show the reasoning</summary><p>Use arithmetic for amounts and a validation rule for an absent ID. For movie reviews, clarify whether groups are predefined labels or exploratory groupings, then compare a simple baseline. Use a template or generative explanation for the recommendation, checking catalog claims against sources.</p></details>
+
+### Exercise 5: distinguish training from inference
+
+A model is fitted on 2,000 labeled messages, categorizes 50 new ones, and receives one user correction. What happened at each stage?
+
+<details className="solution"><summary>Show the answer</summary><p>Fitting is training; categorizing new messages is inference; the correction is feedback. It updates the model only if the application includes an update or retraining process.</p></details>
+
+### Exercise 6: question an impressive score
+
+Only two of 100 messages are spam. A system calls every message legitimate. How accurate is it, and what does that hide?
+
+<details className="solution"><summary>Show the calculation</summary><p>It is 98% accurate but misses both spam messages. Evaluate detection and false alarms separately; accuracy can hide failure on an infrequent class.</p></details>
+
+### Exercise 7: sketch your own system
+
+Choose a task. Identify its input, output, baseline, AI component, two failure cases, and checking method.
+
+<details className="solution"><summary>Show a worked example</summary><p>For a movie recommender, use viewer preferences and a catalog as input and a ranked suggestion as output. Compare a learned ranking with a genre-and-length filter. Watch for ignored preferences and invented availability. Check movie facts against the catalog and keep any purchase separate.</p></details>
+
+### Exercise 8: explain the experiment
+
+Does lowering the spam threshold make the model learn?
+
+<details className="solution"><summary>Show the answer</summary><p>No. The scores remain fixed. The cutoff changes the decision policy without refitting model parameters.</p></details>
+
+</details>
+
+## 14. Check your understanding
+
+Use this short quiz as a self-check. Read the explanations for any uncertain answers.
+
+<Quiz client:visible />
+
+## 15. Revision notes and glossary
+
+- **AI is broader than ML:** it also includes search, rules, and planning.
+- **Define the task first:** input, task, output, and success criteria.
+- **Training fits; inference uses.** New context, feedback, and threshold changes are separate mechanisms.
+- **A model is one component.** Policies turn its outputs into actions.
+- **Evidence matters:** check generated claims and test on relevant new cases.
+- **Compare with a baseline:** inspect different errors and their practical costs.
+
+<details className="optional-depth">
+<summary>Reference: mini glossary</summary>
+
+### Mini glossary
+
+| Term | Meaning |
+|---|---|
+| AI | Field covering capabilities such as perception, reasoning, language, and learning |
+| Machine learning | Fitting models using data |
+| Algorithm | Specified computational procedure |
+| Model | Representation used to produce outputs; ML models contain fitted state |
+| Parameter | Adjustable internal model value |
+| Feature | Input property represented for a model |
+| Label | Supplied target answer or category |
+| Dataset | Collection of examples |
+| Training / inference | Fitting a model / running it on an input |
+| Loss | Measure of mismatch used in a training objective |
+| Generalization | Useful performance on relevant new cases |
+| Threshold | Score cutoff used for decisions |
+| False positive / negative | Incorrectly flagged case / missed positive case |
+| Baseline | Reference approach for comparison |
+| Grounding | Tying an answer to supporting information |
+| Hallucination | Incorrect or unsupported generated content presented as an answer |
+| Token | Unit of text represented by a language model |
+| Validation | Checking requirements; a validation dataset supports development decisions |
+
+</details>
+
+**Before moving on:** Explain why the phrase rule is not learning, why lowering a threshold changes errors, and why the movie recommendation cannot invent a streaming service. Then draw an everyday application and label its input, AI component, ordinary code, review step, and evaluation method.
+
+## 16. Sources and where we go next
+
+Examples, data, diagrams, and exercises were created for this handbook. Optional further reading:
+
+- [Poole and Mackworth: What is AI?](https://artint.info/3e/html/ArtInt3e.Ch1.S1.html)
+- [Google: What is Machine Learning?](https://developers.google.com/machine-learning/intro-to-ml/what-is-ml)
+- [Google: Classification measures](https://developers.google.com/machine-learning/crash-course/classification/accuracy-precision-recall)
+- [scikit-learn: Metrics and scoring](https://scikit-learn.org/stable/modules/model_evaluation.html)
+
+**Next:** [Chapter 2 connects AI, ML, deep learning, NLP, generative AI, LLMs, RAG, agents, and AGI.](/chapters/02-how-ai-concepts-connect/)
+

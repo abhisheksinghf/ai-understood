@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-41.mdx';
+import raw from '../../content/chapter-41.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="AI research, AGI, and keeping your knowledge current" chapter chapterNumber={41} headings={headings} searchSections={searchSections} tocTitles={["Testable claims","Reading a paper","Fair comparisons","Benchmark audits","Uncertainty","Ablations & reproduction","AGI & capability claims","Keeping current","Python workbook","Research lab","Knowledge check","Revision & next steps"]} searchPlaceholder="Try “AGI”, “ablation”, or “contamination”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 10 · Broader AI &amp; your capstone</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 41</span><span class="edition">READ · TEST · QUALIFY</span></div>
+    <h1>Research makes claims.<br/><em>Follow the evidence.</em></h1>
+    <p class="hero-description">Read AI research and AGI claims with confidence,<br class="desktop-break"/> by understanding what the evidence supports.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-turn-a-headline-into-a-testable-claim" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-41.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">CLAIM → METHOD → EVIDENCE → LIMITS</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you qualify a claim with its evidence?</h2><p>Audit a benchmark, interpret uncertainty, and explain what an ablation or capability claim does and does not establish.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 41 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Capstone: build an evaluated movie knowledge assistant</h3><p>Bring the handbook together in a movie assistant with clear requirements, evidence, and failure analysis.</p><a class="text-button" href="/chapters/40-graphs-causality-and-alternative-learning-methods/">← Revisit Chapter 40</a></div><a class="primary-button" href="/chapters/42-capstone-build-an-evaluated-movie-knowledge-assistant/">Read Chapter 42 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 41 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

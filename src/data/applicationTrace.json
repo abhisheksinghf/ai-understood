@@ -1,0 +1,744 @@
+{
+  "notice": "Fictional movies, services, and authored provider responses; no model generated these fixtures.",
+  "sources": [
+    {
+      "id": "S1",
+      "text": "The viewer wants a light adventure movie lasting no more than 120 minutes."
+    },
+    {
+      "id": "S2",
+      "text": "Moonlight Map is a 105-minute adventure comedy. City Sprint is a 140-minute action movie."
+    },
+    {
+      "id": "S3",
+      "text": "No streaming service is recorded for Moonlight Map in this fictional catalog."
+    }
+  ],
+  "cases": [
+    {
+      "id": "success",
+      "label": "Usable draft",
+      "lesson": "The application reaches review_required. The prepared draft still needs evidence review.",
+      "runs": {
+        "1": {
+          "status": "review_required",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": {
+            "recommendation": "Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].",
+            "streaming_service": null,
+            "evidence_ids": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "open_questions": [
+              "Where can the viewer stream Moonlight Map?"
+            ]
+          },
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "contract_checked",
+              "detail": "Four fields, value types, and supplied evidence IDs passed."
+            },
+            {
+              "stage": "review_required",
+              "detail": "Compare every claim with its sources. Structure does not establish truth."
+            }
+          ]
+        },
+        "2": {
+          "status": "review_required",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": {
+            "recommendation": "Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].",
+            "streaming_service": null,
+            "evidence_ids": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "open_questions": [
+              "Where can the viewer stream Moonlight Map?"
+            ]
+          },
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "contract_checked",
+              "detail": "Four fields, value types, and supplied evidence IDs passed."
+            },
+            {
+              "stage": "review_required",
+              "detail": "Compare every claim with its sources. Structure does not establish truth."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "transient",
+      "label": "Temporary service failure",
+      "lesson": "One attempt stops. Two total attempts recover from the prepared 503; the retry wait is recorded but skipped offline.",
+      "runs": {
+        "1": {
+          "status": "service_error",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "provider_error",
+              "detail": "http_503"
+            },
+            {
+              "stage": "service_error",
+              "detail": "Stopped; no recommendation accepted. Check the error before another run."
+            }
+          ]
+        },
+        "2": {
+          "status": "review_required",
+          "attempts": 2,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": {
+            "recommendation": "Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].",
+            "streaming_service": null,
+            "evidence_ids": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "open_questions": [
+              "Where can the viewer stream Moonlight Map?"
+            ]
+          },
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "provider_error",
+              "detail": "http_503"
+            },
+            {
+              "stage": "retry_wait",
+              "detail": "Wait 1 seconds before one retry."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 2 of 2."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "contract_checked",
+              "detail": "Four fields, value types, and supplied evidence IDs passed."
+            },
+            {
+              "stage": "review_required",
+              "detail": "Compare every claim with its sources. Structure does not establish truth."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "authentication",
+      "label": "Invalid credentials",
+      "lesson": "A prepared 401 is not retried. Repeating unchanged credentials cannot fix configuration.",
+      "runs": {
+        "1": {
+          "status": "service_error",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "provider_error",
+              "detail": "http_401"
+            },
+            {
+              "stage": "service_error",
+              "detail": "Stopped; no recommendation accepted. Check the error before another run."
+            }
+          ]
+        },
+        "2": {
+          "status": "service_error",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "provider_error",
+              "detail": "http_401"
+            },
+            {
+              "stage": "service_error",
+              "detail": "Stopped; no recommendation accepted. Check the error before another run."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "refusal",
+      "label": "Refused response",
+      "lesson": "Refusal content is a distinct outcome, not a recommendation to parse or a reason to bypass the refusal.",
+      "runs": {
+        "1": {
+          "status": "refused",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "refused",
+              "detail": "No usable completed answer; do not present partial content as a recommendation."
+            }
+          ]
+        },
+        "2": {
+          "status": "refused",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "refused",
+              "detail": "No usable completed answer; do not present partial content as a recommendation."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "incomplete",
+      "label": "Incomplete response",
+      "lesson": "A partial answer must not become a finished recommendation. Stop and inspect the cause before changing the output budget.",
+      "runs": {
+        "1": {
+          "status": "incomplete",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "incomplete",
+              "detail": "No usable completed answer; do not present partial content as a recommendation."
+            }
+          ]
+        },
+        "2": {
+          "status": "incomplete",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "incomplete",
+              "detail": "No usable completed answer; do not present partial content as a recommendation."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "malformed",
+      "label": "Broken JSON",
+      "lesson": "The parser rejects the prepared malformed text; repeating a network call is not the same as repairing content.",
+      "runs": {
+        "1": {
+          "status": "invalid_json",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "invalid_json",
+              "detail": "Candidate is not strict, unambiguous JSON."
+            }
+          ]
+        },
+        "2": {
+          "status": "invalid_json",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "invalid_json",
+              "detail": "Candidate is not strict, unambiguous JSON."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "wrong_type",
+      "label": "Wrong field type",
+      "lesson": "Valid JSON still fails the recommendation contract when a streaming service is a number.",
+      "runs": {
+        "1": {
+          "status": "invalid_recommendation",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "invalid_recommendation",
+              "detail": "streaming_service must be a nonempty string or null."
+            }
+          ]
+        },
+        "2": {
+          "status": "invalid_recommendation",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "invalid_recommendation",
+              "detail": "streaming_service must be a nonempty string or null."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unknown_source",
+      "label": "Unknown source ID",
+      "lesson": "A reference to S99 is rejected because the request supplied only S1, S2, and S3.",
+      "runs": {
+        "1": {
+          "status": "invalid_recommendation",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "invalid_recommendation",
+              "detail": "evidence_ids must be distinct supplied IDs."
+            }
+          ]
+        },
+        "2": {
+          "status": "invalid_recommendation",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "invalid_recommendation",
+              "detail": "evidence_ids must be distinct supplied IDs."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unsupported",
+      "label": "Unsupported claim",
+      "lesson": "The false ExampleFlix availability claim passes structure and source-ID checks. review_required does not mean verified.",
+      "runs": {
+        "1": {
+          "status": "review_required",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": {
+            "recommendation": "Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].",
+            "streaming_service": "ExampleFlix [S1]",
+            "evidence_ids": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "open_questions": [
+              "Where can the viewer stream Moonlight Map?"
+            ]
+          },
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 1."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "contract_checked",
+              "detail": "Four fields, value types, and supplied evidence IDs passed."
+            },
+            {
+              "stage": "review_required",
+              "detail": "Compare every claim with its sources. Structure does not establish truth."
+            }
+          ]
+        },
+        "2": {
+          "status": "review_required",
+          "attempts": 1,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": {
+            "recommendation": "Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].",
+            "streaming_service": "ExampleFlix [S1]",
+            "evidence_ids": [
+              "S1",
+              "S2",
+              "S3"
+            ],
+            "open_questions": [
+              "Where can the viewer stream Moonlight Map?"
+            ]
+          },
+          "trace": [
+            {
+              "stage": "input_checked",
+              "detail": "Source shape, lengths, and unique IDs passed."
+            },
+            {
+              "stage": "request_built",
+              "detail": "Instructions, source data, schema, and output limit assembled."
+            },
+            {
+              "stage": "provider_call",
+              "detail": "Attempt 1 of 2."
+            },
+            {
+              "stage": "response_checked",
+              "detail": "Completed assistant text found; no refusal."
+            },
+            {
+              "stage": "json_parsed",
+              "detail": "JSON syntax passed; duplicate keys and nonstandard numbers rejected."
+            },
+            {
+              "stage": "contract_checked",
+              "detail": "Four fields, value types, and supplied evidence IDs passed."
+            },
+            {
+              "stage": "review_required",
+              "detail": "Compare every claim with its sources. Structure does not establish truth."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "invalid_input",
+      "label": "Empty source list",
+      "lesson": "Local input validation stops before any provider call.",
+      "runs": {
+        "1": {
+          "status": "invalid_input",
+          "attempts": 0,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "invalid_input",
+              "detail": "Supply 1 to 5 source records."
+            }
+          ]
+        },
+        "2": {
+          "status": "invalid_input",
+          "attempts": 0,
+          "prompt_version": "movie-recommendation-v1",
+          "model": "fixture-no-model",
+          "candidate": null,
+          "trace": [
+            {
+              "stage": "invalid_input",
+              "detail": "Supply 1 to 5 source records."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

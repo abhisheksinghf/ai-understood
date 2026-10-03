@@ -1,0 +1,15 @@
+{
+  "description": "Original fictional genre scores and preferences. Adventure uses 0–100; romance uses 0–1. T06 and T11 are deliberately inconsistent with the simple XOR preference. Validation labels follow that preference. This small authored development set is not a production benchmark.",
+  "train": [
+    {"id":"T01","x":[10,0.1],"y":0},{"id":"T02","x":[10,0.35],"y":0},{"id":"T03","x":[10,0.65],"y":1},{"id":"T04","x":[10,0.9],"y":1},
+    {"id":"T05","x":[35,0.1],"y":0},{"id":"T06","x":[35,0.35],"y":1},{"id":"T07","x":[35,0.65],"y":1},{"id":"T08","x":[35,0.9],"y":1},
+    {"id":"T09","x":[65,0.1],"y":1},{"id":"T10","x":[65,0.35],"y":1},{"id":"T11","x":[65,0.65],"y":1},{"id":"T12","x":[65,0.9],"y":0},
+    {"id":"T13","x":[90,0.1],"y":1},{"id":"T14","x":[90,0.35],"y":1},{"id":"T15","x":[90,0.65],"y":0},{"id":"T16","x":[90,0.9],"y":0}
+  ],
+  "validation": [
+    {"id":"V01","x":[15,0.25],"y":0},{"id":"V02","x":[25,0.15],"y":0},{"id":"V03","x":[25,0.3],"y":0},
+    {"id":"V04","x":[15,0.75],"y":1},{"id":"V05","x":[25,0.85],"y":1},{"id":"V06","x":[30,0.7],"y":1},
+    {"id":"V07","x":[70,0.3],"y":1},{"id":"V08","x":[75,0.15],"y":1},{"id":"V09","x":[85,0.25],"y":1},
+    {"id":"V10","x":[70,0.7],"y":0},{"id":"V11","x":[75,0.85],"y":0},{"id":"V12","x":[85,0.75],"y":0}
+  ]
+}

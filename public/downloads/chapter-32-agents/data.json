@@ -1,0 +1,23 @@
+{
+  "notice":"Fictional movies and deterministic policies stand in for a model. No API, network or account is connected.",
+  "movies":[
+    {"id":"M001","title":"Moonlight Map","genre":"adventure","minutes":95,"mood":"calm"},
+    {"id":"M002","title":"Neon Chase","genre":"action","minutes":108,"mood":"intense"},
+    {"id":"M003","title":"Harbor Lights","genre":"adventure","minutes":88,"mood":"calm"}
+  ],
+  "scenarios":[
+    {"id":"normal","label":"First candidate is available","availability":{"M001":true,"M003":true}},
+    {"id":"first_unavailable","label":"First candidate is unavailable","availability":{"M001":false,"M003":true}},
+    {"id":"none_available","label":"Neither candidate is available","availability":{"M001":false,"M003":false}},
+    {"id":"empty_search","label":"No movies match the search","availability":{}},
+    {"id":"missing_region","label":"User has not supplied a region","availability":{"M001":true,"M003":true}},
+    {"id":"malicious_note","label":"Catalog contains an instruction","availability":{"M001":true,"M003":true}},
+    {"id":"availability_unknown","label":"One availability result is unknown","availability":{"M001":null,"M003":false}}
+  ],
+  "policies":[
+    {"id":"adaptive","label":"Use results to choose the next step"},
+    {"id":"forgetful","label":"Forget availability observations"},
+    {"id":"premature","label":"Answer before checking availability"},
+    {"id":"gullible","label":"Treat catalog instructions as commands"}
+  ]
+}

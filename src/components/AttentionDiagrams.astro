@@ -1,0 +1,27 @@
+---
+interface Props{kind:'qkv'|'mask'|'block'}
+const {kind}=Astro.props;
+const titles={qkv:'Match with keys. Combine the values.',mask:'Visibility is part of the computation.',block:'An attention layer is one part of a transformer block.'};
+const captions={qkv:'Figure 1. Queries and keys produce compatibility scores. Scaling, masking, and row-wise softmax turn scores into mixing weights. The weighted sum uses values. Its output is a representation, not a distribution over the vocabulary.',mask:'Figure 2. A causal self-attention mask allows the diagonal and earlier keys. The third input, “is”, can use “this movie is” to predict the next token, “fun”. Reading the fourth input would expose that target.',block:'Figure 3. A pre-normalization decoder block. Normalize, apply causal multi-head attention, and add a residual; then normalize, apply a position-wise feed-forward network, and add another residual. Stack blocks, then use a final normalization and vocabulary head for next-token scores.'};
+const id='attention-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{titles[kind]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={titles[kind]}><svg viewBox={kind==='block'?'0 0 760 310':'0 0 760 280'} role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{titles[kind]}</title><desc id={id+'-desc'}>{captions[kind]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='qkv'&&<>
+ {[['Q · queries','What to match'],['K · keys','What to match against'],['V · values','What to combine']].map(([a,b],i)=><g><rect x="12" y={14+i*84} width="174" height="66" rx="6" class="node"/><text x="99" y={40+i*84} text-anchor="middle" class="node-title">{a}</text><text x="99" y={62+i*84} text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {['M190 47h30v35h28','M190 131h30V95h28'].map(d=><path d={d} fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <rect x="254" y="56" width="178" height="66" rx="6" class="node"/><text x="343" y="83" text-anchor="middle" class="node-title">QKᵀ / √dₖ</text><text x="343" y="105" text-anchor="middle" class="node-detail">One score per key</text>
+ <path d="M438 89h40" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/><rect x="484" y="56" width="260" height="66" rx="6" class="node node-accent"/><text x="614" y="83" text-anchor="middle" class="node-title">Mask → softmax</text><text x="614" y="105" text-anchor="middle" class="node-detail">Weights over allowed positions</text>
+ {['M614 128v47','M190 215h288'].map(d=><path d={d} fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}<rect x="484" y="182" width="260" height="66" rx="6" class="node node-accent"/><text x="614" y="209" text-anchor="middle" class="node-title">Weighted sum of V</text><text x="614" y="231" text-anchor="middle" class="node-detail">One output vector per query</text>
+</>}
+{kind==='mask'&&<>
+ {['this','movie','is','fun'].map((t,j)=><text x={244+75*j} y="27" text-anchor="middle" class="node-title">{t}</text>)}
+ {['this','movie','is','fun'].map((t,i)=><g><text x="185" y={72+52*i} text-anchor="end" class="node-title">{t}</text>{[0,1,2,3].map(j=><g><rect x={210+75*j} y={41+52*i} width="68" height="43" rx="5" class={j<=i?'node node-accent':'node'}/><text x={244+75*j} y={68+52*i} text-anchor="middle" class="node-detail">{j<=i?'Allowed':'Blocked'}</text></g>)}</g>)}
+ <text x="55" y="137" text-anchor="middle" class="node-title">Queries</text><text x="578" y="108" class="node-title">Keys →</text><text x="578" y="145" class="node-detail">Future weights = 0</text><text x="578" y="170" class="node-detail">after row softmax</text><text x="380" y="270" text-anchor="middle" class="node-detail">The input at position t may see itself; its training target is the next token at t + 1.</text>
+</>}
+{kind==='block'&&<>
+ {[['X','Input'],['Norm','Per token'],['Causal MHA','Mix positions'],['+','Add X'],['Norm','Per token'],['FFN','Transform features'],['+','Add residual']].map(([a,b],i)=><g><rect x={8+107*i} y="80" width="99" height="78" rx="6" class={i===2||i===5?'node node-accent':'node'}/><text x={57+107*i} y="110" text-anchor="middle" class="node-title">{a}</text><text x={57+107*i} y="140" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1,2,3,4,5].map(i=><path d={`M${107+107*i} 116h7`} stroke="var(--accent)" stroke-width="1.4" marker-end={'url(#'+id+'-arrow)'}/>)}
+ {['M56 77V40h322v37','M378 163v36h321v-36'].map(d=><path d={d} stroke="var(--accent)" stroke-width="1.5" fill="none" marker-end={'url(#'+id+'-arrow)'}/>)}<text x="215" y="30" text-anchor="middle" class="node-detail">Residual path carries X</text><text x="538" y="221" text-anchor="middle" class="node-detail">Second residual path</text>
+ <text x="380" y="260" text-anchor="middle" class="node-title">Stack blocks → final norm → vocabulary logits → decoding</text><text x="380" y="287" text-anchor="middle" class="node-detail">Illustrative pre-norm layout. The original 2017 transformer uses a different normalization order.</text>
+</>}
+</svg></div><figcaption>{captions[kind]}</figcaption></figure>

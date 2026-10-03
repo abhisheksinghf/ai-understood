@@ -1,0 +1,22 @@
+{
+  "version": "capstone-v1",
+  "description": "Original fictional teaching catalog and public development cases. No live availability or hidden test set.",
+  "movies": [
+    {"id":"M002","title":"Deep Orbit","minutes":128,"tags":["space","adventure"],"source":"M002:r1:card"},
+    {"id":"M001","title":"Moonlight Map","minutes":105,"tags":["space","family"],"source":"M001:r1:card"},
+    {"id":"M003","title":"Harbor Lights","minutes":96,"tags":["drama","friendship"],"source":"M003:r1:card"},
+    {"id":"M004","title":"Clockwork Clue","minutes":88,"tags":["mystery","comedy"],"source":"M004:r1:card"}
+  ],
+  "aliases":{"cosmic":"space","detective":"mystery"},
+  "availability":[{"movie_id":"M001","region":"IN","service":"StreamBox","as_of":"2026-10-01","source":"availability:r1:M001:IN"}],
+  "cases":[
+    {"id":"C1","label":"Space adventure, at most 110 minutes","slice":"constraints","request":{"intent":"recommend","query":"space adventure","max_minutes":110,"seen":[]},"expected":{"status":"ok","movie_id":"M001"}},
+    {"id":"C2","label":"Space movie, at most 90 minutes","slice":"constraints","request":{"intent":"recommend","query":"space","max_minutes":90,"seen":[]},"expected":{"status":"no_match","movie_id":null}},
+    {"id":"C3","label":"Already watched the only short space movie","slice":"constraints","request":{"intent":"recommend","query":"space","max_minutes":110,"seen":["M001"]},"expected":{"status":"no_match","movie_id":null}},
+    {"id":"C4","label":"Cosmic movie, at most 110 minutes","slice":"vocabulary","request":{"intent":"recommend","query":"cosmic","max_minutes":110,"seen":[]},"expected":{"status":"ok","movie_id":"M001"}},
+    {"id":"C5","label":"Runtime of Deep Orbit","slice":"facts","request":{"intent":"runtime","movie_id":"M002"},"expected":{"status":"ok","movie_id":"M002","value":128}},
+    {"id":"C6","label":"Fixture availability of Moonlight Map in IN","slice":"tools","request":{"intent":"availability","movie_id":"M001","region":"IN"},"expected":{"status":"ok","movie_id":"M001","value":"StreamBox"}},
+    {"id":"C7","label":"Director missing from our catalog schema","slice":"facts","request":{"intent":"director","movie_id":"M001"},"expected":{"status":"unsupported_question","movie_id":null}},
+    {"id":"C8","label":"A short mystery","slice":"vocabulary","request":{"intent":"recommend","query":"mystery","max_minutes":100,"seen":[]},"expected":{"status":"ok","movie_id":"M004"}}
+  ]
+}

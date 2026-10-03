@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-35.mdx';
+import raw from '../../content/chapter-35.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="AI security and responsible use" chapter chapterNumber={35} headings={headings} searchSections={searchSections} tocTitles={["Protect what matters","Prompt injection","Permission to act","Minimize private data","Outputs & wider risks","Guardrails & testing","Fairness & user control","Ownership & response","Python workbook","Security lab","Knowledge check","Revision & next steps"]} searchPlaceholder="Try “replay”, “egress”, or “fairness”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 09 · Evaluation, security &amp; production</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 35</span><span class="edition">PROTECT · VERIFY · TAKE RESPONSIBILITY</span></div>
+    <h1>Protect the boundaries.<br/><em>Keep the person in view.</em></h1>
+    <p class="hero-description">Understand security and responsible use,<br class="desktop-break"/> from untrusted reviews to authorized actions.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-start-with-what-you-need-to-protect" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-35.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">EVIDENCE → PROPOSAL → CHECK → ACTION</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain where permission comes from?</h2><p>Explain prompt injection, trace the authorization boundary, and distinguish safe actions from responsible data use.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 35 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Deploying and operating AI applications</h3><p>Put an evaluated application into service with monitoring, recovery, and controlled updates.</p><a class="text-button" href="/chapters/34-evaluating-complete-ai-systems/">← Revisit Chapter 34</a></div><a class="primary-button" href="/chapters/36-deploying-and-operating-ai-applications/">Read Chapter 36 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 35 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

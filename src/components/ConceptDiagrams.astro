@@ -1,0 +1,95 @@
+---
+interface Props { kind:'map'|'rag'|'agent'|'application' }
+const {kind}=Astro.props;
+const diagrams={
+  map:{title:'One nesting relationship; several other ways to describe a system',desc:'AI contains machine learning, which contains deep learning. Modern LLMs use deep learning. NLP is a language field spanning rules, machine learning, and deep learning. Generative AI is a content-producing capability. RAG and agents describe system design, not extra nested model families.',caption:'Figure 1. Nested boxes show inclusion. The cards on the right describe different dimensions; they are not additional levels of the nesting.',height:306},
+  rag:{title:'Retrieve evidence, then generate an answer',desc:'A user question drives retrieval from approved movie entries. Selected passages, source identifiers, the question, and instructions become model input. An LLM drafts an answer with sources, followed by an evidence check. Retrieval changes context, not model parameters.',caption:'Figure 2. The generator receives selected evidence in its input. The search index and the generator’s learned parameters are separate stores.',height:238},
+  agent:{title:'Who chooses the next step?',desc:'In a fixed workflow, code determines the route from search to draft to review. In an agent loop, the model decides whether to finish or request a tool. The application validates and executes permitted calls, and the resulting observation returns to the model. Application limits constrain the loop.',caption:'Figure 3. Both designs can use models and tools. The lower path adds model-directed choices and a feedback loop, subject to application limits.',height:286},
+  application:{title:'A model is one component of the assistant',desc:'A user question passes through application code that checks access, retrieves evidence, and formats context. The LLM generates a draft. Checks and review produce a supported answer or identify missing evidence. The movie entries and search index supply retrieval, while the UI, permissions, and logging belong to the application.',caption:'Figure 4. This is a fixed RAG workflow. Adding retrieval does not by itself add an agent loop. Access checks and review remain application responsibilities.',height:212}
+};
+const d=diagrams[kind];
+const id='concept-'+kind;
+---
+<figure class="diagram concept-diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{d.title}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={d.title}>
+    <svg viewBox={'0 0 760 '+d.height} role="img" aria-labelledby={id+'-title '+id+'-desc'}>
+      <title id={id+'-title'}>{d.title}</title><desc id={id+'-desc'}>{d.desc}</desc>
+      <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/></marker></defs>
+      {kind==='map'&&<>
+        <rect x="12" y="14" width="413" height="276" rx="12" class="node"/>
+        <text x="28" y="40" class="node-title">Artificial intelligence</text>
+        <text x="28" y="60" class="node-detail">Includes search, symbolic reasoning, and learning</text>
+        <rect x="33" y="77" width="373" height="195" rx="10" class="node node-accent"/>
+        <text x="50" y="103" class="node-title">Machine learning</text>
+        <text x="50" y="123" class="node-detail">Includes decision trees and neural networks</text>
+        <rect x="55" y="141" width="330" height="112" rx="9" class="node"/>
+        <text x="73" y="167" class="node-title">Deep learning</text>
+        <text x="73" y="187" class="node-detail">Multilayer neural networks</text>
+        <rect x="73" y="202" width="294" height="35" rx="6" class="node node-accent"/>
+        <text x="88" y="225" class="node-title">Modern LLMs are one example</text>
+        <rect x="450" y="14" width="297" height="83" rx="9" class="node"/>
+        <text x="466" y="40" class="node-title">NLP · a field of language tasks</text>
+        <text x="466" y="61" class="node-detail">Can use rules, ML, or deep learning.</text>
+        <text x="466" y="80" class="node-detail">It crosses the method boundaries.</text>
+        <rect x="450" y="111" width="297" height="83" rx="9" class="node"/>
+        <text x="466" y="137" class="node-title">GenAI · a capability</text>
+        <text x="466" y="158" class="node-detail">Produces content: text, images, audio…</text>
+        <text x="466" y="177" class="node-detail">Not all deep learning is generative.</text>
+        <rect x="450" y="208" width="297" height="82" rx="9" class="node"/>
+        <text x="466" y="234" class="node-title">RAG &amp; agents · system design</text>
+        <text x="466" y="255" class="node-detail">Combine models with information,</text>
+        <text x="466" y="274" class="node-detail">code, tools, and execution choices.</text>
+      </>}
+      {kind==='rag'&&<>
+        <rect x="205" y="12" width="164" height="55" rx="8" class="node"/>
+        <text x="287" y="35" text-anchor="middle" class="node-title">Movie catalog + index</text>
+        <text x="287" y="53" text-anchor="middle" class="node-detail">Approved source collection</text>
+        <line x1="287" y1="68" x2="287" y2="100" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        {[['Question','What should I watch?'],['Retrieve','Select useful passages'],['Build model input','Question + evidence'],['LLM generates','Draft with sources']].map((n,i)=><g transform={'translate('+(15+i*190)+',110)'}>
+          <rect width="164" height="66" rx="8" class={i===2?'node node-accent':'node'}/>
+          <text x="82" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="82" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
+          {i<3&&<line x1="168" y1="33" x2="184" y2="33" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
+        </g>)}
+        <text x="16" y="212" class="node-detail">Next: check whether each claim is supported by the cited passage.</text>
+      </>}
+      {kind==='agent'&&<>
+        <text x="15" y="22" class="lane-label">FIXED WORKFLOW · CODE DEFINES THE ROUTE</text>
+        {[['Search once','Retrieve movie facts'],['Draft','Model writes answer'],['Review','Check the evidence']].map((n,i)=><g transform={'translate('+(15+i*251)+',35)'}>
+          <rect width="222" height="58" rx="8" class="node"/>
+          <text x="111" y="24" text-anchor="middle" class="node-title">{n[0]}</text><text x="111" y="44" text-anchor="middle" class="node-detail">{n[1]}</text>
+          {i<2&&<line x1="227" y1="29" x2="245" y2="29" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
+        </g>)}
+        <text x="15" y="128" class="lane-label">AGENT LOOP · MODEL CHOOSES A NEXT STEP</text>
+        <rect x="15" y="147" width="222" height="65" rx="8" class="node node-accent"/>
+        <text x="126" y="173" text-anchor="middle" class="node-title">Model decides</text>
+        <text x="126" y="194" text-anchor="middle" class="node-detail">Use goal + observations</text>
+        <line x1="242" y1="179" x2="314" y2="179" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <text x="277" y="169" text-anchor="middle" class="node-detail">Tool call</text>
+        <rect x="323" y="147" width="223" height="65" rx="8" class="node"/>
+        <text x="434" y="173" text-anchor="middle" class="node-title">Application runs tool</text>
+        <text x="434" y="194" text-anchor="middle" class="node-detail">Validate, execute, return result</text>
+        <path d="M434 216 V250 H126 V218" fill="none" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <text x="274" y="270" text-anchor="middle" class="node-detail">Observation returns; limits may stop the loop</text>
+        <path d="M237 154 V138 H654 V155" fill="none" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <text x="611" y="128" class="node-detail">Finish</text>
+        <rect x="579" y="166" width="155" height="46" rx="8" class="node"/>
+        <text x="656" y="194" text-anchor="middle" class="node-title">Return answer</text>
+      </>}
+      {kind==='application'&&<>
+        <text x="15" y="24" class="lane-label">APPLICATION · UI, PERMISSIONS, LOGGING, AND LIMITS</text>
+        {[['User','Asks a question'],['Application code','Access + retrieval'],['LLM','Generates draft'],['Checks & review','Answer or uncertainty']].map((n,i)=><g transform={'translate('+(15+i*190)+',48)'}>
+          <rect width="164" height="66" rx="8" class={i===2?'node node-accent':'node'}/>
+          <text x="82" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="82" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
+          {i<3&&<line x1="168" y1="33" x2="184" y2="33" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
+        </g>)}
+        <rect x="205" y="155" width="164" height="42" rx="8" class="node"/>
+        <text x="287" y="181" text-anchor="middle" class="node-title">Movie catalog + index</text>
+        <line x1="287" y1="152" x2="287" y2="120" class="connector" marker-end={'url(#'+id+'-arrow)'}/>
+        <text x="397" y="165" class="node-detail">Model input: instructions, question, evidence</text>
+        <text x="397" y="188" class="node-detail">Model output: a draft to verify</text>
+      </>}
+    </svg>
+  </div>
+  <figcaption>{d.caption}</figcaption>
+</figure>

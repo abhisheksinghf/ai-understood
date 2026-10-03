@@ -1,0 +1,17 @@
+{
+  "version": "catalog-v2",
+  "region": "IN",
+  "movies": [
+    {"id": "M001", "title": "Moonlight Map", "minutes": 95, "genre": "adventure", "mood": "calm"},
+    {"id": "M003", "title": "Harbor Lights", "minutes": 88, "genre": "adventure", "mood": "calm"}
+  ],
+  "scenarios": [
+    {"id": "normal", "label": "Complete, matching evidence"},
+    {"id": "missing", "label": "Availability service times out"},
+    {"id": "wrong_region", "label": "Availability is for the US"},
+    {"id": "stale", "label": "Availability belongs to an old snapshot"},
+    {"id": "conflict", "label": "Conflicting availability records"}
+  ],
+  "durations": {"catalog": 2, "availability": 3, "taste": 2, "final": 1},
+  "ranking": ["M003", "M001"]
+}

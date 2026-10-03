@@ -1,0 +1,88 @@
+{
+  "version": "movie-rag-v1",
+  "provenance": "Fictional learning catalog. Titles, runtimes, and summaries are unchanged from Chapter 16; source revisions are added for this workbook.",
+  "movies": [
+    {
+      "id": "M001",
+      "title": "Moonlight Map",
+      "revision": 1,
+      "runtime_minutes": 105,
+      "summary": "A funny adventure follows friends on a treasure rescue across an island."
+    },
+    {
+      "id": "M002",
+      "title": "City Sprint",
+      "revision": 1,
+      "runtime_minutes": 140,
+      "summary": "A city rescue team races through traffic to stop a robbery."
+    },
+    {
+      "id": "M003",
+      "title": "Forest Signal",
+      "revision": 1,
+      "runtime_minutes": 115,
+      "summary": "Friends follow a forest signal on a gentle adventure to help a lost explorer."
+    },
+    {
+      "id": "M004",
+      "title": "Quiet Orbit",
+      "revision": 1,
+      "runtime_minutes": 110,
+      "summary": "A space crew plans a rescue near a silent planet."
+    },
+    {
+      "id": "M005",
+      "title": "Cafe Chaos",
+      "revision": 1,
+      "runtime_minutes": 90,
+      "summary": "A funny comedy about friends opening a cafe with no space for a kitchen."
+    },
+    {
+      "id": "M006",
+      "title": "Winter Road",
+      "revision": 1,
+      "runtime_minutes": 100,
+      "summary": "A quiet drama about a family reunited on a winter road."
+    },
+    {
+      "id": "M007",
+      "title": "Unlisted Voyage",
+      "revision": 1,
+      "runtime_minutes": null,
+      "summary": "Astronauts save a stranded pilot beyond a distant moon."
+    },
+    {
+      "id": "M008",
+      "title": "Parallel World",
+      "revision": 1,
+      "runtime_minutes": 118,
+      "summary": "A space rescue becomes a rescue mission when a space station loses contact."
+    }
+  ],
+  "queries": [
+    {
+      "question": "What is Quiet Orbit about?",
+      "search": "Quiet Orbit",
+      "field": "summary",
+      "id": "plot"
+    },
+    {
+      "question": "How long is Quiet Orbit?",
+      "search": "Quiet Orbit runtime",
+      "field": "runtime",
+      "id": "runtime"
+    },
+    {
+      "question": "Where can I stream Quiet Orbit?",
+      "search": "Quiet Orbit streaming",
+      "field": "streaming",
+      "id": "streaming"
+    },
+    {
+      "question": "Give one movie about a rescue in outer space, with its synopsis.",
+      "search": "space rescue",
+      "field": "summary",
+      "id": "space"
+    }
+  ]
+}

@@ -1,0 +1,266 @@
+import PromptDiagrams from '../components/PromptDiagrams.astro';
+import PromptWorkshop from '../components/PromptWorkshop';
+import Quiz from '../components/Quiz';
+import {chapter09Questions} from '../data/chapter09';
+
+<p className="chapter-intro">A useful prompt makes the task, evidence, and expected result clear. Context design decides what information the model should receive. Both help, but neither replaces checking whether the answer is correct.</p>
+
+<div className="learning-card">
+<p className="eyebrow">WHAT YOU WILL BE ABLE TO DO</p>
+<p>Turn a vague request into a testable instruction, select relevant context, use examples, and define an output contract. Handle missing facts and conflicting sources, recognize prompt injection, and evaluate a prompt across several cases.</p>
+<p><strong>Reading path:</strong> Build a movie recommendation from fictional viewer preferences and catalog entries. Compare prompt versions, inspect a reference answer, and try a local JSON checker. No API key or paid service is needed; the workshop does not call an AI model.</p>
+</div>
+
+## 1. Define the task before writing the prompt
+
+A **prompt** is input that guides a model's response. In an application, that input can include instructions, a user request, examples, documents, and tool results. **Prompt engineering** means designing and testing those inputs to improve behavior on a task. It does not update model weights as training does.
+
+Start with a concrete job: “Suggest a movie for tonight and explain how it fits the viewer's preferences.” Decide what success means before adjusting wording. For this chapter, success means respecting genre and length preferences, stating availability only when a source supplies it, and making unresolved questions visible.
+
+Compare these two requests:
+
+```text
+Vague: Recommend a good movie.
+
+Specific: Suggest a movie for a viewer who wants a light adventure
+under 120 minutes. Use the supplied catalog for facts. Return the
+recommendation, streaming service, source IDs, and open questions.
+If streaming availability is not supplied, keep it unknown.
+```
+
+“Good” leaves the audience, content, and evidence standard unstated. The second version gives you properties to check. Asking the model to act as an expert may set tone, but does not give it missing facts, verified expertise, or access to your systems.
+
+## 2. Give each part of the input a clear job
+
+Use a small set of components rather than a long list of magic phrases:
+
+| Component | What it tells the model | Our movie-night example |
+|---|---|---|
+| Task and audience | What to produce and for whom | Suggestion for tonight's viewer |
+| Instructions | Rules for doing the task | Use supplied evidence; preserve uncertainty |
+| Context | Information needed to do it | Viewer preferences and movie entries with source IDs |
+| Examples | Demonstrations of expected behavior | An unlisted streaming service remains null |
+| Output contract | What the result must contain | Four named JSON fields |
+
+**Context** is the information available for the current response. **Context design** selects, organizes, and maintains that information: which records to include, how to identify them, and which history is still relevant. A clear instruction cannot compensate for a missing movie catalog or availability record.
+
+<PromptDiagrams kind="assembly" />
+
+Put a requirement where it belongs and state it once clearly. Repeating “be accurate” ten times does not define accuracy. Replace it with observable requirements, such as “each movie fact must cite a supplied source ID” and “do not invent a streaming service when it is absent from the catalog.”
+
+<details className="optional-depth">
+<summary>Go deeper: reusable templates and changing inputs</summary>
+
+A **prompt template** combines stable instructions with slots for changing task data. For example, the evidence rules stay fixed while the viewer and catalog entries change. Version the template separately from each input so that a changed result can be traced to a changed instruction, record, or model.
+
+Serialize structured inputs using a real JSON encoder instead of manually inserting quotes and line breaks. This preserves text boundaries for parsing; it does not make malicious instructions harmless to a model. Avoid mixing a retrieved document directly into a privileged instruction field just because string formatting makes that convenient.
+
+The downloaded workbook constructs a text prompt for inspection. In a real application, message roles and provider-supported data fields should also express the separation between application instructions and external content.
+
+</details>
+
+## 3. Separate instruction authority from source content
+
+Chat APIs commonly distinguish application instructions, user requests, assistant messages, and tool results. The exact roles and precedence rules depend on the provider and interface. In OpenAI's documented message hierarchy, **developer instructions take precedence over user messages**; source text should not be promoted into developer instructions. See the [official prompt-engineering guide](https://developers.openai.com/api/docs/guides/prompt-engineering).
+
+For our application, “suggest a movie that fits the viewer's preferences” is an instruction. “Moonlight Map lasts 105 minutes” is source content. A catalog entry that says “ignore the viewer preferences” is still source content, even though it uses imperative language.
+
+Headings, XML-style tags, or labelled JSON blocks can help distinguish sections. These **delimiters** mark boundaries for the reader and model; they do not create a security boundary or guarantee obedience. Keep trusted instructions separate in the application, and decide what external text is allowed to influence.
+
+<details className="optional-depth">
+<summary>Go deeper: conversation history and memory</summary>
+
+A chat interface may assemble earlier messages, summaries, saved preferences, or retrieved records before requesting a response. A model does not automatically have every prior interaction or file available. An API application must deliberately manage the context it sends or references; exact persistence behavior is interface-specific.
+
+Treat earlier assistant answers as earlier outputs, not verified source records. An invented streaming service can become repeated misinformation if a later prompt accepts it as fact. A useful conversation summary preserves decisions, evidence references, unresolved questions, and current constraints. Compaction can lose detail, so retain a way to revisit important original sources.
+
+</details>
+
+## 4. Select evidence and preserve what is unknown
+
+Use these fictional movie-night records. All movie titles and service names in this chapter are invented for learning.
+
+| Source | Supplied information |
+|---|---|
+| S1 · Viewer preferences | A light adventure movie lasting no more than 120 minutes |
+| S2 · Movie catalog | Moonlight Map: adventure comedy, 105 minutes. City Sprint: action, 140 minutes |
+| S3 · Availability note | No streaming service is recorded for Moonlight Map |
+
+Moonlight Map is a reasonable suggestion because its genre and length fit the request. City Sprint exceeds the limit. “Moonlight Map is available on ExampleFlix” is unsupported. A genre match also cannot guarantee that the viewer will enjoy it.
+
+**Grounding** means tying claims to available evidence. Ask for source references beside claims so a reviewer can trace them. A citation is useful only if the source exists **and supports that particular claim**. A valid-looking ID alone proves neither.
+
+Set a policy for uncertainty: in our recommendation, `streaming_service` is `null` unless a source explicitly names the service for that movie. Put a useful follow-up question in `open_questions`. If two entries list different movie lengths, show both values and their sources instead of silently choosing the shorter one. A 105-versus-135-minute conflict matters when the viewer has a 120-minute limit.
+
+<details className="optional-depth">
+<summary>Go deeper: relevance, freshness, provenance, and privacy</summary>
+
+**Provenance** records where information came from. Give context a source ID, date, scope, and origin when those matter. An availability listing for a different country or date may be accurate but irrelevant to this viewer. A newer record is not automatically more authoritative; define a justified precedence rule if the task requires one.
+
+Select the minimum context sufficient for the question, while preserving details that affect the conclusion. Include an applicable availability listing if asked where to watch, not just a plot summary. Remove duplicates and unrelated movie entries. Summarization can accidentally erase qualifiers such as “availability unconfirmed,” so retain those distinctions.
+
+Use synthetic or appropriately permitted data while learning. In real work, apply the organization's rules before sending private records to a model service. A prompt telling the model “keep this confidential” is not a substitute for access controls or the service's actual data-handling configuration.
+
+</details>
+
+## 5. Learn from examples without confusing them with facts
+
+**Zero-shot prompting** supplies instructions without demonstrations. **One-shot** includes one demonstration; **few-shot** includes a small set. Examples show what “correct” means when prose alone is ambiguous. This **in-context learning** uses the current input; it does not mean the model's weights have been fine-tuned.
+
+For a task that extracts streaming availability, contrast two cases:
+
+```text
+Example input: "Moonlight Map: adventure comedy, 105 minutes.
+No streaming service listed."
+Example output: {"streaming_service": null}
+
+Example input: "The supplied catalog lists Moonlight Map on StreamBox."
+Example output: {"streaming_service": "StreamBox"}
+```
+
+These examples illustrate only the availability field, not the full recommendation format. Include both supplied and missing availability so the desired behavior is not “always invent a service” or “always return null.” Mark demonstrations separately from the current movie request to prevent example details from being mistaken for current evidence.
+
+Choose examples that cover meaningful variation, including ambiguity and conflicts. More examples consume context and can introduce inconsistent patterns. Test whether they help on new cases, not only on the examples included in the prompt.
+
+<details className="optional-depth">
+<summary>Go deeper: explanations, task decomposition, and self-checking</summary>
+
+For a complex request, it can help to separate extraction of facts, identification of gaps, drafting, and validation. Each stage needs a clear input and output, and an early mistake can propagate to later stages. A longer workflow is justified only if its measured benefit outweighs added cost and latency.
+
+Ask for concise evidence, assumptions, calculations, or an explanation that a reader can check. Do not treat a request for an exhaustive internal chain of thought as a universal accuracy technique. Guidance differs by model; OpenAI's [reasoning best practices](https://developers.openai.com/api/docs/guides/reasoning-best-practices) recommends straightforward instructions for its reasoning models.
+
+A model's self-critique can surface problems but is not independent verification. Asking the same model to approve its own invented availability claim may reproduce the error. Check against sources, deterministic calculations, tests, or an appropriate human review.
+
+</details>
+
+## 6. Define the output contract and check its meaning
+
+An **output contract** describes the shape and rules of a result. For our movie suggestion:
+
+| Field | Type | Meaning |
+|---|---|---|
+| recommendation | Nonempty string | Movie suggestion and reason, or an explained inability to choose, with source IDs |
+| streaming_service | Nonempty string or null | Only a service explicitly supplied for the suggested movie |
+| evidence_ids | Array of distinct source IDs | Supplied sources cited by the recommendation |
+| open_questions | Array of strings | Missing or disputed information; [] if none |
+
+A **schema** makes structural constraints machine-readable: required fields, types, and permitted values. Asking for JSON in prose, generating valid JSON, and enforcing a schema are different levels of control. Where supported, structured-output features can constrain generation to a schema. They still do not establish that its values are true; also handle refusals, incomplete responses, and other API outcomes. See [OpenAI's structured-output documentation](https://developers.openai.com/api/docs/guides/structured-outputs).
+
+<PromptDiagrams kind="validation" />
+
+Separate **structural validation** from **semantic validation**. A checker can confirm that `streaming_service` is a string and that S1 exists. It cannot infer from those checks that S1 proves ExampleFlix availability. That requires comparing the claim with the source.
+
+A practical application validates the response before storing it or using it in another step. If validation fails, it can request a bounded correction or return a clear failure. Endless retries are not a reliability strategy, and a successful parse must not trigger an unrelated real-world action.
+
+## 7. Explore the prompt workshop
+
+Compare three versions: a vague request, a clear task with a format, and a version that also specifies evidence and uncertainty rules. Then switch the source case. The reference is a **human-written teaching answer**, unchanged when you switch prompt versions for the same case.
+
+<PromptWorkshop client:load />
+
+The workshop performs real text assembly and basic JSON validation. It does **not** run a language model, predict how a model will respond, or measure prompt quality. A more explicit prompt is a candidate to evaluate, not proof of better performance.
+
+Try loading the unsupported-availability example into the checker. It passes the structural checks while making a false claim about the incomplete case. This is the difference between “the output fits the contract's types” and “the content meets the task's evidence standard.”
+
+## 8. Fit useful context into the available budget
+
+A **token** is a unit used by a model's tokenizer; it may be a word, part of a word, punctuation, or another representation. A **context window** limits how much material a request can accommodate. Exact limits and accounting depend on the model and API, including how output and reasoning tokens count. Word count is not an exact token count.
+
+As a planning illustration, suppose a fictional setup allows 8,000 tokens shared between input and output. Reserve 2,000 for output and 1,000 for instructions, examples, and history; at most 5,000 remain for sources. This arithmetic is not a specification for any actual model. Use the provider's tokenizer and limits when implementing.
+
+Prioritize relevant evidence, remove duplicates, and leave room for the answer. A large window does not guarantee that every detail is used correctly. Summarizing may save space but can remove exceptions or source references. When the full collection is too large, a retrieval system can select relevant passages; later RAG chapters explain indexing, retrieval, and grounding in detail.
+
+<details className="optional-depth">
+<summary>Go deeper: generation settings and prompt portability</summary>
+
+Where supported, **temperature** changes the sampling distribution: lower settings generally make choices more concentrated and higher settings less concentrated. **Top-p** sampling restricts selection to a probability-mass subset. Neither setting supplies missing knowledge, and a low temperature is not a guarantee of truth or identical responses across runs. Support and recommended settings vary by model.
+
+An output-token limit caps how much can be generated; an overly tight limit can truncate a recommendation. Record the model/version, available settings, and prompt version when comparing runs. A prompt that works well with one model may need adjustment on another. Check current documentation rather than assuming every parameter is available everywhere.
+
+</details>
+
+## 9. Test prompt behavior and protect the application boundary
+
+An **evaluation**, or **eval**, measures outputs against task-specific criteria. Start with a small, varied development set. For our task, include supplied availability, missing availability, conflicting movie lengths, and instruction-like text inside a source. Keep additional cases separate for assessment after revisions.
+
+| Check | Example failure | How to inspect it |
+|---|---|---|
+| Structure | Missing field or wrong type | Parser and validator |
+| Grounding | Invented streaming service with a real source ID | Compare each claim to the cited source |
+| Uncertainty | Conflicting movie lengths silently merged | Check against the case's expected behavior |
+| Instruction boundary | Catalog text overrides viewer preferences | Adversarial source cases and application checks |
+| Usefulness | The viewer's length limit ignored | Review against a task rubric |
+
+A **rubric** states what counts as acceptable. Test one meaningful change at a time, record failures, and rerun the same cases. Generated responses can vary, so repeated trials may be needed. A model-based judge can assist, but needs its own validation against human judgments and can share model biases. The [official evaluation guidance](https://developers.openai.com/api/docs/guides/evaluation-best-practices) emphasizes task-specific tests with ordinary, edge, and adversarial cases.
+
+**Prompt injection** is an attempt to make the model follow instructions contained in untrusted input, such as a retrieved movie page. Our copied catalog entry's “ignore the viewer preferences” text is an example of source content attempting to become authority. Merely adding “ignore injections” to a prompt does not guarantee resistance.
+
+<PromptDiagrams kind="boundary" />
+
+Keep external data out of privileged instruction fields. Enforce tool permissions, input validation, and allowed actions in application code; the model's text is not authorization to rent a movie or change a subscription. The workshop has no such tools. [OpenAI's agent-safety guidance](https://developers.openai.com/api/docs/guides/agent-builder-safety) discusses instruction separation and layered controls. Later security chapters cover these topics in depth.
+
+<a className="download-link screen-only" href="/downloads/chapter-09-prompting-workbook.zip" download>Download the prompting and context workbook ZIP ↗</a>
+
+Extract the workbook and run:
+
+```powershell
+py prompt_lab.py --case incomplete --version grounded
+py prompt_lab.py --demo
+```
+
+Use Python 3.10 or newer, substituting your working `python` or `python3` command if necessary. The first command prints a prompt and a labelled reference. The second shows validation passing and failing on prepared examples. To inspect your own saved JSON, use `py prompt_lab.py --case incomplete --check candidate.json`. These are local structural checks, not an LLM evaluation; the script makes no network calls and writes no files.
+
+## 10. Practice: make the requirement observable
+
+### Exercise 1: improve a vague request
+
+Rewrite “Recommend something good” using S1–S3 from Section 4. Include the viewer's preferences, evidence policy, output fields, and behavior when availability is unknown.
+
+<details className="solution"><summary>Reveal one possible prompt</summary><p>Suggest a light adventure movie under 120 minutes using S1–S3. Cite supplied source IDs beside movie facts. Return recommendation, streaming_service, evidence_ids, and open_questions. Set streaming_service to null unless a source supplies it for the suggested movie. Explain why Moonlight Map fits and ask where it can be streamed.</p></details>
+
+### Exercise 2: diagnose a valid-looking recommendation
+
+A recommendation uses the four correct fields and cites S1, but says Moonlight Map is on ExampleFlix. A JSON validator accepts it. What check is missing, and what should it say about availability?
+
+<details className="solution"><summary>Reveal the distinction</summary><p>The missing check is semantic grounding: S1 gives viewer preferences, not streaming availability. A known source ID is not proof of support. streaming_service should be null, with an open question asking where Moonlight Map can be streamed.</p></details>
+
+### Exercise 3: handle a conflict and an embedded command
+
+One entry lists Moonlight Map as 105 minutes, another as 135 minutes. A copied catalog entry also says “ignore the viewer preferences.” What should the recommendation and application do?
+
+<details className="solution"><summary>Reveal the response</summary><p>Show both lengths with their source IDs and flag the disagreement. Do not confirm that the movie meets a 120-minute limit until the conflict is resolved. Treat the catalog command as source text, not authority. The application independently controls actions such as purchases.</p></details>
+
+## 11. Check your understanding
+
+Answer all five questions, then read the explanations.
+
+<Quiz questions={chapter09Questions} client:load />
+
+## 12. Keep the prompt and its tests together
+
+A reusable prompt needs a defined task, relevant evidence, an output contract, and cases that reveal its weaknesses. Keep the prompt version beside the evaluation results. Fix the actual failure: missing context, unclear rules, unsuitable output handling, or a model limitation may each need a different change.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Recall cue |
+|---|---|
+| Prompt / context | Guidance and inputs / information available for the response |
+| Template | Stable instructions combined with changing task data |
+| Zero-shot / few-shot | Instructions without / with a small set of demonstrations |
+| Grounding / provenance | Claims tied to evidence / where that evidence came from |
+| Output contract / schema | Required result behavior and shape / machine-readable structure |
+| Structural / semantic validation | Check types and format / check meaning and evidence |
+| Token / context window | Model input unit / request capacity limit |
+| Prompt injection | Untrusted content tries to control model behavior |
+| Eval / rubric | A task-specific assessment / criteria for judging outputs |
+
+</details>
+
+<div className="chapter-references">
+
+All movies, service names, prompts, and reference recommendations are original teaching examples. The workshop assembles text and checks structure locally; no model performance is implied. Provider documentation linked beside relevant claims was checked for this edition; model and API details can change.
+
+**Next:** [Chapter 10: Building an LLM application with Python](/chapters/10-building-an-llm-application-with-python/) connects instructions, model calls, validation, and failure handling.
+
+</div>

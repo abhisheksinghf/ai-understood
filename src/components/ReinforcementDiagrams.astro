@@ -1,0 +1,30 @@
+---
+interface Props{kind:'loop'|'returns'|'robot'}
+const {kind}=Astro.props,id='rl-'+kind,arrow=`url(#${id}-arrow)`;
+const titles={loop:'Choose an action. Observe what follows.',returns:'A small cost now can unlock a better outcome.',robot:'A physical action needs a closed feedback loop.'};
+const captions={loop:'Figure 1. The agent selects an action using its current policy. The environment supplies the next observation and reward. Learning updates values or the policy; a frozen evaluation omits that learning update.',returns:'Figure 2. Satisfaction rewards in the authored movie environment. Familiar ends immediately with +2. Asking costs −1 and leads to another decision. A matched recommendation gives +6; a generic one gives +1. Every recommendation ends the episode.',robot:'Figure 3. A cinema robot estimates what is happening, plans a movement, controls its motors, and measures the outcome. The next sensor reading closes the loop. Learning can support components of this system; it does not replace every component.'};
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{titles[kind]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={titles[kind]}><svg viewBox="0 0 760 280" role="img" aria-labelledby={`${id}-title ${id}-desc`}><title id={`${id}-title`}>{titles[kind]}</title><desc id={`${id}-desc`}>{captions[kind]}</desc><defs><marker id={`${id}-arrow`} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="var(--accent)"/></marker></defs>
+{kind==='loop'&&<>
+<rect x="40" y="60" width="210" height="86" rx="8" fill="var(--accent-soft)" stroke="var(--line)"/><text x="145" y="94" text-anchor="middle" fill="var(--ink)" font-size="17">Movie agent</text><text x="145" y="122" text-anchor="middle" fill="var(--muted)" font-size="13">Policy + learned values</text>
+<rect x="510" y="60" width="210" height="86" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="615" y="94" text-anchor="middle" fill="var(--ink)" font-size="17">Viewer environment</text><text x="615" y="122" text-anchor="middle" fill="var(--muted)" font-size="13">Responds to the choice</text>
+<path d="M254 85 H504" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><text x="380" y="69" text-anchor="middle" fill="var(--ink)" font-size="14">Action: ask or recommend</text>
+<path d="M506 133 H256" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><text x="380" y="159" text-anchor="middle" fill="var(--ink)" font-size="13">Next observation + reward</text>
+<path d="M145 150 V203 H615 V151" fill="none" stroke="var(--line)" stroke-width="2"/><text x="380" y="242" text-anchor="middle" fill="var(--ink)" font-size="14">Experience → update estimates → choose again until the episode ends</text>
+</>}
+{kind==='returns'&&<>
+<rect x="15" y="94" width="115" height="70" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="72" y="125" text-anchor="middle" fill="var(--ink)" font-size="17">Start</text><text x="72" y="149" text-anchor="middle" fill="var(--muted)" font-size="12">Choose a route</text>
+<rect x="300" y="25" width="160" height="64" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="380" y="52" text-anchor="middle" fill="var(--ink)" font-size="15">Familiar · +2</text><text x="380" y="76" text-anchor="middle" fill="var(--muted)" font-size="12">Terminal</text>
+<rect x="300" y="166" width="160" height="64" rx="8" fill="var(--accent-soft)" stroke="var(--line)"/><text x="380" y="193" text-anchor="middle" fill="var(--ink)" font-size="15">Preference known</text><text x="380" y="216" text-anchor="middle" fill="var(--muted)" font-size="12">One more choice</text>
+<path d="M134 112 L296 57" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><text x="170" y="56" fill="var(--ink)" font-size="13">Recommend</text>
+<path d="M134 147 L296 195" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><text x="178" y="201" fill="var(--ink)" font-size="13">Ask · −1</text>
+<rect x="586" y="103" width="160" height="58" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="666" y="128" text-anchor="middle" fill="var(--ink)" font-size="15">Generic · +1</text><text x="666" y="149" text-anchor="middle" fill="var(--muted)" font-size="12">Terminal</text>
+<rect x="586" y="207" width="160" height="58" rx="8" fill="var(--accent-soft)" stroke="var(--line)"/><text x="666" y="232" text-anchor="middle" fill="var(--ink)" font-size="15">Matched · +6</text><text x="666" y="253" text-anchor="middle" fill="var(--muted)" font-size="12">Terminal</text>
+<path d="M464 182 L582 132" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><path d="M464 217 L582 237" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/>
+<text x="260" y="268" text-anchor="middle" fill="var(--muted)" font-size="13">Ask + matched: −1 + 0.9 × 6 = 4.4 discounted</text>
+</>}
+{kind==='robot'&&<>
+{[['Sense + estimate','Camera · joint sensors'],['Plan','Target + safe route'],['Control','Correct motion error'],['Act + observe','Motors + environment']].map(([title,sub],i)=><g><rect x={18+i*188} y="52" width="160" height="88" rx="8" fill={i===2?'var(--accent-soft)':'var(--panel)'} stroke="var(--line)"/><text x={98+i*188} y="87" text-anchor="middle" fill="var(--ink)" font-size="15">{title}</text><text x={98+i*188} y="115" text-anchor="middle" fill="var(--muted)" font-size="12">{sub}</text>{i<3&&<path d={`M${181+i*188} 97 H${199+i*188}`} stroke="var(--accent)" stroke-width="2" marker-end={arrow}/>}</g>)}
+<path d="M662 144 V207 H98 V144" fill="none" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><text x="380" y="192" text-anchor="middle" fill="var(--ink)" font-size="14">New sensor data → update estimate → correct the next action</text><text x="380" y="251" text-anchor="middle" fill="var(--muted)" font-size="13">Physical limits and safety checks apply throughout the loop.</text>
+</>}
+</svg></div><figcaption>{captions[kind]}</figcaption></figure>

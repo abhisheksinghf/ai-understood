@@ -1,0 +1,14 @@
+{
+  "version":"movie-structure-v1",
+  "movies":[
+    {"id":"M001","title":"Moonlight Map","action":2,"humor":3},
+    {"id":"M002","title":"City Sprint","action":8,"humor":2},
+    {"id":"M003","title":"Forest Signal","action":3,"humor":4},
+    {"id":"M004","title":"Quiet Orbit","action":2,"humor":1},
+    {"id":"M005","title":"Cafe Chaos","action":2,"humor":9},
+    {"id":"M006","title":"Midnight Archive","action":1,"humor":1},
+    {"id":"M007","title":"Unlisted Voyage","action":7,"humor":3},
+    {"id":"M008","title":"Parallel World","action":8,"humor":8},
+    {"id":"M009","title":"Funny Mission","action":9,"humor":9}
+  ]
+}

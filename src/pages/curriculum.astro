@@ -1,0 +1,11 @@
+---
+import BookLayout from '../layouts/BookLayout.astro';
+import { curriculum } from '../data/curriculum';
+const chapters=curriculum.flatMap(part=>part.chapters);
+const available=chapters.filter(chapter=>chapter.available).length;
+---
+<BookLayout title="The learning path">
+  <div class="breadcrumb"><a href="/">Handbook</a><span>/</span><span>Curriculum</span></div>
+  <header class="curriculum-hero"><span class="eyebrow">FROM FOUNDATIONS TO USEFUL APPLICATIONS</span><h1>Your learning<br/><em>journey.</em></h1><p>42 connected chapters. Clear explanations, worked examples, diagrams, and opportunities to test your understanding.</p><div class="availability"><span class="status-dot"></span>{available===chapters.length?`All ${chapters.length} chapters are available.`:`Chapters 1–${available} are available. Chapters ${available+1}–${chapters.length} are planned.`}</div><a href="/chapters/01-what-is-ai/" class="primary-button">Read Chapter 1 →</a></header>
+  <div class="curriculum-grid">{curriculum.map(p=><section id={`part-${p.number}`} class="curriculum-part"><div class="part-heading"><span>PART {String(p.number).padStart(2,'0')}</span><h2>{p.title}</h2></div><ol>{p.chapters.map(c=><li><span class="chapter-number">{String(c.number).padStart(2,'0')}</span>{c.available?<a href={c.href}>{c.title}<span class="available-label">Read chapter →</span></a>:<span>{c.title}<small>Planned</small></span>}</li>)}</ol></section>)}</div>
+</BookLayout>

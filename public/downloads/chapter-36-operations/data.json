@@ -1,0 +1,139 @@
+{
+  "windowSize": 5,
+  "backoffMs": 200,
+  "sloPercent": 95,
+  "requests": [
+    {
+      "id": "R01",
+      "slot": 1,
+      "window": 1,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R02",
+      "slot": 2,
+      "window": 1,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R03",
+      "slot": 3,
+      "window": 1,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R04",
+      "slot": 4,
+      "window": 1,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R05",
+      "slot": 5,
+      "window": 1,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R06",
+      "slot": 1,
+      "window": 2,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R07",
+      "slot": 2,
+      "window": 2,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R08",
+      "slot": 3,
+      "window": 2,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R09",
+      "slot": 4,
+      "window": 2,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R10",
+      "slot": 5,
+      "window": 2,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R11",
+      "slot": 1,
+      "window": 3,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R12",
+      "slot": 2,
+      "window": 3,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R13",
+      "slot": 3,
+      "window": 3,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R14",
+      "slot": 4,
+      "window": 3,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R15",
+      "slot": 5,
+      "window": 3,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R16",
+      "slot": 1,
+      "window": 4,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R17",
+      "slot": 2,
+      "window": 4,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R18",
+      "slot": 3,
+      "window": 4,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R19",
+      "slot": 4,
+      "window": 4,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    },
+    {
+      "id": "R20",
+      "slot": 5,
+      "window": 4,
+      "prompt": "Recommend a calm movie under 100 minutes."
+    }
+  ],
+  "versions": {
+    "baseline": {
+      "durationMs": 1200,
+      "costUnits": 3
+    },
+    "candidate": {
+      "durationMs": 900,
+      "costUnits": 2
+    }
+  },
+  "faultDurationMs": 400,
+  "faultCostUnits": 1
+}

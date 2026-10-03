@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-17.mdx';
+import raw from '../../content/chapter-17.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Embeddings and vector search" chapter chapterNumber={17} headings={headings} searchSections={searchSections} tocTitles={["Represent relationships","How encoders learn","Keep spaces compatible","Compare vectors","Unit normalization","Index or database?","Exact vs. approximate","Two kinds of recall","Try vector search","Python & practice","Knowledge check","Connect to RAG"]} searchPlaceholder="Try “cosine”, “normalization”, or “centroid”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 05 · Search, embeddings &amp; RAG</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 17</span><span class="edition">REPRESENT RELATIONSHIPS · SEARCH THE SPACE</span></div>
+    <h1>Embeddings &amp; vector search.<br/><em>Find useful neighbors.</em></h1>
+    <p class="hero-description">Turn representations into retrieval.<br class="desktop-break"/> Understand similarity, normalization, and approximate search.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 18–22 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-a-vector-is-a-representation-not-a-verdict" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-17.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">ENCODE → COMPARE → RETRIEVE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain a neighbor without overclaiming?</h2><p>Explain the representation and metric, compare approximate results with exact search, then assess relevance separately.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 17 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Building a RAG system step by step</h3><p>Connect sources, retrieval, and grounded answers in one application.</p><a class="text-button" href="/chapters/16-information-retrieval-how-search-works/">← Revisit Chapter 16</a></div><a class="text-button" href="/chapters/18-building-a-rag-system-step-by-step/">Read Chapter 18 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 17 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

@@ -1,0 +1,419 @@
+import PythonDiagrams from '../components/PythonDiagrams.astro';
+import PythonTrace from '../components/PythonTrace';
+import Quiz from '../components/Quiz';
+import {chapter04Questions} from '../data/chapter04';
+
+<p className="chapter-intro">Python gives you a way to turn an AI idea into instructions you can run, inspect, and test. Start with ordinary code that makes every step visible.</p>
+
+<div className="learning-card">
+<p className="eyebrow">WHAT YOU WILL BE ABLE TO DO</p>
+<p>Run a Python script, work with values and collections, write a loop and a function, read a small dataset, and save a result. Use those pieces to evaluate the runtime predictions from Chapter 3.</p>
+<p><strong>Reading path:</strong> Follow the small examples, trace the loop, then run the starter project. Extra syntax and environment setup are expandable. Allow additional time to type and change the code; reading alone is not the practice.</p>
+</div>
+
+## 1. Write a file; run it with Python
+
+A **program** is a set of instructions. A Python **interpreter** is the program that executes Python code. A **script** is a text file containing that code, normally saved with a <code>.py</code> extension.
+
+On Windows, open a terminal such as PowerShell and check:
+
+```powershell
+py --version
+```
+
+You need Python 3. If the command is unavailable, follow the [official Windows setup guide](https://docs.python.org/3/using/windows.html). If your working command is <code>python</code> or <code>python3</code>, substitute it for <code>py</code> below. A terminal command goes in the terminal; Python code goes in the script.
+
+Create a folder for your practice. Save this as <code>hello_ai.py</code> using a code editor or a plain-text editor:
+
+```python
+job_size = 2.0
+weight = 2.0
+prediction = weight * job_size + 1.0
+print(f"Predicted: {prediction:.2f} s")
+```
+
+Open a terminal in that folder and run <code>py hello_ai.py</code>. You should see **Predicted: 5.00 s**. Save edits before running again, and check that the file is not accidentally named <code>hello_ai.py.txt</code>.
+
+The script calculates a prediction with a chosen weight. It does not learn that weight. Training would need the update process from Chapter 3.
+
+<PythonDiagrams kind="run" />
+
+## 2. Values, names, and types
+
+In <code>weight = 2.0</code>, the name <code>weight</code> refers to the value <code>2.0</code>. Assignment uses <code>=</code>; comparing two values for equality uses <code>==</code>.
+
+| Type | Example | Use in our project |
+|---|---|---|
+| Integer: <code>int</code> | <code>3</code> | Number of jobs |
+| Floating-point number: <code>float</code> | <code>2.5</code> | Size, runtime, error |
+| String: <code>str</code> | <code>"authentication"</code> | Text or a category name |
+| Boolean: <code>bool</code> | <code>True</code>, <code>False</code> | A condition's result |
+| Missing-value marker: <code>None</code> | <code>None</code> | An explicitly absent value |
+
+Python values have types, even though you usually do not declare a variable's type in advance. The string <code>"2.5"</code> is different from the number <code>2.5</code>. Convert suitable numeric text with <code>float("2.5")</code>; text such as <code>"unknown"</code> cannot be converted that way.
+
+Use <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code> for arithmetic. Exponentiation uses <code>**</code>, so <code>error ** 2</code> squares an error. Parentheses control grouping.
+
+The earlier <code>f"..."</code> is a formatted string: braces insert a value, and <code>:.2f</code> displays two decimal places. Formatting changes the displayed text, not the number used in calculations. A comment begins with <code>#</code> and explains the code without being executed.
+
+<details className="optional-depth">
+<summary>Go deeper: strings, precision, and missing values</summary>
+
+Methods are operations accessed through an object. For example, <code>"  Login Failed  ".strip().lower()</code> produces <code>"login failed"</code>: remove surrounding whitespace, then make the text lowercase. Strings are immutable; these operations return strings rather than editing the original one.
+
+Most decimal fractions are approximations in binary floating-point arithmetic. For calculated floats, use an appropriate tolerance, such as <code>math.isclose(a, b)</code>, instead of assuming exact equality. Keep full precision for calculations and round for display.
+
+<code>None</code>, zero, an empty string, and <code>False</code> have different meanings even though each is false in a condition. Test <code>value is None</code> when you specifically mean “missing.”
+
+</details>
+
+## 3. Organize examples with lists and dictionaries
+
+A **list** holds an ordered sequence. A **dictionary** associates keys with values. Together, they give us a readable version of Chapter 3's dataset:
+
+```python
+jobs = [
+    {"size": 1.0, "actual": 3.0},
+    {"size": 2.0, "actual": 5.0},
+    {"size": 3.0, "actual": 7.0},
+]
+print(jobs[0]["size"])  # 1.0
+print(len(jobs))       # 3
+```
+
+List positions start at zero: <code>jobs[0]</code> is the first row. That row is a dictionary, so <code>["size"]</code> retrieves the value under its <code>"size"</code> key. The built-in function <code>len</code> returns the number of items.
+
+<PythonDiagrams kind="data" />
+
+Use <code>jobs.append(new_job)</code> to add one row. <code>jobs[:2]</code> selects the first two rows; the stop position is excluded. A missing dictionary key raises <code>KeyError</code>. Use <code>row.get("note")</code> for an optional field that may return <code>None</code>, but do not quietly treat a missing required runtime as zero.
+
+<details className="optional-depth">
+<summary>Go deeper: copying, tuples, sets, and comprehensions</summary>
+
+Lists and dictionaries are mutable: they can change. Assignment does not automatically copy them.
+
+```python
+original = [1, 2]
+alias = original
+alias.append(3)
+print(original)  # [1, 2, 3]
+```
+
+<code>original.copy()</code> creates a new outer list. For a list of dictionaries, the nested dictionaries are still shared; changing a nested value can affect both lists. This matters when separating original data from prepared data.
+
+A **tuple**, such as <code>(1.0, 2.0)</code>, is an ordered collection whose slots cannot be reassigned. A **set** keeps unique elements and supports membership checks; it does not promise list-style order or indexing.
+
+A **list comprehension** constructs a list from an expression and iteration. After defining the prediction function in Section 5, this collects three predictions:
+
+```python
+predictions = [predict(row["size"], 2.0) for row in jobs]
+print(predictions)  # [3.0, 5.0, 7.0]
+```
+
+Prefer the longer loop until you can explain what the shorter expression does.
+
+</details>
+
+## 4. Choose a branch; repeat a calculation
+
+An <code>if</code> statement chooses a branch from a condition. Indentation defines which instructions belong together; use four spaces consistently.
+
+```python
+prediction = 5.0
+if prediction > 6:
+    print("Review the estimate")
+else:
+    print("Within the example limit")
+```
+
+This prints **Within the example limit**. Conditions can use comparisons such as <code>&gt;</code>, <code>&lt;=</code>, and <code>==</code>, combined with <code>and</code>, <code>or</code>, and <code>not</code>.
+
+A <code>for</code> loop repeats a block for each item. Keep the <code>jobs</code> list from Section 3 and run:
+
+```python
+weight = 1.0
+total = 0.0
+for row in jobs:
+    prediction = weight * row["size"] + 1.0
+    error = prediction - row["actual"]
+    total += error ** 2
+
+mse = total / len(jobs)
+print(f"MSE: {mse:.4f} s^2")
+```
+
+The output is **MSE: 4.6667 s^2**. Here <code>+=</code> adds to the current total. Put the initialization before the loop; otherwise it resets for every row. Put the final average after the loop, when all rows have contributed.
+
+A <code>while</code> loop instead repeats while a condition remains true. Its body must eventually change something that makes the condition false, or deliberately stop. We use <code>for</code> here because we already have a finite collection.
+
+## 5. Give a reusable calculation a function
+
+A **function** is a named operation that can receive inputs and return a result:
+
+```python
+def predict(size, weight):
+    return weight * size + 1.0
+
+estimate = predict(2.5, 2.0)
+print(estimate)  # 6.0
+```
+
+<code>size</code> and <code>weight</code> are **parameters** in the definition. <code>2.5</code> and <code>2.0</code> are **arguments** supplied by the call. <code>return</code> sends the result back to the caller and ends that function call.
+
+<code>print</code> displays something; it does not replace <code>return</code>. A function that reaches its end without returning a value returns <code>None</code>. Keep calculation separate from display so you can reuse and test the calculation.
+
+A function's local names belong to that call. Passing values explicitly is easier to follow than relying on a changing global variable. Replace the prediction expression in the previous loop with <code>predict(row["size"], weight)</code>.
+
+<details className="optional-depth">
+<summary>Go deeper: type hints, classes, and model objects</summary>
+
+A type hint can document an expected input and result:
+
+```python
+def predict(size: float, weight: float) -> float:
+    return weight * size + 1.0
+```
+
+Type hints help readers and tools; Python does not automatically validate every value against them at runtime. Input checks are a separate responsibility.
+
+A **class** defines a kind of object with stored state and operations called methods. This small class stores a weight:
+
+```python
+class RuntimeModel:
+    def __init__(self, weight):
+        self.weight = weight
+
+    def predict(self, size):
+        return self.weight * size + 1.0
+
+model = RuntimeModel(2.0)
+print(model.predict(2.5))  # 6.0
+```
+
+<code>self</code> refers to the instance on which the method is called. <code>__init__</code> initializes its state. Libraries often expose model objects with methods, but naming an object “model” does not train it. This class only stores and uses the supplied weight.
+
+</details>
+
+## 6. Trace the loop before changing it
+
+The arithmetic is familiar; the new skill is tracking the program's state. At w = 1, the squared errors are 1, 4, and 9. The running total becomes 1, then 5, then 14.
+
+<PythonTrace client:load />
+
+Before advancing each row, predict the next total yourself. After the final row, divide by three to obtain MSE. Compare the recorded run at w = 2: changing a supplied parameter changes predictions, but this evaluator still does not perform training.
+
+The website replays results produced by the downloadable Python example. To edit and execute Python, use the starter project in Section 9.
+
+## 7. Imports, modules, and environments
+
+A **module** groups Python code under a name. <code>import</code> makes its functionality available; it does not install a missing library.
+
+```python
+import math
+
+print(math.isclose(0.1 + 0.2, 0.3))  # True
+```
+
+<code>math</code>, <code>json</code>, and <code>pathlib</code> are in Python's **standard library**, supplied with Python. Our starter needs no extra packages. A **package** groups importable modules; third-party libraries are usually installed as distributions using a tool such as <code>pip</code>.
+
+An **environment** determines which interpreter and installed packages a project uses. A virtual environment helps separate one project's dependencies from another's.
+
+<details className="optional-depth">
+<summary>Practical setup: use a virtual environment on Windows</summary>
+
+Run these terminal commands from your project folder:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python.exe evaluate_jobs.py
+.\.venv\Scripts\python.exe -m pip --version
+```
+
+The first creates the environment; the second runs the starter with its interpreter. Using that interpreter's full relative path avoids needing to activate the environment. <code>-m</code> runs a module, so the last command checks pip for that same interpreter.
+
+For future chapters, install dependencies with the chosen interpreter's <code>-m pip install</code> command. Record the versions you use so a project can be recreated. See [Python's virtual-environment guide](https://docs.python.org/3/tutorial/venv.html).
+
+Different tools serve different needs: **NumPy** provides numerical arrays, **pandas** works with tables, **scikit-learn** supplies ML estimators, and **PyTorch** supports tensor computation and neural networks. We will introduce them when needed. A normal Python list is not a NumPy array; list multiplication repeats its contents rather than multiplying every element.
+
+</details>
+
+## 8. Read a file; handle a failure clearly
+
+**JSON** is a text format for structured data. It resembles parts of Python syntax but is not Python code: JSON uses double-quoted keys and <code>true</code>, <code>false</code>, and <code>null</code> instead of Python's corresponding values.
+
+With the starter files in the same folder, this script fragment loads the dataset:
+
+```python
+import json
+from pathlib import Path
+
+folder = Path(__file__).resolve().parent
+text = (folder / "jobs.json").read_text(encoding="utf-8")
+jobs = json.loads(text)
+```
+
+<code>Path</code> represents a filesystem path. Here <code>__file__</code> identifies the script, and <code>.parent</code> identifies its containing folder. The path's <code>/</code> operation joins a filename to the folder. Reading produces text; <code>json.loads</code> turns that text into Python values such as a list of dictionaries. Parsing JSON does not prove that required fields and types are correct.
+
+Save a Python result by converting it back to JSON text:
+
+```python
+result = {"weight": 2.0, "mse": 0.0}
+output = folder / "example_result.json"
+output.write_text(json.dumps(result, indent=2), encoding="utf-8")
+```
+
+This creates or replaces that output file. The values shown here are an illustration; the starter calculates its report from the loaded rows.
+
+When execution fails, Python usually shows a **traceback**: the call path, the location, and the exception. Read the final error message, then locate the relevant line in your file.
+
+| Error | What to check |
+|---|---|
+| <code>SyntaxError</code> or <code>IndentationError</code> | Missing colon, unmatched bracket, or incorrect indentation |
+| <code>NameError</code> | A name is misspelled or used before assignment |
+| <code>TypeError</code> | An operation received an unsuitable type |
+| <code>KeyError</code> | A required dictionary key is absent |
+| <code>FileNotFoundError</code> | The path does not point to an existing file |
+
+<details className="optional-depth">
+<summary>Go deeper: catch expected errors, then explain them</summary>
+
+Use <code>try</code> and <code>except</code> when you have a useful response to a specific failure:
+
+```python
+raw_size = "unknown"
+try:
+    size = float(raw_size)
+except ValueError:
+    print("Job size must be numeric")
+```
+
+The code reports a conversion problem. It does not continue using a fabricated zero. Avoid silently ignoring every exception, because that can hide programming mistakes.
+
+Use <code>raise ValueError("jobs cannot be empty")</code> to reject invalid input explicitly. The starter checks for an empty dataset and unsuitable numeric fields before calculating a score.
+
+For lower-level file handling, <code>with open(...)</code> closes the file when the block exits, including when an exception occurs. The <code>Path</code> convenience methods above manage their file access for you. See [Python's exceptions guide](https://docs.python.org/3/tutorial/errors.html).
+
+</details>
+
+## 9. Build a small prediction evaluator
+
+Download and extract the starter. It contains <code>evaluate_jobs.py</code>, <code>jobs.json</code>, and instructions.
+
+<a className="download-link screen-only" href="/downloads/chapter-04-python-starter.zip" download>Download the Python starter ZIP ↗</a>
+<p className="print-only">The starter ZIP is available through the Download Python starter link on Chapter 4's website.</p>
+
+From the extracted folder, run <code>py evaluate_jobs.py</code>. The expected terminal output is:
+
+```text
+w=1.0 | jobs=3 | MSE=4.6667 s^2
+w=2.0 | jobs=3 | MSE=0.0000 s^2
+Saved runtime_report.json
+```
+
+<PythonDiagrams kind="project" />
+
+Read the three functions in the downloaded file:
+
+- **predict:** computes one runtime from size and weight.
+- **evaluate:** checks the rows, loops over them, records errors, and returns a dictionary containing MSE and the row results.
+- **main:** reads the input file, evaluates two chosen weights, prints the summary, and writes <code>runtime_report.json</code> beside the script.
+
+The final <code>if __name__ == "__main__":</code> block runs the entry point when the file is executed directly. Importing the module makes its functions available without automatically running that entry point.
+
+Inspect the generated JSON. At w = 1, row C should have prediction 4, error −3, squared error 9, and running total 14. Running the script again replaces its generated report.
+
+Add a tiny check in a separate <code>check_example.py</code> beside the starter:
+
+```python
+from evaluate_jobs import predict
+
+assert predict(2.5, 2.0) == 6.0
+print("Check passed")
+```
+
+<code>assert</code> raises an error when the condition is false. This checks one known case; it is not proof of general correctness. Assertions are useful in tests, but use explicit validation for required input checks because assertions can be disabled.
+
+<details className="optional-depth">
+<summary>Working habit: scripts, notebooks, and reproducibility</summary>
+
+A script normally runs top to bottom in a fresh process. A notebook groups code into cells and keeps state in its running kernel. Running cells out of order can leave hidden dependencies on old values.
+
+Before trusting a notebook, restart its kernel and run the cells in order. Record the input data and environment. For this chapter, a script makes execution order explicit.
+
+If you move the file-reading snippet into a notebook, <code>__file__</code> is normally unavailable. Use an explicit data path or a deliberately chosen working directory instead of assuming the script snippet applies unchanged.
+
+</details>
+
+## 10. Practice: change, predict, verify
+
+### Exercise 1: change a data point
+
+In <code>jobs.json</code>, change the third actual runtime from 7.0 to 8.0. Before running the script, calculate the new MSE at w = 2.
+
+<details className="solution"><summary>Reveal the calculation</summary><p>The predictions remain 3, 5, and 7. The errors become 0, 0, and −1, so MSE is 1 / 3 ≈ 0.3333 squared seconds. The parameter did not change; you changed the measured target. Restore the original data before comparing with the chapter's recorded trace.</p></details>
+
+### Exercise 2: find the misplaced line
+
+Someone puts <code>total = 0.0</code> inside the <code>for</code> loop immediately before the error calculation. At w = 1, what final MSE will the code report, and why is it wrong?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>Each iteration discards the earlier total. After the third row, only its squared error of 9 remains. Dividing by three gives 3.0, rather than 14 / 3 ≈ 4.6667. Initialize the accumulator before entering the loop.</p></details>
+
+### Exercise 3: return a reusable result
+
+Write a function <code>squared_error(predicted, actual)</code> that returns the squared difference. Check it with predicted = 4 and actual = 7.
+
+<details className="solution">
+<summary>Reveal the solution</summary>
+
+```python
+def squared_error(predicted, actual):
+    return (predicted - actual) ** 2
+
+assert squared_error(4, 7) == 9
+```
+
+The function returns 9. Printing 9 inside the function without returning it would leave the caller with <code>None</code>.
+
+</details>
+
+## 11. Check your understanding
+
+Answer all five questions, then review the explanation for any distinction you missed.
+
+<Quiz questions={chapter04Questions} client:load />
+
+## 12. Keep a small working toolkit
+
+You can now follow the path from a data file to Python values, through functions and loops, to a checked output. Explain that path before adding a model library.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Recall cue |
+|---|---|
+| Interpreter / script | Program executing Python / file containing Python code |
+| Variable / type | A name referring to a value / the kind of that value |
+| List / dictionary | Ordered collection / keys associated with values |
+| Condition / loop | A decision / repeated execution |
+| Parameter / argument | Input name in a function definition / value supplied in a call |
+| Return / print | Send a value to the caller / display text |
+| Module / import | Organized code / make it available by name |
+| Virtual environment | An interpreter environment with project-specific packages |
+| JSON | Text representation of structured data |
+| Exception / traceback | A reported failure / execution context showing where it arose |
+| Assertion | A condition checked during a test |
+
+</details>
+
+<div className="chapter-references">
+
+The dataset is synthetic and the examples are original. Optional references:
+
+- [Python: values, strings, and lists](https://docs.python.org/3/tutorial/introduction.html)
+- [Python: control flow and functions](https://docs.python.org/3/tutorial/controlflow.html)
+- [Python: data structures](https://docs.python.org/3/tutorial/datastructures.html)
+- [Python: files and JSON](https://docs.python.org/3/tutorial/inputoutput.html)
+
+**Next:** [Chapter 5: Software, APIs, and data fundamentals](/chapters/05-software-apis-and-data/).
+
+</div>

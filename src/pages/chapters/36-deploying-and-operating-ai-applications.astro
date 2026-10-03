@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-36.mdx';
+import raw from '../../content/chapter-36.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Deploying and operating AI applications" chapter chapterNumber={36} headings={headings} searchSections={searchSections} tocTitles={["Deploy the service","Versions & configuration","Gradual releases","Observe the whole request","SLOs & error budgets","Retries & recovery","Capacity & cost","Operate & improve","Python workbook","Release simulator","Knowledge check","Revision & next steps"]} searchPlaceholder="Try “canary”, “deadline”, or “drift”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 09 · Evaluation, security &amp; production</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 36</span><span class="edition">SHIP · OBSERVE · RECOVER</span></div>
+    <h1>Ship with confidence.<br/><em>Keep the service reliable.</em></h1>
+    <p class="hero-description">Turn a working AI application into a service,<br class="desktop-break"/> with measured releases and a tested way to recover.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-deploy-a-service-not-just-a-model-call" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-36.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">RELEASE → OBSERVE → RECOVER → IMPROVE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain what happens after launch?</h2><p>Trace a gradual rollout, define a useful service objective, and explain when retrying or rolling back helps.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 36 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Classical, symbolic, and probabilistic AI</h3><p>Explore search, planning, logic, and reasoning under uncertainty beyond neural networks.</p><a class="text-button" href="/chapters/35-ai-security-and-responsible-use/">← Revisit Chapter 35</a></div><a class="primary-button" href="/chapters/37-classical-symbolic-and-probabilistic-ai/">Read Chapter 37 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 36 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

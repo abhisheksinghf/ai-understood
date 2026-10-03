@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, { getHeadings } from '../../content/chapter-07.mdx';
+import raw from '../../content/chapter-07.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Probability and statistics for AI" chapter chapterNumber={7} headings={headings} searchSections={searchSections} tocTitles={["Population & sample","Center & spread","Events & probability","Bayes rule","Explore alert rates","Distributions & expectation","Sampling uncertainty","Correlation & causes","Evidence & Python","Practice exercises","Knowledge check","Revision & connections"]} searchPlaceholder="Try “Bayes”, “confidence”, or “p-value”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 02 · Mathematical foundations</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 07</span><span class="edition">REASON CLEARLY ABOUT UNCERTAINTY</span></div>
+    <h1>Probability &amp;<br/><em>statistics for AI.</em></h1>
+    <p class="hero-description">From observations to evidence.<br class="desktop-break"/> Learn what the numbers do—and do not—tell you.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 22–27 min core reading</span><span>Build on Chapter 6</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-start-with-the-population-and-the-sample" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-07.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">NAME → CALCULATE → INTERPRET</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain it in your own words?</h2><p>Explain why recall differs from precision, calculate a sample summary, and interpret a confidence interval. Check your assumptions before trusting a number.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 7 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Calculus, optimization, and information theory</h3><p>Understand gradients, parameter updates, and measures of information.</p><a class="text-button" href="/chapters/06-algebra-and-linear-algebra/">← Revisit Chapter 6</a></div><a class="primary-button" href="/chapters/08-calculus-optimization-and-information/">Read Chapter 8 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 07 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

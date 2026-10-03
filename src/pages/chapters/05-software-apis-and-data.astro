@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, { getHeadings } from '../../content/chapter-05.mdx';
+import raw from '../../content/chapter-05.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Software, APIs, and data fundamentals" chapter chapterNumber={5} headings={headings} searchSections={searchSections} tocTitles={["An application's parts","The API contract","JSON & validation","Failures & retries","Diagnose the request","Data & storage","Read data with SQL","Reproducible data paths","Build the local API","Practice exercises","Knowledge check","Revision & connections"]} searchPlaceholder="Try “timeout”, “transaction”, or “CORS”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 02 · Programming foundations</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 05</span><span class="edition">CONNECT CODE, SERVICES, AND DATA</span></div>
+    <h1>Software, APIs,<br/><em>and data.</em></h1>
+    <p class="hero-description">Follow a request from input to result.<br class="desktop-break"/> Build the foundations around an AI model.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 25–30 min core reading</span><span>Builds on Chapter 4</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-follow-a-request-through-an-application" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-05.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">REQUEST → CHECK → STORE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain it in your own words?</h2><p>Trace a request through the starter, explain a failed call, and query the saved result. Distinguish a successful response from an accurate prediction.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 5 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Algebra and linear algebra for AI</h3><p>Understand the numbers, vectors, and matrices behind AI calculations.</p><a class="text-button" href="/chapters/04-python-for-ai/">← Revisit Chapter 4</a></div><a class="primary-button" href="/chapters/06-algebra-and-linear-algebra/">Read Chapter 6 <span>→</span></a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 05 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

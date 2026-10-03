@@ -1,0 +1,29 @@
+---
+interface Props{kind:'lifecycle'|'targets'|'generation'}
+const {kind}=Astro.props;
+const titles={lifecycle:'Training changes parameters. Inference uses a checkpoint.',targets:'Keep the context. Choose which targets contribute loss.',generation:'One fixed checkpoint. A growing token sequence.'};
+const captions={lifecycle:'Figure 1. An illustrative causal-LLM lifecycle: pretrain on text, tune on demonstrations, optionally optimize preferences, then evaluate a checkpoint. Ordinary inference uses that checkpoint without optimizer updates. Real training recipes may repeat or combine stages.',targets:'Figure 2. Our comedy demonstration has seven next-token targets. Reply-only SFT scores Moonlight, Map, the period, and the end token. The earlier user and role tokens remain context. In a transformer, causal attention still prevents each prediction from seeing its future target.',generation:'Figure 3. Format and tokenize the prompt, run prefill, choose a token from vocabulary scores, and stop or append it. Subsequent decode steps reuse available cache state. Cache and sequence state change; model parameters remain fixed. The teaching table has no transformer cache.'};
+const id='lifecycle-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{titles[kind]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={titles[kind]}><svg viewBox={kind==='targets'?'0 0 760 310':'0 0 760 290'} role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{titles[kind]}</title><desc id={id+'-desc'}>{captions[kind]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='lifecycle'&&<>
+ {[['Pretraining','Predict text tokens'],['SFT','Follow demonstrations'],['Preferences','Optional comparisons'],['Evaluation','Choose a checkpoint']].map(([a,b],i)=><g><rect x={10+190*i} y="52" width="168" height="83" rx="6" class={i===3?'node node-accent':'node'}/><text x={94+190*i} y="82" text-anchor="middle" class="node-title">{a}</text><text x={94+190*i} y="109" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1,2].map(i=><path d={`M${179+190*i} 93h17`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="94" y="31" text-anchor="middle" class="node-detail">Text corpus</text><text x="284" y="31" text-anchor="middle" class="node-detail">Instruction → reply</text><text x="474" y="31" text-anchor="middle" class="node-detail">Chosen / rejected</text><text x="664" y="31" text-anchor="middle" class="node-detail">Held-out tasks</text>
+ <path d="M664 140v59H578" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/><rect x="192" y="173" width="380" height="78" rx="6" class="node node-accent"/><text x="382" y="201" text-anchor="middle" class="node-title">Inference: prompt → generated reply</text><text x="382" y="229" text-anchor="middle" class="node-detail">Fixed weights · changing tokens and runtime state</text><text x="380" y="279" text-anchor="middle" class="node-detail">Pretraining and post-training update weights; evaluation measures behavior.</text>
+</>}
+{kind==='targets'&&<>
+ <text x="15" y="35" class="node-title">Next-token target →</text>
+ {['<user>','comedy','<assistant>','Moonlight','Map','.','<eos>'].map((t,i)=><g><rect x={10+i*107} y="58" width="99" height="56" rx="5" class={i<3?'node':'node node-accent'}/><text x={59+i*107} y="91" text-anchor="middle" class="node-title">{t}</text><text x={59+i*107} y="148" text-anchor="middle" class="node-detail">{i<3?'Not scored':'Scored'}</text></g>)}
+ <path d="M10 166v12h313v-12 M331 166v12h420v-12" fill="none" stroke="var(--accent)" stroke-width="1.5"/><text x="166" y="201" text-anchor="middle" class="node-detail">3 prompt targets · loss mask 0</text><text x="542" y="201" text-anchor="middle" class="node-detail">4 reply targets · loss mask 1</text>
+ <rect x="44" y="225" width="672" height="60" rx="6" class="node"/><text x="380" y="250" text-anchor="middle" class="node-title">Predict “Moonlight” using the preceding prompt.</text><text x="380" y="272" text-anchor="middle" class="node-detail">A loss mask selects training targets. An attention mask controls visible inputs.</text>
+</>}
+{kind==='generation'&&<>
+ {[['Format + tokenize','Use the chat template'],['Model forward','Prefill, then decode'],['Select a token','Greedy or sample'],['Stop?','End token or limit']].map(([a,b],i)=><g><rect x={10+190*i} y="32" width="168" height="80" rx="6" class={i===2?'node node-accent':'node'}/><text x={94+190*i} y="61" text-anchor="middle" class="node-title">{a}</text><text x={94+190*i} y="90" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1,2].map(i=><path d={`M${179+190*i} 72h17`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <path d="M664 116v69h-96 M388 219H284V119" fill="none" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/><text x="680" y="148" class="node-detail">No</text>
+ <rect x="390" y="169" width="172" height="75" rx="6" class="node node-accent"/><text x="476" y="197" text-anchor="middle" class="node-title">Append token</text><text x="476" y="222" text-anchor="middle" class="node-detail">Keep cached prefix state</text>
+ <text x="162" y="168" text-anchor="middle" class="node-title">Next pass = decode</text><text x="162" y="192" text-anchor="middle" class="node-detail">Only new tokens need processing</text><text x="380" y="277" text-anchor="middle" class="node-detail">If stop = yes, return the result. There is no backpropagation or optimizer in this loop.</text>
+</>}
+</svg></div><figcaption>{captions[kind]}</figcaption></figure>
+

@@ -1,0 +1,35 @@
+{
+  "note": "Authored teaching data. Boxes are supplied detector outputs, not predictions from a live model. Movie scores and future relevance are fictional.",
+  "vision": {
+    "truth": [
+      {"id":"A1","frame":"A","box":[10,10,50,70]},
+      {"id":"A2","frame":"A","box":[70,15,110,75]},
+      {"id":"B1","frame":"B","box":[20,10,60,70]},
+      {"id":"B2","frame":"B","box":[80,15,120,75]}
+    ],
+    "predictions": [
+      {"id":"P1","frame":"A","score":0.95,"box":[12,12,52,72]},
+      {"id":"P2","frame":"A","score":0.8,"box":[9,9,51,71]},
+      {"id":"P3","frame":"A","score":0.7,"box":[72,17,112,77]},
+      {"id":"P4","frame":"A","score":0.4,"box":[115,10,145,60]},
+      {"id":"P5","frame":"B","score":0.65,"box":[22,12,62,72]},
+      {"id":"P6","frame":"B","score":0.35,"box":[82,17,122,77]},
+      {"id":"P7","frame":"B","score":0.9,"box":[125,20,150,55]}
+    ]
+  },
+  "recommendations": {
+    "profile":[1,0,0],
+    "featureNames":["gentle adventure","music","mystery"],
+    "movies":[
+      {"id":"M001","title":"Moonlight Map","features":[1,0,0],"collaborative":0.95,"seen":true,"available":true,"relevant":false},
+      {"id":"M002","title":"Harbor Lights","features":[0.8,0.6,0],"collaborative":0.2,"seen":false,"available":true,"relevant":true},
+      {"id":"M003","title":"Starlit Journey","features":[0.6,0.8,0],"collaborative":0.9,"seen":false,"available":true,"relevant":true},
+      {"id":"M004","title":"City Beats","features":[0,1,0],"collaborative":1,"seen":false,"available":true,"relevant":false},
+      {"id":"M005","title":"Quiet Orbit","features":[1,0,0],"collaborative":0.1,"seen":false,"available":true,"relevant":false},
+      {"id":"M006","title":"Hidden Reel","features":[0,0,1],"collaborative":0.3,"seen":false,"available":true,"relevant":false},
+      {"id":"M007","title":"Distant Shore","features":[1,0,0],"collaborative":1,"seen":false,"available":false,"relevant":false}
+    ]
+  },
+  "demand": [40,45,50,60,90,120,100,45,50,55,65,95,125,105,50,55,60,70,100,130,110],
+  "evaluationStartDay":15
+}

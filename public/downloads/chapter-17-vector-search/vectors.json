@@ -1,0 +1,179 @@
+{
+  "version": "movie-vectors-v1",
+  "provenance": "Hand-authored geometry fixtures, not embeddings from a trained model. Catalog and judgments copied from Chapter 16.",
+  "space_id": "authored-movie-3d-v1",
+  "dimensions": 3,
+  "movies": [
+    {
+      "id": "M001",
+      "title": "Moonlight Map",
+      "runtime_minutes": 105,
+      "summary": "A funny adventure follows friends on a treasure rescue across an island.",
+      "vector": [
+        0.2,
+        0.9,
+        0.1
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M002",
+      "title": "City Sprint",
+      "runtime_minutes": 140,
+      "summary": "A city rescue team races through traffic to stop a robbery.",
+      "vector": [
+        3,
+        2,
+        0.2
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M003",
+      "title": "Forest Signal",
+      "runtime_minutes": 115,
+      "summary": "Friends follow a forest signal on a gentle adventure to help a lost explorer.",
+      "vector": [
+        0.3,
+        0.7,
+        0.2
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M004",
+      "title": "Quiet Orbit",
+      "runtime_minutes": 110,
+      "summary": "A space crew plans a rescue near a silent planet.",
+      "vector": [
+        0.9,
+        0.1,
+        0
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M005",
+      "title": "Cafe Chaos",
+      "runtime_minutes": 90,
+      "summary": "A funny comedy about friends opening a cafe with no space for a kitchen.",
+      "vector": [
+        0.1,
+        1,
+        0.1
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M006",
+      "title": "Winter Road",
+      "runtime_minutes": 100,
+      "summary": "A quiet drama about a family reunited on a winter road.",
+      "vector": [
+        0.1,
+        0.2,
+        1
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M007",
+      "title": "Unlisted Voyage",
+      "runtime_minutes": null,
+      "summary": "Astronauts save a stranded pilot beyond a distant moon.",
+      "vector": [
+        0.8,
+        0.2,
+        0
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "M008",
+      "title": "Parallel World",
+      "runtime_minutes": 118,
+      "summary": "A space rescue becomes a rescue mission when a space station loses contact.",
+      "vector": [
+        1.6,
+        0.3,
+        0.1
+      ],
+      "space_id": "authored-movie-3d-v1"
+    }
+  ],
+  "queries": [
+    {
+      "query": "space rescue",
+      "intent": "Find movies about rescuing someone in outer space.",
+      "relevant": [
+        "M004",
+        "M007",
+        "M008"
+      ],
+      "id": "space",
+      "vector": [
+        1,
+        0,
+        0
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "query": "funny adventure",
+      "intent": "Find a humorous adventure story.",
+      "relevant": [
+        "M001"
+      ],
+      "id": "funny",
+      "vector": [
+        0.1,
+        1,
+        0
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "query": "quiet drama",
+      "intent": "Find a quiet dramatic story.",
+      "relevant": [
+        "M006"
+      ],
+      "id": "quiet",
+      "vector": [
+        0,
+        0,
+        1
+      ],
+      "space_id": "authored-movie-3d-v1"
+    }
+  ],
+  "centroids": [
+    {
+      "id": "A",
+      "vector": [
+        1,
+        0,
+        0
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "B",
+      "vector": [
+        1,
+        0.4,
+        0
+      ],
+      "space_id": "authored-movie-3d-v1"
+    },
+    {
+      "id": "C",
+      "vector": [
+        0,
+        0,
+        1
+      ],
+      "space_id": "authored-movie-3d-v1"
+    }
+  ]
+}

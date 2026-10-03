@@ -1,0 +1,62 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE_PATH||'playwright');
+const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
+const base='http://127.0.0.1:4321',route='/chapters/39-vision-recommendations-and-time-series-applications/';
+const style='.topbar,.reader-tools,.skip-link,#scroll-track{visibility:hidden!important}';
+(async()=>{
+ const out=path.resolve(__dirname,'../tmp/qa/chapter-39');await fs.mkdir(out,{recursive:true});
+ const browser=await chromium.launch({channel:'chrome',headless:true});
+ try{
+  const context=await browser.newContext({viewport:{width:1512,height:1100},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(base+'/chapters/38-reinforcement-learning-and-robotics/',{waitUntil:'networkidle'});
+  const prior={version:1,chapter:38,complete:true,bookmark:'1-learn-through-an-action-and-feedback-loop'};
+  await page.evaluate(p=>localStorage.setItem('ai-handbook-progress-chapter-38-v1',JSON.stringify(p)),prior);
+  await page.getByRole('link',{name:'Read Chapter 39'}).click();await page.waitForURL(base+route);await page.waitForLoadState('networkidle');
+  assert.equal(await page.locator('.chapter-content h2').count(),12);assert.equal(await page.locator('figure.diagram svg').count(),3);assert.equal(await page.locator('.optional-depth').count(),6);assert.equal(await page.locator('.optional-depth[open]').count(),0);assert.equal(await page.locator('.katex-error').count(),0);
+  assert.equal(await page.locator('.chapter-nav[aria-current="page"]').getAttribute('href'),route);
+  assert.deepEqual(await page.locator('a[href^="#"]').evaluateAll(as=>as.filter(a=>a.hash&&!document.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash)),[]);
+  assert.ok(await page.locator('figure.diagram svg').evaluateAll(svgs=>svgs.every(svg=>(svg.getAttribute('aria-labelledby')||'').split(' ').every(id=>!!document.getElementById(id)?.textContent))));
+  await page.screenshot({path:path.join(out,'desktop.png')});for(let i=0;i<3;i++)await page.locator('figure.diagram').nth(i).screenshot({path:path.join(out,'diagram-'+i+'.png'),style});
+  await page.getByRole('button',{name:'Search Chapter 39'}).click();await page.locator('#search-input').fill('cold start');await page.locator('.search-item[href="#4-build-recommendations-from-candidates-to-a-ranked-list"]:visible').click();assert.equal(await page.locator('.optional-depth').nth(1).getAttribute('open'),'');await page.locator('.optional-depth').nth(1).locator('summary').click();
+  const lab=page.locator('.applied-lab');await lab.scrollIntoViewIfNeeded();await page.waitForFunction(()=>!document.querySelector('.applied-lab')?.closest('astro-island')?.hasAttribute('ssr'));
+  const {evaluate,choices}=await import('../src/lib/applied-systems.mjs');
+  await page.locator('#app-threshold').selectOption('0.3');await page.locator('#app-threshold').selectOption('0.6');
+  assert.equal(await lab.locator('[data-app="counts"]').innerText(),'3 / 2 / 1');
+  for(const name of ['Vision','Recommendations','Forecasting']){await lab.getByRole('button',{name,exact:true}).click();await lab.screenshot({path:path.join(out,name.toLowerCase()+'.png'),style});}
+  const cases=[];for(const threshold of choices.threshold)for(const weight of choices.weight)for(const k of choices.k)for(const forecast of choices.forecast)cases.push({threshold,weight,k,forecast});
+  const percent=n=>(n*100).toFixed(1)+'%';
+  for(const config of cases){
+   const expected=evaluate(config);
+   await lab.getByRole('button',{name:'Vision',exact:true}).click();await page.locator('#app-threshold').selectOption(String(config.threshold));
+   for(const [key,value]of Object.entries({counts:expected.vision.tp+' / '+expected.vision.fp+' / '+expected.vision.fn,'vision-precision':percent(expected.vision.precision),'vision-recall':percent(expected.vision.recall)}))assert.equal(await lab.locator('[data-app="'+key+'"]').innerText(),String(value));
+   assert.deepEqual(await lab.getByRole('region',{name:'Detection matches',exact:true}).locator('tbody tr').evaluateAll(rows=>rows.map(r=>[r.children[1].textContent,r.children[2].textContent,r.children[3].textContent])),expected.vision.rows.map(p=>[p.score.toFixed(2),p.iou.toFixed(3),(p.match??'None')+p.outcome]));
+   await lab.getByRole('button',{name:'Recommendations',exact:true}).click();await page.locator('#app-weight').selectOption(String(config.weight));await page.locator('#app-k').selectOption(String(config.k));
+   for(const [key,value]of Object.entries({'rec-precision':percent(expected.recommendations.precision),'rec-recall':percent(expected.recommendations.recall),ndcg:expected.recommendations.ndcg.toFixed(6)}))assert.equal(await lab.locator('[data-app="'+key+'"]').innerText(),String(value));
+   const ranked=lab.getByRole('region',{name:'Ranked movie candidates',exact:true});assert.equal(await ranked.locator('tr[data-selected="true"]').count(),config.k);
+   assert.deepEqual(await ranked.locator('tbody tr').evaluateAll(rows=>rows.map(r=>[r.children[1].textContent,r.children[2].textContent,r.children[3].textContent,r.children[4].textContent])),expected.recommendations.rows.map(m=>[m.content.toFixed(2),m.collaborative.toFixed(2),m.score.toFixed(2),m.relevant?'Relevant':'Not relevant']));
+   assert.deepEqual(await ranked.locator('tbody tr td:first-child small').allTextContents(),expected.recommendations.rows.map(m=>(m.selected?'In displayed list':'Outside top K')+' · '+m.id));
+   await lab.getByRole('button',{name:'Forecasting',exact:true}).click();await page.locator('#app-forecast').selectOption(config.forecast);
+   assert.equal(await lab.locator('[data-app="mae"]').innerText(),expected.forecast.mae.toFixed(3));assert.equal(await lab.locator('[data-app="rmse"]').innerText(),expected.forecast.rmse.toFixed(3));
+   assert.deepEqual(await lab.getByRole('region',{name:'Rolling forecast audit',exact:true}).locator('tbody tr').evaluateAll(rows=>rows.map(r=>[r.children[1].textContent,r.children[2].textContent,r.children[3].textContent,r.children[4].textContent])),expected.forecast.rows.map(f=>[f.sourceDays.join(', '),f.prediction.toFixed(3),String(f.actual),f.error.toFixed(3)]));
+   for(const key of ['actual','prediction']){const points=expected.forecast.rows.map((p,i)=>`${(48+i*86).toFixed(3)},${(175-p[key]).toFixed(3)}`).join(' ');assert.equal(await lab.locator('[data-series="'+key+'"]').getAttribute('points'),points);}
+   if(config.threshold===.6&&config.weight===.5&&config.k===2){const wait=page.waitForEvent('download');await lab.getByRole('button',{name:'Download applications report'}).click();const d=await wait;assert.equal(d.suggestedFilename(),'chapter-39-applications-report.json');const file=path.join(out,d.suggestedFilename());await d.saveAs(file);assert.deepEqual(JSON.parse(await fs.readFile(file,'utf8')),expected);}
+  }
+  await lab.getByRole('button',{name:'Reset experiment'}).click();assert.equal(await page.locator('#app-threshold').inputValue(),'0.6');assert.equal(await lab.locator('[data-app="counts"]').innerText(),'3 / 2 / 1');
+  await page.locator('#app-threshold').focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');assert.equal(await lab.locator('[data-app="counts"]').innerText(),'1 / 1 / 3');await lab.getByRole('button',{name:'Reset experiment'}).click();
+  await lab.getByRole('button',{name:'Forecasting',exact:true}).click();
+  await page.getByRole('button',{name:'Switch to dark theme'}).click();await lab.screenshot({path:path.join(out,'dark.png'),style});await page.getByRole('button',{name:'Switch to light theme'}).click();
+  await page.locator('.solution summary').first().click();assert.equal(await page.locator('.solution').first().getAttribute('open'),'');
+  await page.locator('.quiz').scrollIntoViewIfNeeded();await page.waitForFunction(()=>!document.querySelector('.quiz')?.closest('astro-island')?.hasAttribute('ssr'));
+  for(const [i,a] of [0,1,2,1,2].entries())await page.locator(`input[name="question-${i}"][value="${a}"]`).check();await page.getByRole('button',{name:'Check my answers'}).click();assert.match(await page.locator('.quiz-actions [role="status"]').innerText(),/^5\/5 correct/);
+  for(const [label,name] of [['Download the applications workbook ZIP','chapter-39-applications.zip'],['Download PDF','ai-handbook-chapter-39.pdf']]){const wait=page.waitForEvent('download');await page.getByRole('link',{name:label}).click();const d=await wait;assert.equal(d.suggestedFilename(),name);const saved=path.join(out,name);await d.saveAs(saved);assert.deepEqual(await fs.readFile(saved),await fs.readFile(path.resolve(__dirname,'../public/downloads/'+name)));}
+  await page.getByRole('button',{name:'Mark Chapter 39 complete'}).click();const bookmark='10-experiment-with-the-cinema-applications-lab';await page.evaluate(id=>document.getElementById(id).scrollIntoView({block:'start'}),bookmark);await page.waitForFunction(id=>document.querySelector('.page-toc [data-section="'+id+'"]')?.getAttribute('aria-current')==='location',bookmark);
+  const box=await page.locator('#save-place').boundingBox();await page.mouse.click(box.x+box.width/2,box.y+box.height/2);await page.reload({waitUntil:'networkidle'});assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('#resume-place').getAttribute('href'),'#'+bookmark);
+  await page.locator('.reader-tools summary').click();const backup=page.waitForEvent('download');await page.locator('#export-progress').click();assert.equal((await backup).suggestedFilename(),'ai-handbook-chapter-39-progress.json');await page.locator('#import-progress').setInputFiles({name:'wrong.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(prior))});await page.waitForFunction(()=>document.getElementById('toast')?.textContent?.includes('not a valid'));assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('ai-handbook-progress-chapter-38-v1'))),prior);
+  await page.goto(base+'/curriculum/',{waitUntil:'networkidle'});assert.equal(await page.locator('.curriculum-part li').count(),42);assert.equal(await page.locator('.curriculum-part small').count(),0);assert.equal(await page.locator('.curriculum-part li a').count(),42);assert.match(await page.locator('.availability').innerText(),/All 42 chapters are available/);
+  await page.goto(base+route,{waitUntil:'networkidle'});await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:path.join(out,'mobile.png')});await page.getByRole('button',{name:'Open handbook navigation'}).click();assert.equal(await page.locator('.chapter-nav[aria-current="page"]').isVisible(),true);await page.keyboard.press('Escape');
+  await lab.scrollIntoViewIfNeeded();await page.waitForFunction(()=>!document.querySelector('.applied-lab')?.closest('astro-island')?.hasAttribute('ssr'));await page.locator('#app-threshold').selectOption('0.3');await page.locator('#app-threshold').selectOption('0.6');
+  for(const name of ['Vision','Recommendations','Forecasting']){await lab.getByRole('button',{name,exact:true}).click();await lab.screenshot({path:path.join(out,'mobile-'+name.toLowerCase()+'.png'),style});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
+  await page.setViewportSize({width:1200,height:1000});await page.evaluate(()=>dispatchEvent(new Event('beforeprint')));assert.equal(await page.locator('.chapter-content details:not([open])').count(),0);await page.emulateMedia({media:'print'});assert.equal(await lab.locator('.print-only').isVisible(),true);assert.equal(await lab.locator('.print-only tbody tr').count(),3);assert.equal(await page.locator('#app-threshold').isVisible(),false);assert.match(await lab.locator('.print-only').innerText(),/0\.613147/);
+  assert.deepEqual(errors,[]);const result={passed:true,headings:12,diagrams:3,optionalNotes:6,applicationConfigurations:cases.length,checks:['detection matches, ranked lists, forecast cutoffs and metrics, curves and JSON reports','keyboard controls','quiz search downloads','progress isolation and curriculum','mobile dark and print'],errors};await fs.writeFile(path.join(out,'browser-report.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));
+ }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

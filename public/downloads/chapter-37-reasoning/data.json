@@ -1,0 +1,11 @@
+{
+  "movies": [
+    {"id":"M01","title":"Quiet Orbit","minutes":95,"downloaded":true,"enjoy_if_scifi":0.9,"enjoy_if_other":0.3},
+    {"id":"M02","title":"Lantern Lane","minutes":88,"downloaded":true,"enjoy_if_scifi":0.4,"enjoy_if_other":0.8},
+    {"id":"M03","title":"Comet Chase","minutes":110,"downloaded":false,"enjoy_if_scifi":0.98,"enjoy_if_other":0.4},
+    {"id":"M04","title":"Silent Harbor","minutes":105,"downloaded":true,"enjoy_if_scifi":0.5,"enjoy_if_other":0.9}
+  ],
+  "trailer": {"liked_if_scifi":0.8,"liked_if_other":0.2},
+  "graph": {"Start":[["Ready",10],["Check",1],["Detour",1]],"Check":[["Pick",1]],"Pick":[["Ready",1]],"Detour":[["Start",1]],"Ready":[]},
+  "heuristic": {"Start":3,"Check":2,"Pick":1,"Detour":4,"Ready":0}
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "weight": 1.0,
+    "count": 3,
+    "mse": 4.666666666666667,
+    "rows": [
+      {
+        "size": 1.0,
+        "actual": 3.0,
+        "prediction": 2.0,
+        "error": -1.0,
+        "squared_error": 1.0,
+        "running_total": 1.0
+      },
+      {
+        "size": 2.0,
+        "actual": 5.0,
+        "prediction": 3.0,
+        "error": -2.0,
+        "squared_error": 4.0,
+        "running_total": 5.0
+      },
+      {
+        "size": 3.0,
+        "actual": 7.0,
+        "prediction": 4.0,
+        "error": -3.0,
+        "squared_error": 9.0,
+        "running_total": 14.0
+      }
+    ]
+  },
+  {
+    "weight": 2.0,
+    "count": 3,
+    "mse": 0.0,
+    "rows": [
+      {
+        "size": 1.0,
+        "actual": 3.0,
+        "prediction": 3.0,
+        "error": 0.0,
+        "squared_error": 0.0,
+        "running_total": 0.0
+      },
+      {
+        "size": 2.0,
+        "actual": 5.0,
+        "prediction": 5.0,
+        "error": 0.0,
+        "squared_error": 0.0,
+        "running_total": 0.0
+      },
+      {
+        "size": 3.0,
+        "actual": 7.0,
+        "prediction": 7.0,
+        "error": 0.0,
+        "squared_error": 0.0,
+        "running_total": 0.0
+      }
+    ]
+  }
+]

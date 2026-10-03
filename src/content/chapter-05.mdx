@@ -1,0 +1,320 @@
+import SoftwareDiagrams from '../components/SoftwareDiagrams.astro';
+import ApiExplorer from '../components/ApiExplorer';
+import Quiz from '../components/Quiz';
+import {chapter05Questions} from '../data/chapter05';
+
+<p className="chapter-intro">A useful AI application needs more than a model. It must receive inputs, move data between programs, handle failures, and keep records you can trust.</p>
+
+<div className="learning-card">
+<p className="eyebrow">WHAT YOU WILL BE ABLE TO DO</p>
+<p>Explain an API request, validate its data, diagnose common failures, and distinguish temporary memory from persistent storage. Run a local Python service, call it from another program, and query the saved predictions.</p>
+<p><strong>Reading path:</strong> Follow one runtime-prediction example from screen to storage. Then use the failure explorer and starter project. Optional notes add depth; allow extra time for the practical work.</p>
+</div>
+
+## 1. Follow a request through an application
+
+Imagine a small tool that estimates how long a batch job will take. A user enters its file size and receives an estimate. Several pieces cooperate:
+
+- The **frontend** displays the form and result. It runs in the user's browser in this example.
+- The **backend** receives the request, checks it, and coordinates the calculation. It runs as a separate program.
+- The **model or calculation** maps a valid input to a prediction.
+- A **database** stores records that need to outlive a single request.
+
+<SoftwareDiagrams kind="layers" />
+
+These are responsibilities, not necessarily four computers. A frontend and backend can both run on your laptop. In the starter, a Python client replaces the form, and that client saves the result locally.
+
+The calculation remains Chapter 4's fixed formula: **predicted seconds = 2 × size in MB + 1**. For 3 MB, it returns 7 seconds. This is synthetic teaching code, not a trained or reliable runtime predictor. Later, a learned model can sit behind the same interface.
+
+<details className="optional-depth">
+<summary>Go deeper: library, framework, SDK, and service</summary>
+
+A **library** provides reusable code that you call. A **framework** provides an application structure and calls your code at defined points. An **SDK** bundles tools or libraries for working with a platform, often including its API client. A **service** is a running program that other programs can contact. A service must be running before a client can contact it. Importing an SDK and calling a remote operation are separate steps.
+
+</details>
+
+## 2. Read an API request as a contract
+
+An **API**, or application programming interface, defines how software can interact. A Python function has an interface too. A **web API** exposes operations over a network, often using HTTP, the request/response protocol used on the web.
+
+The **client** sends a request; the **server** handles it and returns a response. An **endpoint** identifies an operation, such as <code>POST /predict</code>. Read this simplified HTTP/1.1-style message:
+
+```http
+POST /predict HTTP/1.1
+Host: 127.0.0.1:8765
+Content-Type: application/json
+
+{"size_mb": 3}
+```
+
+The **method** is POST. The **path** is /predict. **Headers** describe the message; Content-Type says the body contains JSON. The **body** carries the input. HTTP libraries add framing headers such as Content-Length for you.
+
+In <code>http://127.0.0.1:8765/predict</code>, the scheme is HTTP, the host is your own computer's loopback address, and port 8765 selects the listening service. A remote API might use a domain name and **HTTPS**, which encrypts transport and authenticates the server through certificates. It does not establish that a prediction is correct.
+
+**GET** usually retrieves a resource; **POST** submits data for processing or creation. PUT replaces a resource, PATCH changes part of it, and DELETE requests removal. Read the endpoint's actual contract rather than guessing behavior from its name. A query string, such as <code>/jobs?limit=20</code>, supplies URL parameters separately from a JSON body. See [MDN's HTTP overview](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Overview).
+
+## 3. Separate JSON syntax from data meaning
+
+**Serialization** converts in-memory values into a transferable representation. JSON encodes objects, arrays, strings, numbers, booleans, and null as text. **Parsing** turns that text back into values.
+
+```python
+import json
+
+body = json.dumps({"size_mb": 3}).encode("utf-8")
+decoded = json.loads(body.decode("utf-8"))
+assert decoded["size_mb"] == 3
+```
+
+UTF-8 is the text-to-bytes encoding used here. Python dictionaries are not wire messages: the request carries bytes. JSON uses double-quoted keys and strings, and <code>true</code>, <code>false</code>, <code>null</code> rather than Python's <code>True</code>, <code>False</code>, <code>None</code>. See [Python's JSON reference](https://docs.python.org/3/library/json.html).
+
+A **schema** describes the expected structure and constraints. Our request needs an object with a numeric <code>size_mb</code>, from 0 to 1,000,000 inclusive. The response needs a numeric <code>prediction_seconds</code> and a model-version string.
+
+| Input | Valid JSON? | Valid for this request? |
+|---|---|---|
+| <code>&#123;"size_mb": 3&#125;</code> | Yes | Yes |
+| <code>&#123;"size_mb": "3"&#125;</code> | Yes | No: string instead of number |
+| <code>&#123;"size_mb": -3&#125;</code> | Yes | No: outside the accepted range |
+| <code>&#123;"size_gb": 3&#125;</code> | Yes | No: the required field is missing |
+
+Validate at boundaries, where data enters or leaves your code. A response with status 200 and valid JSON can still have the wrong fields, units, or values. Even a valid schema cannot prove the model's answer is accurate.
+
+<details className="optional-depth">
+<summary>Go deeper: missing, null, zero, and schema changes</summary>
+
+A missing field was not supplied. JSON null explicitly represents no value. Zero is a number. Treating all three as zero can turn an unknown measurement into a false observation. Our API rejects missing or null size; zero is allowed.
+
+A **schema version** identifies a data contract. A **model version** identifies the predictor used. They are different: replacing model weights may leave the response shape unchanged. Renaming a required field can break clients even if the model stays the same. Document changes, test old consumers, and use an explicit migration or compatible transition.
+
+</details>
+
+## 4. Treat failure as part of the interface
+
+A response includes a **status code**, headers, and sometimes a body. Status codes describe request handling, not model accuracy.
+
+| Result | Meaning and useful next action |
+|---|---|
+| 200 | Request succeeded. Parse and validate the body before using it. |
+| 400 | Bad request. Inspect the input and the endpoint's error message. |
+| 401 / 403 | Missing or invalid authentication / access refused. Check credentials and permissions. |
+| 404 | Resource or route not found. Check the URL and identifier. |
+| 429 | Too many requests. Follow the service's limit policy and any Retry-After guidance. |
+| 500 / 503 | Server error / service unavailable. A temporary problem is possible; investigate before retrying. |
+
+A **timeout** means the client stopped waiting during an operation. It is not an HTTP status, and it does not prove the server did nothing. A **retry** sends another attempt. Retry only when the failure and operation make that appropriate; cap attempts, increase the delay between them (**backoff**), and add a small random variation (**jitter**) to avoid synchronized bursts. See [HTTP status meanings](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status) and [429 handling](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429).
+
+<details className="optional-depth">
+<summary>Go deeper: idempotency and duplicate work</summary>
+
+An operation is **idempotent** when repeating the same request has the same intended server effect as doing it once. Responses and logs can still differ. POST is not automatically idempotent: retrying “create a report” may create or bill for two reports if the first response was lost.
+
+An API may support an **idempotency key**: reuse a unique identifier for retries of one operation, according to that API's documented rules. Sending a made-up header does nothing unless the server implements it. Our prediction server creates no records, but the client appends a database row each time it completes successfully. Running it twice creates two history rows. See [HTTP method semantics](https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.2).
+
+</details>
+
+## 5. Diagnose a request before changing the model
+
+<ApiExplorer client:load />
+
+Use the explorer to locate the failure: input, access, availability, transport, or response contract. A prompt change cannot repair an invalid credential. More training cannot fix a wrong endpoint. First find which boundary failed.
+
+**Authentication** establishes an identity or credential; **authorization** decides what that identity may access. A service API key often grants access under an account. Keep provider secrets on the backend, outside browser code and version control. Load them from protected runtime configuration or a secret store; avoid printing them in logs. Our local lesson needs no credentials.
+
+<details className="optional-depth">
+<summary>Go deeper: waiting, async work, streaming, and CORS</summary>
+
+In a **synchronous** call, the caller waits for completion. **Asynchronous** code can let other work proceed while waiting; it does not make the model's computation intrinsically faster. A long job may return a job ID so the client can check its status later.
+
+**Streaming** delivers a response incrementally. Displaying early text is useful, but those chunks may be incomplete; wait for completion before treating them as a finished structured result.
+
+**CORS** is a browser mechanism controlling whether a page can read responses from a different origin. An origin includes scheme, host, and port. A Python client is not subject to browser CORS checks. CORS is not authentication: it does not stop arbitrary non-browser clients calling an API. See [MDN's CORS guide](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS).
+
+</details>
+
+## 6. Choose how to represent and store data
+
+**Memory** holds working values while a process runs; stopping the process usually loses them. **Persistence** keeps data beyond that process, for example in a file or database.
+
+| Form | A useful role | Limitation to remember |
+|---|---|---|
+| CSV | Flat rows for import or inspection | Types, missing values, and quoting need agreed rules |
+| JSON | Nested API messages and configuration | Structure alone supplies neither a schema nor data quality |
+| Relational database | Tables with queries, constraints, and transactions | Design the fields and relationships deliberately |
+| Object storage | Files such as source PDFs, images, or dataset snapshots | Querying records usually needs another layer |
+
+In a relational table, a **row** is a record and a **column** is a field. A **primary key** identifies a row. A **foreign key** references a key in another table, linking records. An **index** can accelerate particular lookups, at the cost of storage and write work.
+
+An **API** describes how to interact; a **database** stores and queries data. They are not alternatives. A backend can expose an API while reading its database internally. Also, persisting a conversation does not train a model or ensure that the next request will include that conversation.
+
+<details className="optional-depth">
+<summary>Go deeper: relational, document, vector, and cache storage</summary>
+
+A document database organizes records as documents, often with nested fields. A vector index supports similarity search over numeric representations called embeddings; we will build those in the search chapters. Some databases combine these capabilities. Similarity does not prove truth or grant access to a document.
+
+A **cache** keeps reusable results to reduce repeated work. Its values can become stale, so decide when to refresh or invalidate them. Include relevant model, input, and access context in a cache design; a result for one user may be inappropriate for another.
+
+</details>
+
+## 7. Ask precise questions with SQL
+
+**SQL** is a language for working with relational data. Suppose the starter has saved these prediction records:
+
+| id | size_mb | prediction_seconds | model_version |
+|---|---|---|---|
+| 1 | 1.0 | 3.0 | demo-v1 |
+| 2 | 2.0 | 5.0 | demo-v1 |
+| 3 | 3.0 | 7.0 | demo-v1 |
+
+```sql
+SELECT id, size_mb, prediction_seconds
+FROM predictions
+WHERE prediction_seconds >= 5
+ORDER BY id;
+```
+
+SELECT chooses columns, FROM names the table, WHERE filters rows, and ORDER BY specifies order. The result contains IDs **2 and 3**. Without ORDER BY, do not rely on the returned order. A **JOIN** combines matching rows from tables; an **aggregation**, such as AVG, summarizes a group. See the [SQLite SELECT reference](https://www.sqlite.org/lang_select.html).
+
+When a value comes from a user, bind it separately instead of building SQL with string concatenation. In Python's sqlite3 API, <code>?</code> marks a value to bind:
+
+```python
+rows = connection.execute(
+    "SELECT id FROM predictions WHERE prediction_seconds >= ? ORDER BY id",
+    (5.0,),
+).fetchall()
+```
+
+Here <code>connection</code> is an open database connection. <code>(5.0,)</code> is a one-item tuple, and <code>fetchall()</code> collects the result rows. This fragment assumes the table already exists; the starter provides the runnable setup.
+
+<details className="optional-depth">
+<summary>Go deeper: transactions and trustworthy records</summary>
+
+A **transaction** groups database changes into a unit that commits or rolls back. It prevents a partially completed group of writes from being accepted as a completed change. It does not make an external API call and a database write one automatic transaction.
+
+The starter commits one inserted row after validating the API response and closes its connection. If the API succeeds but saving fails, the client reports that failure. These stored values are predictions, not measured runtimes: training labels would require separately collected observations. See [Python's sqlite3 guide](https://docs.python.org/3/library/sqlite3.html).
+
+</details>
+
+## 8. Make the data path reproducible
+
+A **data pipeline** is a sequence of steps that moves and transforms data. **ETL** means extract, transform, load; **ELT** loads before transformation. For a small prediction history, consider this path:
+
+<SoftwareDiagrams kind="pipeline" />
+
+Keep the original source available when appropriate, then check required fields, units, allowed ranges, missing values, and duplicates. Record what was rejected and why. Converting 2 GB to 2 MB is a unit error that perfectly valid JSON will not catch. Removing duplicates requires a meaningful identity; two similar jobs may be separate events.
+
+**Provenance** records where data came from and how it changed. For an AI result, keep enough context to reproduce or investigate it: an input reference, code and model versions, relevant settings, and timing. Log status and latency without needlessly copying sensitive inputs or credentials.
+
+Use **Git** to version code and small configuration files; a **commit** is a recorded snapshot. Review changes with a diff. Keep secrets and generated databases out of commits. Record dataset versions separately when datasets are too large or unsuitable for the code repository. See [Git's version-control introduction](https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control).
+
+A **unit test** checks a small piece, such as the prediction function. An **integration test** checks cooperating pieces, such as sending an actual request to the service and reading its response. A **model evaluation** measures prediction quality on suitable examples. Passing software tests does not establish model quality.
+
+## 9. Run a local API and save its result
+
+<a className="download-link screen-only" href="/downloads/chapter-05-api-starter.zip" download>Download the API starter ZIP ↗</a>
+
+Extract the starter into a folder. It contains **server.py**, **client.py**, **inspect_data.py**, and a README. Use Python 3.10 or newer; no third-party packages are needed. Open two terminals in that folder. Replace <code>py</code> with your working Python command if necessary.
+
+In terminal A, start the service and leave it running:
+
+```powershell
+py server.py
+```
+
+In terminal B, make a request and inspect the saved result:
+
+```powershell
+py client.py 3
+py inspect_data.py
+```
+
+The first command reports **Prediction: 7.0 seconds (demo-v1)** and saves a row in <code>predictions.db</code> beside client.py. A fresh database starts at row 1. The inspection script queries predictions of at least 5 seconds, so it displays this row. Later successful client runs append records; inspection only reads them.
+
+<SoftwareDiagrams kind="project" />
+
+Follow these responsibilities in the code:
+
+- **server.py** parses the request, validates size, and returns the fixed formula's result as JSON.
+- **client.py** encodes the input, calls /predict with a timeout, validates the response, then inserts one SQLite row using bound values.
+- **inspect_data.py** opens the existing database for reading and runs the filter query.
+
+The client sets a five-second timeout on blocking network operations and makes one attempt. That setting is not a strict deadline for the entire program. Stop the server with **Ctrl+C**. If port 8765 is occupied, use <code>py server.py --port 8766</code> and <code>py client.py 3 --port 8766</code>.
+
+<div className="callout"><strong>What this project establishes:</strong> two real Python programs communicate over local HTTP and store a checked result. The fixed formula, accepted input range, and successful response do not establish prediction accuracy. Python's built-in HTTP server is a learning tool here; it is bound to your computer's loopback address and is not a production deployment.</div>
+
+<details className="optional-depth">
+<summary>Read the request-building code</summary>
+
+```python
+import json
+from urllib.request import Request, urlopen
+
+body = json.dumps({"size_mb": 3}).encode("utf-8")
+request = Request(
+    "http://127.0.0.1:8765/predict",
+    data=body,
+    headers={"Content-Type": "application/json"},
+    method="POST",
+)
+with urlopen(request, timeout=5) as response:
+    result = json.loads(response.read().decode("utf-8"))
+print(result["prediction_seconds"])  # 7.0
+```
+
+Run this only while the server is active. <code>Request</code> constructs the message; <code>urlopen</code> sends it. The <code>with</code> block closes the response when finished. This short fragment shows the mechanics; the downloadable client also checks the content type, status, and fields, reports failures, and persists successful results. See [urllib.request](https://docs.python.org/3/library/urllib.request.html) and the [HTTP server documentation](https://docs.python.org/3/library/http.server.html).
+
+</details>
+
+## 10. Practice: predict, break, inspect
+
+### Exercise 1: change the input
+
+With the server running, predict the output of <code>py client.py 4</code>, then run it. What changes in the database?
+
+<details className="solution"><summary>Reveal the result</summary><p>The formula gives 2 × 4 + 1 = 9 seconds. The client saves one new row with size_mb = 4 and prediction_seconds = 9. The earlier row remains. No weights were learned or adjusted.</p></details>
+
+### Exercise 2: distinguish two failures
+
+Run <code>py client.py -1</code> while the server is active. Then stop the server and run <code>py client.py 3</code>. Should either attempt create a history row?
+
+<details className="solution"><summary>Reveal the diagnosis</summary><p>The negative size receives HTTP 400: the server was reached but rejected the input. With the server stopped, the connection fails, usually before any HTTP response exists. Neither attempt passes the client's successful-response checks, so neither creates a row. Retrying the negative input unchanged will not repair it.</p></details>
+
+### Exercise 3: separate a prediction from evidence
+
+A response has status 200 and a schema-valid prediction of 7 seconds. The actual job takes 11 seconds. Did HTTP fail? What measurement is missing from the starter's stored data?
+
+<details className="solution"><summary>Reveal the distinction</summary><p>The API call succeeded; its prediction was inaccurate by 4 seconds. Store the separately measured actual runtime and the matching job identifier if you want to evaluate such errors. A prediction history alone cannot tell you which predictions were correct.</p></details>
+
+## 11. Check your understanding
+
+Answer all five questions, then read the explanations.
+
+<Quiz questions={chapter05Questions} client:load />
+
+## 12. Connect this to your future AI applications
+
+For an LLM app, the request may contain messages and the response may contain generated text. For RAG, the backend also retrieves relevant records before calling the model. The same boundaries remain: request, access, data contract, processing, response validation, and persistence. We will build those specialized parts in later chapters.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Recall cue |
+|---|---|
+| Client / server | Sends a request / handles it |
+| Endpoint | An API operation identified by its method and location |
+| Header / body | Message metadata / message payload |
+| Serialization / parsing | Values to a transferable representation / representation back to values |
+| Schema | Expected structure, types, and constraints |
+| Authentication / authorization | Establish identity or credentials / decide allowed access |
+| Timeout / retry | Stop waiting / make another attempt |
+| Persistence / cache | Keep data beyond a process / reuse results with a freshness policy |
+| Transaction | Changes committed or rolled back as a unit |
+| Provenance | Data origin and transformation history |
+
+</details>
+
+<div className="chapter-references">
+
+The examples and diagrams are original and the data is synthetic. Official references are linked beside the relevant topics. The starter uses Python's standard library; the website explorer simulates responses locally.
+
+**Next:** [Chapter 6: Algebra and linear algebra for AI](/chapters/06-algebra-and-linear-algebra/).
+
+</div>

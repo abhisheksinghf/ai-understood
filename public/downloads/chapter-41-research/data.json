@@ -1,0 +1,23 @@
+{
+  "cases": [
+    {"id":"Q01","task":"facts","question":"Who directed Harbor Lights?","overlap":true,"baseline":0,"candidate":1},
+    {"id":"Q02","task":"facts","question":"What is Quiet Orbit's runtime?","overlap":true,"baseline":0,"candidate":1},
+    {"id":"Q03","task":"facts","question":"Which language is City Beats in?","overlap":false,"baseline":1,"candidate":1},
+    {"id":"Q04","task":"facts","question":"Which source confirms Hidden Reel's year?","overlap":false,"baseline":1,"candidate":0},
+    {"id":"Q05","task":"preferences","question":"Suggest a short, gentle adventure.","overlap":true,"baseline":0,"candidate":1},
+    {"id":"Q06","task":"preferences","question":"Recommend a comedy without spoilers.","overlap":false,"baseline":1,"candidate":1},
+    {"id":"Q07","task":"preferences","question":"Find a family film under 100 minutes.","overlap":false,"baseline":1,"candidate":1},
+    {"id":"Q08","task":"preferences","question":"Explain a tradeoff between two films.","overlap":false,"baseline":0,"candidate":0},
+    {"id":"Q09","task":"tools","question":"Look up tonight's cinema schedule.","overlap":true,"baseline":0,"candidate":1},
+    {"id":"Q10","task":"tools","question":"Read a watchlist without changing it.","overlap":false,"baseline":1,"candidate":1},
+    {"id":"Q11","task":"tools","question":"Ask before adding a film to a watchlist.","overlap":false,"baseline":1,"candidate":1},
+    {"id":"Q12","task":"tools","question":"Handle an unavailable catalog tool.","overlap":false,"baseline":0,"candidate":0}
+  ],
+  "samples":[{"n":25,"passed":20},{"n":100,"passed":80},{"n":400,"passed":320}],
+  "ablations":[
+    {"id":"neither","name":"Neither component","passed":60,"n":100,"budget":1500},
+    {"id":"retrieval","name":"Retrieval only","passed":75,"n":100,"budget":1500},
+    {"id":"reranker","name":"Reranker only","passed":65,"n":100,"budget":1500},
+    {"id":"full","name":"Retrieval + reranker","passed":84,"n":100,"budget":1500}
+  ]
+}

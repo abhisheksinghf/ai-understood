@@ -1,0 +1,28 @@
+---
+interface Props{kind:'assembly'|'validation'|'boundary'}
+const {kind}=Astro.props;
+const labels={assembly:['Build the input around a defined task','Figure 1. Application instructions, the current task, and selected source records are assembled with their roles and boundaries preserved. The model produces a candidate answer that still needs checking.'],validation:['Correct shape is only the first check','Figure 2. Parsing and structural validation check the representation. Evidence review checks what the claims mean. A recommendation can pass the first checks and still fail the last.'],boundary:['Source text does not grant action permissions','Figure 3. A copied movie entry may contain instruction-like text. Keep it in the source-data channel; application code independently enforces any available tool permissions. This recommendation workshop has no action tools.']};
+const id='prompt-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox={kind==='assembly'?'0 0 760 238':'0 0 760 216'} role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='assembly'&&<>
+  {['Application instructions','Current user task','Selected source records'].map((label,i)=><g><rect x="10" y={14+72*i} width="220" height="53" rx="6" class="node"/><text x="120" y={46+72*i} text-anchor="middle" class="node-title">{label}</text></g>)}
+  <path d="M230 41 H264 V113 H300 M230 113 H300 M230 185 H264 V113" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <rect x="300" y="75" width="182" height="77" rx="7" class="node node-accent"/><text x="391" y="107" text-anchor="middle" class="node-title">Assemble context</text><text x="391" y="131" text-anchor="middle" class="node-detail">keep roles and source IDs</text>
+  <line x1="490" y1="113" x2="543" y2="113" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>
+  <rect x="552" y="75" width="193" height="77" rx="7" class="node"/><text x="648" y="107" text-anchor="middle" class="node-title">Model response</text><text x="648" y="131" text-anchor="middle" class="node-detail">a candidate to validate</text>
+  <text x="510" y="207" text-anchor="middle" class="node-detail">No training or weight update is implied by adding context.</text>
+</>}
+{kind==='validation'&&<>
+  {[['Parse JSON','Is the syntax valid?'],['Check structure','Right fields, types, IDs?'],['Review evidence','Do sources support claims?']].map(([name,detail],i)=><g><rect x={10+255*i} y="32" width="225" height="81" rx="7" class={i===2?'node node-accent':'node'}/><text x={122+255*i} y="65" text-anchor="middle" class="node-title">{name}</text><text x={122+255*i} y="91" text-anchor="middle" class="node-detail">{detail}</text></g>)}
+  {[0,1].map(i=><line x1={239+255*i} x2={258+255*i} y1="73" y2="73" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <text x="380" y="157" text-anchor="middle" class="node-title">“ExampleFlix [S1]” can be a valid string and an unsupported claim.</text><text x="380" y="188" text-anchor="middle" class="node-detail">The local checker covers the first two stages, not the evidence review.</text>
+</>}
+{kind==='boundary'&&<>
+  <rect x="10" y="29" width="227" height="94" rx="7" class="node"/><text x="123" y="59" text-anchor="middle" class="node-title">Copied movie entry</text><text x="123" y="84" text-anchor="middle" class="node-detail">movie facts + quoted command</text><text x="123" y="106" text-anchor="middle" class="node-detail">untrusted source data</text>
+  <line x1="245" x2="291" y1="76" y2="76" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>
+  <rect x="300" y="29" width="194" height="94" rx="7" class="node node-accent"/><text x="397" y="66" text-anchor="middle" class="node-title">Recommendation task</text><text x="397" y="94" text-anchor="middle" class="node-detail">extract supported facts</text>
+  <rect x="530" y="29" width="215" height="94" rx="7" class="node"/><text x="637" y="66" text-anchor="middle" class="node-title">Action permissions</text><text x="637" y="94" text-anchor="middle" class="node-detail">enforced by application code</text>
+  <text x="380" y="165" text-anchor="middle" class="node-title">A sentence in a document cannot authorize a tool action.</text><text x="380" y="192" text-anchor="middle" class="node-detail">Text delimiters clarify the input; they are not an access-control system.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-39.mdx';
+import raw from '../../content/chapter-39.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Vision, recommendations, and time-series applications" chapter chapterNumber={39} headings={headings} searchSections={searchSections} tocTitles={["Three task contracts","Vision outputs","Detect & evaluate","Recommendation pipeline","Ranked-list metrics","Time-series features","Forecast & backtest","Errors & decisions","Python workbook","Cinema applications lab","Knowledge check","Revision & next steps"]} searchPlaceholder="Try “IoU”, “ranking”, or “forecast”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 10 · Broader AI &amp; your capstone</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 39</span><span class="edition">LOCATE · RANK · FORECAST</span></div>
+    <h1>Three application families.<br/><em>Make the task concrete.</em></h1>
+    <p class="hero-description">Connect vision, recommendations, and time series,<br class="desktop-break"/> from movie examples to useful evaluation.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-start-with-the-decision-the-application-must-support" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-39.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">DEFINE THE TASK → PREDICT → EVALUATE → DECIDE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you choose the right task and evaluation?</h2><p>Match a detection, explain a ranked list, and audit a forecast using only information available at its origin.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 39 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Graphs, causality, and alternative learning methods</h3><p>Explore relationships, interventions, and ways to learn beyond the standard supervised pipeline.</p><a class="text-button" href="/chapters/38-reinforcement-learning-and-robotics/">← Revisit Chapter 38</a></div><a class="primary-button" href="/chapters/40-graphs-causality-and-alternative-learning-methods/">Read Chapter 40 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 39 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

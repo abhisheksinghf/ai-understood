@@ -1,0 +1,26 @@
+{
+  "version": "movie-evaluation-v1",
+  "training_summary": {"positive": 6, "total": 24},
+  "rows": [
+    {"event_id":"E001","viewer_id":"V001","split":"validation","movie":"Moonlight Map","prior_ratings":1,"liked":1,"a":0.9,"b":0.8},
+    {"event_id":"E002","viewer_id":"V002","split":"validation","movie":"City Sprint","prior_ratings":2,"liked":0,"a":0.8,"b":0.6},
+    {"event_id":"E003","viewer_id":"V003","split":"validation","movie":"Forest Signal","prior_ratings":0,"liked":1,"a":0.65,"b":0.4},
+    {"event_id":"E004","viewer_id":"V004","split":"validation","movie":"Quiet Orbit","prior_ratings":4,"liked":0,"a":0.55,"b":0.3},
+    {"event_id":"E005","viewer_id":"V005","split":"validation","movie":"Cafe Chaos","prior_ratings":3,"liked":0,"a":0.35,"b":0.2},
+    {"event_id":"E006","viewer_id":"V006","split":"validation","movie":"Midnight Archive","prior_ratings":1,"liked":0,"a":0.15,"b":0.1},
+    {"event_id":"E007","viewer_id":"V007","split":"validation","movie":"Unlisted Voyage","prior_ratings":12,"liked":1,"a":0.6,"b":0.7},
+    {"event_id":"E008","viewer_id":"V008","split":"validation","movie":"Parallel World","prior_ratings":15,"liked":0,"a":0.45,"b":0.55},
+    {"event_id":"E009","viewer_id":"V009","split":"validation","movie":"Funny Mission","prior_ratings":8,"liked":0,"a":0.3,"b":0.25},
+    {"event_id":"E010","viewer_id":"V010","split":"validation","movie":"Moonlight Map","prior_ratings":10,"liked":0,"a":0.2,"b":0.15},
+    {"event_id":"E011","viewer_id":"V011","split":"validation","movie":"City Sprint","prior_ratings":20,"liked":0,"a":0.1,"b":0.05},
+    {"event_id":"E012","viewer_id":"V012","split":"validation","movie":"Forest Signal","prior_ratings":7,"liked":0,"a":0.05,"b":0.02},
+    {"event_id":"E013","viewer_id":"V013","split":"test","movie":"Moonlight Map","prior_ratings":1,"liked":1,"a":0.75,"b":0.8},
+    {"event_id":"E014","viewer_id":"V014","split":"test","movie":"City Sprint","prior_ratings":2,"liked":0,"a":0.65,"b":0.4},
+    {"event_id":"E015","viewer_id":"V015","split":"test","movie":"Forest Signal","prior_ratings":3,"liked":1,"a":0.55,"b":0.6},
+    {"event_id":"E016","viewer_id":"V016","split":"test","movie":"Quiet Orbit","prior_ratings":4,"liked":0,"a":0.2,"b":0.2},
+    {"event_id":"E017","viewer_id":"V017","split":"test","movie":"Cafe Chaos","prior_ratings":8,"liked":1,"a":0.7,"b":0.65},
+    {"event_id":"E018","viewer_id":"V018","split":"test","movie":"Midnight Archive","prior_ratings":12,"liked":0,"a":0.4,"b":0.5},
+    {"event_id":"E019","viewer_id":"V019","split":"test","movie":"Unlisted Voyage","prior_ratings":20,"liked":0,"a":0.3,"b":0.1},
+    {"event_id":"E020","viewer_id":"V020","split":"test","movie":"Parallel World","prior_ratings":9,"liked":0,"a":0.1,"b":0.05}
+  ]
+}

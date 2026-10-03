@@ -1,0 +1,30 @@
+---
+interface Props{kind:'tasks'|'decision'|'tree'}
+const {kind}=Astro.props;
+const descriptions={tasks:['Choose the target before the algorithm','Figure 1. The same pre-watch input can support two separately trained tasks. Rating and thumbs-up are different labels; neither is an input feature.'],decision:['A probability and a decision are different outputs','Figure 2. For the fitted default classifier at history s = 0.75, p is about 0.8202. Changing the threshold changes the class while the fitted model stays fixed.'],tree:['A tree makes local decisions','Figure 3. An illustrative, hand-chosen split of our six training events. Each leaf reports its observed thumbs-up fraction. The workbench fits linear and logistic models, not this tree.']};
+const id='supervised-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{descriptions[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={descriptions[kind][0]}><svg viewBox="0 0 760 270" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{descriptions[kind][0]}</title><desc id={id+'-desc'}>{descriptions[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='tasks'&&<>
+  <rect x="12" y="90" width="205" height="85" rx="7" class="node"/><text x="114" y="123" text-anchor="middle" class="node-title">Before watching</text><text x="114" y="151" text-anchor="middle" class="node-detail">past genre-like fraction s</text>
+  {['M225 131 H256 V66 H288','M256 131 V204 H288'].map(d=><path d={d} fill="none" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <rect x="301" y="25" width="206" height="85" rx="7" class="node node-accent"/><text x="404" y="59" text-anchor="middle" class="node-title">Regression</text><text x="404" y="86" text-anchor="middle" class="node-detail">learn from observed ratings</text>
+  <rect x="301" y="162" width="206" height="85" rx="7" class="node node-accent"/><text x="404" y="196" text-anchor="middle" class="node-title">Classification</text><text x="404" y="223" text-anchor="middle" class="node-detail">learn from thumbs-up labels</text>
+  {[67,204].map(y=><line x1="515" x2="558" y1={y} y2={y} stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <text x="660" y="62" text-anchor="middle" class="node-title">A numeric estimate</text><text x="660" y="89" text-anchor="middle" class="node-detail">Example: 3.93 / 5</text>
+  <text x="660" y="199" text-anchor="middle" class="node-title">A class estimate</text><text x="660" y="226" text-anchor="middle" class="node-detail">Probability → class</text>
+</>}
+{kind==='decision'&&<>
+  {[['Input','s = 0.75; x = 0.5'],['Fitted logistic model','sigmoid(w × x + b)'],['Probability','p ≈ 0.8202']].map(([a,b],i)=><g><rect x={12+255*i} y="25" width="225" height="87" rx="7" class={i===1?'node node-accent':'node'}/><text x={124+255*i} y="60" text-anchor="middle" class="node-title">{a}</text><text x={124+255*i} y="88" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1].map(i=><line x1={240+255*i} x2={262+255*i} y1="69" y2="69" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <rect x="70" y="157" width="290" height="73" rx="7" class="node node-accent"/><text x="215" y="188" text-anchor="middle" class="node-title">Threshold 0.50 → thumbs-up</text><text x="215" y="211" text-anchor="middle" class="node-detail">0.8202 ≥ 0.50</text>
+  <rect x="402" y="157" width="290" height="73" rx="7" class="node"/><text x="547" y="188" text-anchor="middle" class="node-title">Threshold 0.90 → thumbs-down</text><text x="547" y="211" text-anchor="middle" class="node-detail">0.8202 &lt; 0.90</text>
+  <text x="380" y="258" text-anchor="middle" class="node-detail">Same trained weights. Same probability. Different decision policy.</text>
+</>}
+{kind==='tree'&&<>
+  <rect x="230" y="15" width="300" height="69" rx="7" class="node node-accent"/><text x="380" y="44" text-anchor="middle" class="node-title">Is history s below 0.5?</text><text x="380" y="68" text-anchor="middle" class="node-detail">A hand-chosen example question</text>
+  <path d="M306 86 L194 142 M455 86 L567 142" fill="none" stroke="var(--accent)" stroke-width="2"/>
+  <text x="224" y="112" class="node-detail">Yes</text><text x="515" y="112" class="node-detail">No</text>
+  {[['S01 · S02 · S03','1 thumbs-up / 3 events','Leaf estimate: 0.3333'],['S04 · S05 · S06','2 thumbs-up / 3 events','Leaf estimate: 0.6667']].map(([a,b,c],i)=><g><rect x={40+i*390} y="148" width="290" height="100" rx="7" class="node"/><text x={185+i*390} y="178" text-anchor="middle" class="node-title">{a}</text><text x={185+i*390} y="205" text-anchor="middle" class="node-detail">{b}</text><text x={185+i*390} y="231" text-anchor="middle" class="node-detail">{c}</text></g>)}
+</>}
+</svg></div><figcaption>{descriptions[kind][1]}</figcaption></figure>

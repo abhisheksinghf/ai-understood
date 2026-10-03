@@ -1,0 +1,23 @@
+---
+interface Props{kind:'boundary'|'confusion'|'improve'}
+const {kind}=Astro.props;
+const descriptions={boundary:['Three roles for data','Figure 1. Fit parameters on training data, choose settings using validation, then evaluate the fixed procedure on a held-out test. Preprocessing belongs inside the training boundary.'],confusion:['Four outcomes behind a single accuracy score','Figure 2. Candidate A at threshold 0.50 on 12 validation events. Rows are observed labels; columns are predictions. Positive means a thumbs-up.'],improve:['Improve one explanation of the errors at a time','Figure 3. Inspect representative errors, propose a cause, change the system, and compare on the same validation protocol. Keep the final test out of this loop.']};
+const id='evaluation-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{descriptions[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={descriptions[kind][0]}><svg viewBox="0 0 760 280" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{descriptions[kind][0]}</title><desc id={id+'-desc'}>{descriptions[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='boundary'&&<>
+  {[['Train','fit the parameters'],['Validate','choose model + threshold'],['Test','estimate after choosing']].map(([a,b],i)=><g><rect x={12+255*i} y="40" width="225" height="94" rx="7" class={i===1?'node node-accent':'node'}/><text x={124+255*i} y="78" text-anchor="middle" class="node-title">{a}</text><text x={124+255*i} y="107" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1].map(i=><line x1={241+255*i} x2={262+255*i} y1="86" y2="86" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <path d="M380 144 V193 H124 V145" fill="none" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/><text x="258" y="180" text-anchor="middle" class="node-detail">Development loop</text><text x="635" y="187" text-anchor="middle" class="node-detail">Outside that loop</text><text x="380" y="245" text-anchor="middle" class="node-title">Choosing a threshold is model selection too.</text>
+</>}
+{kind==='confusion'&&<>
+  <text x="350" y="28" text-anchor="middle" class="node-title">Predict thumbs-up</text><text x="605" y="28" text-anchor="middle" class="node-title">Predict thumbs-down</text><text x="100" y="94" text-anchor="middle" class="node-title">Observed like</text><text x="100" y="183" text-anchor="middle" class="node-title">Observed dislike</text>
+  {[[3,'TP · found likes',225,45],[0,'FN · missed likes',480,45],[2,'FP · unwanted suggestions',225,135],[7,'TN · correct negatives',480,135]].map(([n,label,x,y],i)=><g><rect x={x} y={y} width="245" height="78" rx="6" class={i===0||i===3?'node node-accent':'node'}/><text x={Number(x)+122} y={Number(y)+31} text-anchor="middle" class="node-title">{n}</text><text x={Number(x)+122} y={Number(y)+58} text-anchor="middle" class="node-detail">{label}</text></g>)}
+  <text x="380" y="254" text-anchor="middle" class="node-detail">Accuracy = (3 + 7) / 12. Precision = 3 / 5. Recall = 3 / 3.</text>
+</>}
+{kind==='improve'&&<>
+  {[['Inspect','which errors repeat?'],['Hypothesize','what could explain them?'],['Change','one justified intervention'],['Compare','same validation rule']].map(([a,b],i)=><g><rect x={7+190*i} y="46" width="174" height="102" rx="7" class={i===2?'node node-accent':'node'}/><text x={94+190*i} y="86" text-anchor="middle" class="node-title">{a}</text><text x={94+190*i} y="116" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1,2].map(i=><line x1={183+190*i} x2={194+190*i} y1="96" y2="96" stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <path d="M666 157 V204 H94 V158" fill="none" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/><text x="380" y="191" text-anchor="middle" class="node-detail">Record what changed and what improved</text><text x="380" y="254" text-anchor="middle" class="node-title">More complexity is one possible change, not the default answer.</text>
+</>}
+</svg></div><figcaption>{descriptions[kind][1]}</figcaption></figure>

@@ -1,0 +1,26 @@
+---
+type Kind='graph'|'cause'|'labels';
+const {kind}=Astro.props as {kind:Kind};
+const id=`connections-${kind}`,arrow=`url(#${id}-arrow)`;
+const titles={graph:'A representation can borrow information from its neighbors.',cause:'A cause of both treatment and outcome can distort the comparison.',labels:'Different learning methods obtain supervision in different ways.'};
+const captions={graph:'Figure 1. Each round uses the previous round’s values. In the chain, A reaches B in one round and C in two. E has no neighbors and keeps its value. These fixed averages illustrate message passing; they are not a trained graph neural network.',cause:'Figure 2. Assumed causal diagram: prior interest influences both banner exposure and viewing. The T → Y arrow is the effect we want to study. An intervention that assigns T removes its incoming arrow from C; observing T does not.',labels:'Figure 3. These are sources of supervision, not interchangeable guarantees of quality. Active learning adds a selection step before annotation; self-supervision builds targets from the data itself.'};
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{titles[kind]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={titles[kind]}><svg viewBox="0 0 760 270" role="img" aria-labelledby={`${id}-title ${id}-desc`}><title id={`${id}-title`}>{titles[kind]}</title><desc id={`${id}-desc`}>{captions[kind]}</desc><defs><marker id={`${id}-arrow`} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="var(--accent)"/></marker></defs>
+{kind==='graph'&&<>
+<text x="28" y="35" fill="var(--muted)" font-size="14">Initial movie features</text>
+{[0,1,2].map(i=><line x1={100+i*150} y1="101" x2={196+i*150} y2="101" stroke="var(--accent)" stroke-width="2"/>)}
+{[['A','1.0'],['B','0.0'],['C','0.0'],['D','0.0'],['E','0.4']].map(([label,value],i)=><g><circle cx={75+i*150} cy="101" r="26" fill={i===0?'var(--accent-soft)':'var(--panel)'} stroke="var(--accent)"/><text x={75+i*150} y="107" text-anchor="middle" fill="var(--ink)" font-size="18">{label}</text><text x={75+i*150} y="152" text-anchor="middle" fill="var(--ink)" font-size="15">{value}</text></g>)}
+<rect x="28" y="184" width="704" height="62" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="380" y="210" text-anchor="middle" fill="var(--ink)" font-size="15">B after one round = ½ × 0 + ½ × mean(1, 0) = 0.25</text><text x="380" y="231" text-anchor="middle" fill="var(--muted)" font-size="13">Update every node together. Use old values throughout the round.</text>
+</>}
+{kind==='cause'&&<>
+<rect x="260" y="14" width="240" height="59" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="380" y="39" text-anchor="middle" fill="var(--ink)" font-size="16">C: Prior interest</text><text x="380" y="60" text-anchor="middle" fill="var(--muted)" font-size="13">Before the banner is assigned</text>
+<path d="M300 78 L189 151" stroke="var(--accent)" stroke-width="2" fill="none" marker-end={arrow}/><path d="M460 78 L571 151" stroke="var(--accent)" stroke-width="2" fill="none" marker-end={arrow}/>
+<rect x="40" y="157" width="250" height="59" rx="8" fill="var(--accent-soft)" stroke="var(--line)"/><text x="165" y="182" text-anchor="middle" fill="var(--ink)" font-size="16">T: Banner exposure</text><text x="165" y="204" text-anchor="middle" fill="var(--muted)" font-size="13">With banner / without banner</text>
+<path d="M298 186 H458" stroke="var(--accent)" stroke-width="2" marker-end={arrow}/><text x="380" y="174" text-anchor="middle" fill="var(--muted)" font-size="13">Effect of interest</text>
+<rect x="470" y="157" width="250" height="59" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="595" y="182" text-anchor="middle" fill="var(--ink)" font-size="16">Y: Starts watching</text><text x="595" y="204" text-anchor="middle" fill="var(--muted)" font-size="13">Within the observation window</text>
+<text x="380" y="252" text-anchor="middle" fill="var(--muted)" font-size="14">A diagram states assumptions. Data alone does not validate its arrows.</text>
+</>}
+{kind==='labels'&&<>
+{[['Self-supervised','Create a target from the input','Predict a hidden review word'],['Semi-supervised','Mix labeled and unlabeled data','Use a few labeled reviews'],['Weak supervision','Use noisy rules or sources','Combine imperfect labeling rules'],['Active learning','Choose what a person labels next','Request uncertain reviews']].map(([title,method,example],i)=><g><rect x="20" y={12+i*63} width="720" height="54" rx="6" fill={i===3?'var(--accent-soft)':'var(--panel)'} stroke="var(--line)"/><text x="35" y={43+i*63} fill="var(--ink)" font-size="15">{title}</text><text x="222" y={34+i*63} fill="var(--ink)" font-size="14">{method}</text><text x="222" y={55+i*63} fill="var(--muted)" font-size="12">{example}</text></g>)}
+</>}
+</svg></div><figcaption>{captions[kind]}</figcaption></figure>

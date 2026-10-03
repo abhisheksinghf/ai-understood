@@ -1,0 +1,245 @@
+import ReinforcementDiagrams from '../components/ReinforcementDiagrams.astro';
+import ReinforcementLab from '../components/ReinforcementLab';
+import Quiz from '../components/Quiz';
+import {chapter38Questions} from '../data/chapter38';
+
+<p className="chapter-intro">A movie assistant can recommend something immediately or ask one question first. Asking takes effort, but the next recommendation might fit much better. Reinforcement learning studies how an agent can learn such choices from the consequences of its actions, including rewards that arrive later.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>The main question:</strong> how can experience teach an agent which actions are worthwhile over time?</p><p><strong>The practical path:</strong> define a small environment, explore actions, update their values, evaluate the learned policy, and connect the loop to physical robots.</p><p><strong>Reading path:</strong> twelve short sections, three diagrams, a working Q-learning lab, and a Python workbook. Optional notes cover the deeper assumptions and algorithm families.</p></div>
+
+## 1. Learn through an action and feedback loop
+
+In **reinforcement learning (RL)**, an **agent** chooses actions in an **environment** and learns from the resulting observations and rewards. A **policy** specifies how it chooses actions. The aim is usually to maximize expected cumulative reward, rather than predict a supplied label for each example.
+
+<ReinforcementDiagrams kind="loop" />
+
+| Learning setup | Movie example | Feedback |
+| --- | --- | --- |
+| Supervised learning | Predict a viewer's rating from historical examples. | A target rating for each training example. |
+| Contextual bandit | Choose one recommendation using current context. | Reward for the chosen item; future state effects are outside the model. |
+| Sequential RL | Decide whether to ask, recommend, or continue a session. | Rewards along a sequence influenced by earlier actions. |
+
+The agent usually does not observe what would have happened for the actions it did not choose. Its choices also influence the data it collects. This makes learning and decision-making tightly connected.
+
+An LLM application that calls tools is not automatically an RL learner. It may execute a fixed workflow or use a previously trained model without updating any policy. Likewise, an RL agent need not use an LLM, a neural network, or a physical robot. Our lab learns four numbers in a table.
+
+## 2. Describe the environment as a decision process
+
+A **Markov decision process (MDP)** describes states, available actions, transition probabilities, and rewards. “Markov” means the current state contains the information needed to predict the next state and reward given the action; the full earlier history adds no further predictive information. See the [decision-process foundations](https://artint.info/3e/html/ArtInt3e.Ch12.S5.html).
+
+Our fictional environment has three states: **Start**, **Preference known**, and **Terminal**. At Start, recommend a familiar movie or ask a question. After asking, recommend a generic or matched movie. Recommending ends the session. An **episode** is one complete session; this environment naturally ends after at most two actions.
+
+A **reward** is one feedback value. A **return** combines rewards over time. With rewards $r_{t+1},r_{t+2},\ldots$, a discounted return is:
+
+$$
+G_t=r_{t+1}+\gamma r_{t+2}+\gamma^2 r_{t+3}+\cdots
+$$
+
+The **discount factor** $\gamma$ controls how much future rewards count. At $\gamma=0$, only the next reward matters. At $\gamma=0.9$, the next step's reward has 90% of its undiscounted weight. A finite episode can also use $\gamma=1$; continuing tasks often use a discount below 1 or a different objective such as average reward.
+
+<details className="optional-depth">
+<summary>Go deeper: an observation is not always a complete state</summary>
+
+A viewer's true mood is hidden; a trailer click is only an observation. A camera image also does not reveal every object's velocity or everything behind an obstacle. A **partially observable MDP (POMDP)** distinguishes the hidden state from observations. A history, recurrent memory, or a **belief state** representing uncertainty can help an agent choose actions.
+
+Our lab assumes “preference known” is sufficient and that every simulated viewer behaves identically. That makes the tiny state representation Markov by construction; a real recommendation system would need a richer model. For a finite-horizon task, remaining time may also belong in the state. Do not assume that a database row or the latest message automatically contains everything needed for a sound decision model.
+
+</details>
+
+## 3. Rewards determine what the agent tries to achieve
+
+Use the following **authored satisfaction rewards**: familiar recommendation **+2**, asking **−1**, generic recommendation after asking **+1**, and matched recommendation **+6**. These numbers are teaching units, not measured ratings.
+
+<ReinforcementDiagrams kind="returns" />
+
+Asking and then matching yields an undiscounted return of $-1+6=5$. At $\gamma=0.9$, its discounted return is $-1+0.9(6)=4.4$, beating the familiar movie's immediate 2. At $\gamma=0$, asking is worth only −1 from Start, so the familiar recommendation wins. Choosing the immediate option in that case is correct for the specified objective.
+
+**Credit assignment** asks which earlier actions contributed to a later result. Asking was initially costly, but it enabled the useful recommendation. A learner must connect those steps to discover its value.
+
+A reward is a specification, not a direct reading of human wellbeing. The lab's alternative **click proxy** gives familiar 4, asking −1, generic 3, and matched 1. A policy optimizing this proxy chooses familiar, earning 4 proxy units but only 2 on the separate satisfaction scale. A higher number on a different reward scale is not an improvement in the original goal. [Concrete Problems in AI Safety](https://arxiv.org/abs/1606.06565) discusses problems including reward hacking and unsafe exploration.
+
+<details className="optional-depth">
+<summary>Go deeper: sparse rewards and shaping</summary>
+
+A **sparse reward** appears only occasionally, such as after a whole movie session. Dense feedback can make learning easier, but intermediate rewards may encourage shortcuts. Rewarding every question could teach an assistant to keep asking instead of helping the viewer choose. **Reward shaping** adds learning signals; arbitrary shaping can change which policy is optimal. Carefully designed [potential-based shaping](https://people.eecs.berkeley.edu/~pabbeel/cs287-fa09/readings/NgHaradaRussell-shaping-ICML1999.pdf) can preserve optimal policies under its assumptions.
+
+Keep external constraints separate from a reward tradeoff: a large engagement reward should not authorize unwanted purchases or unsafe robot motion. Inspect trajectories, not just totals, and measure the outcome you actually care about. The click-proxy experiment is deliberately simplified; real reward misspecification may be subtle and difficult to detect.
+
+</details>
+
+## 4. Balance exploration and exploitation
+
+**Exploitation** chooses what currently looks best. **Exploration** tries alternatives to learn their consequences. Our **epsilon-greedy** policy selects a random valid action with probability $\epsilon$; otherwise it selects an action with the highest current Q value. The random branch can select that same best action, so 30% exploration does not mean 30% of actions differ from the greedy choice. See [exploration and exploitation](https://artint.info/3e/html/ArtInt3e.Ch13.S5.html).
+
+Initially all Q values are zero. Our tie rule prefers the familiar recommendation at Start. Its positive reward increases that estimate. With $\epsilon=0$, the agent keeps choosing familiar and never learns what asking could unlock. A zero estimate for an untried action means “unlearned here,” not “proved worthless.”
+
+In the default 200-episode run, $\epsilon=0.3$ eventually discovers the matched route. With only 60 episodes and the same seed, the matched action is never tried. Exploration creates an opportunity to learn; it does not guarantee good coverage in a short run.
+
+<details className="optional-depth">
+<summary>Go deeper: coverage, seeds, and convergence</summary>
+
+Longer action sequences can require several exploratory choices before any useful reward appears. Alternatives include optimistic initial values, uncertainty-based action selection, and decaying exploration. Each makes assumptions; random actions alone can be inefficient or unsafe.
+
+Classical tabular Q-learning convergence results require conditions such as a suitable stationary finite MDP, sufficient repeated visits to state-action pairs, and appropriate diminishing learning rates. Our fixed learning rate and finite run are for inspection, not a general convergence guarantee. The environment is deterministic, but a seeded generator makes exploration reproducible. Different seeds can produce very different early learning. In real experiments, compare multiple seeds and report variability rather than presenting one attractive curve as universal evidence.
+
+</details>
+
+## 5. Learn action values with Q-learning
+
+A **state value** $V^\pi(s)$ is expected return from state $s$ under policy $\pi$. An **action value** $Q^\pi(s,a)$ starts with action $a$ and then follows that policy. The optimal action value $Q^*(s,a)$ assumes the best subsequent policy. A **Bellman relation** connects an action's value to its immediate reward plus the value of what follows.
+
+Q-learning estimates $Q^*$ using observed transitions. Its **temporal-difference (TD) target** combines a received reward with an estimate for the next state:
+
+$$
+y=r+\gamma\max_{a'}Q(s',a'),\qquad
+Q(s,a)\leftarrow Q(s,a)+\alpha\,[y-Q(s,a)].
+$$
+
+The **learning rate** $\alpha$ controls the update size; $y-Q(s,a)$ is the TD error. Using an existing estimate inside a target is called **bootstrapping**. The next-state term is **zero on true termination**. See [learning from experiences](https://artint.info/3e/html/ArtInt3e.Ch13.S4.html).
+
+Our own worked update makes this concrete. Suppose the current value of asking is 0, asking gives −1, and the best next-state estimate is 6. With $\gamma=0.9$, the target is 4.4. With $\alpha=0.5$, the updated value becomes **2.2**. If the next-state estimate were still zero, the same experience would initially push asking to **−0.5**. Later experience changes the target and corrects that estimate.
+
+For a matched recommendation ending the episode, the target is simply 6. There is no next decision to value. Do not confuse a true terminal state with a training run interrupted by an external time limit: that interruption can still require bootstrapping. [Gymnasium's time-limit guide](https://gymnasium.farama.org/main/tutorials/handling_time_limits/) explains the distinction between termination and truncation.
+
+## 6. Place Q-learning among the broader methods
+
+Tabular Q-learning stores a value for each state-action pair. Large or continuous spaces need generalization. **Deep RL** uses neural networks for values, policies, or environment models; it does not remove the difficulty of selecting rewards and collecting useful experience. See [RL with generalization](https://artint.info/3e/html/ArtInt3e.Ch13.S9.html).
+
+| Family | What it learns or uses | Main idea |
+| --- | --- | --- |
+| Value-based methods, including [DQN](https://deepmind-media.storage.googleapis.com/dqn/DQNNaturePaper.pdf) | Action-value estimates. | Choose actions using learned values; DQN uses a neural network, replay, and a target network. |
+| [Policy gradients](https://underactuated.mit.edu/rl_policy_search.html) | A parameterized policy directly. | Adjust action probabilities to increase expected return. |
+| Actor-critic | A policy and a value estimator. | The actor chooses; the critic supplies a learning signal. |
+| Model-based RL | A transition/reward model, often learned. | Predict consequences and plan with that model. |
+| [Imitation learning](https://underactuated.mit.edu/imitation.html) | Behavior from demonstrations. | Copy or infer useful behavior from an expert; rewards need not be supplied. |
+
+Our learner is **model-free**: it updates from sampled transitions without using a dynamics model to plan. The code still needs an environment to generate those transitions. In **model-based RL**, a model can improve data efficiency, but mistakes in predicted dynamics can mislead planning. See the [model-based formulation](https://artint.info/3e/html/ArtInt3e.Ch13.S8.html).
+
+<details className="optional-depth">
+<summary>Go deeper: on-policy, off-policy, offline, and PPO</summary>
+
+**On-policy** methods learn about the policy generating the experience. SARSA uses the next action actually selected in its TD target. **Off-policy** methods can learn about a different target policy. Q-learning uses the maximum next-state Q value even if exploration will choose something else. These distinctions concern policies, not whether the computer is connected to the internet. See [on-policy learning](https://artint.info/3e/html/ArtInt3e.Ch13.S7.html).
+
+**Online RL** collects new interaction data while learning. **Offline RL** learns from a fixed logged dataset and must handle actions poorly covered by that data; being off-policy alone does not solve that problem. Replay buffers can reuse experience, but distribution shift and unstable value estimates still matter.
+
+**PPO** is a policy optimization method often used with an actor-critic design; its clipped objective discourages excessively large policy updates. It does not guarantee safe behavior. See the [PPO paper](https://arxiv.org/abs/1707.06347). Chapter 28's RLHF connection uses feedback-derived rewards to train behavior; it does not mean an assistant learns a new policy from every live chat. **Behavior cloning**, by contrast, can train on demonstrated actions with a supervised objective.
+
+</details>
+
+## 7. Evaluate the learned policy separately from training
+
+During training, rewards reflect exploratory actions and an evolving policy. During evaluation, freeze learning and use the intended deployment policy. The lab evaluates greedily with exploration off; a deployed stochastic policy would instead need evaluation with its intended randomness. See the distinction between learning-time reward and final policy quality in [RL evaluation](https://artint.info/3e/html/ArtInt3e.Ch13.S6.html).
+
+The default run's **mean training return is 3.175**. Its final greedy policy gets **5 undiscounted** or **4.4 discounted**. These are different measurements, not contradictory answers. The lab also compares against the analytically best discounted return in this tiny environment; the learner never receives that answer during training.
+
+For a real movie system, evaluate multiple seeds, user groups, changing tastes, and sessions absent from tuning. Compare with a simple fixed or supervised policy. Track satisfaction, completion, unwanted repetition, and constraint violations alongside the optimized reward. More interaction data has a cost; **sample efficiency** measures how much experience is needed to learn useful behavior.
+
+Logged data only reveals outcomes for actions that were taken. Offline evaluation requires assumptions about coverage and the logging policy; a naive average over historical clicks does not establish the value of a different policy. A passing deterministic simulation establishes behavior in that model. It does not establish performance with people or physical hardware.
+
+## 8. Connect the loop to robotics
+
+A robot acts in a physical environment through **actuators**, such as motors, and receives measurements from **sensors**, such as cameras, encoders, or force sensors. Imagine a cinema robot carrying a selected movie disc to a shelf: choosing the item and reliably moving an arm are different levels of the task.
+
+<ReinforcementDiagrams kind="robot" />
+
+| Component | Cinema-robot example |
+| --- | --- |
+| Perception | Detect the disc case and nearby obstacles in camera data. |
+| State estimation | Estimate position and motion from noisy measurements. |
+| Task and motion planning | Choose a pickup sequence and a collision-free route. |
+| Feedback control | Adjust motor commands as the robot deviates from the desired motion. |
+| Actuation and sensing | Apply forces, observe the result, and repeat the loop. |
+
+**Kinematics** relates joint positions to geometry and motion. **Dynamics** relates forces and torques to how motion changes. A desired hand position does not directly tell a motor which torque will safely achieve it. A learned policy may choose high-level actions or participate in control; many robots also use established planning and control methods without RL. MIT's [Underactuated Robotics](https://underactuated.mit.edu/intro.html) develops the dynamics-and-control perspective, while its [robot simulation notes](https://manipulation.csail.mit.edu/robot.html) connect physical models, sensors, and controllers.
+
+Real actions take time, sensors are noisy, contacts are difficult to model, and mistakes can damage equipment. Use simulation, validated limits, constrained workspaces, and staged hardware evaluation. A reward penalty for collisions is not a substitute for collision avoidance and independent stopping mechanisms.
+
+<details className="optional-depth">
+<summary>Go deeper: localization, feedback control, and sim-to-real</summary>
+
+**Localization** estimates where a robot is; **mapping** represents its surroundings. **SLAM** tackles localization and mapping together. **Sensor fusion** combines measurements to improve an estimate. Feedback controllers use the difference between desired and observed behavior to correct motion; **model predictive control (MPC)** repeatedly plans over a finite horizon and replans after new observations.
+
+Simulation makes trials cheaper, but errors in friction, mass, lighting, contact, or latency create a **sim-to-real gap**. **Domain randomization** varies simulation conditions to encourage robustness; the [original visual-transfer work](https://arxiv.org/abs/1703.06907) is one example. It does not prove transfer to every physical setting. System identification, calibration, realistic disturbances, and cautious real-world testing remain important. MIT's [robotics notes](https://underactuated.mit.edu/) provide paths into estimation, control, and learning. The movie Q-table in this chapter is a conceptual bridge, not a robot controller.
+
+</details>
+
+## 9. Run the Python reinforcement workbook
+
+<a className="download-link" href="/downloads/chapter-38-reinforcement.zip" download>Download the reinforcement workbook ZIP <span>Four files · Python standard library</span></a>
+
+Extract the ZIP and open a terminal in its folder. Use Python 3.10 or later; no packages, model calls, or credentials are needed.
+
+```bash
+python reinforcement.py
+python reinforcement.py --epsilon 0
+python reinforcement.py --gamma 0
+python reinforcement.py --objective clicks
+python reinforcement.py --episodes 60
+python -m unittest -v test_reinforcement.py
+```
+
+| File | Purpose |
+| --- | --- |
+| `data.json` | State transitions and both authored reward definitions. |
+| `reinforcement.py` | Seeded exploration, Q updates, frozen evaluation, and reports. |
+| `test_reinforcement.py` | Hand calculations, terminal handling, seeds, and all settings. |
+| `README.md` | Commands, expected results, and modeling assumptions. |
+
+The default greedy path is `ask → match`, with `total: 5`, `discounted: 4.4`, and `gap: 0`. Inspect `rows` for learned Q values and visit counts, `updates` for the first twelve TD updates, and `history` for each episode. The curve groups training returns into blocks of 20 episodes.
+
+Every run resets Q to zero. Training and action selection use full precision; the report rounds to six decimals. The seeded generator controls only exploration: rewards and transitions are deterministic. Evaluation reuses the same toy environment and therefore checks the learned policy, not generalization to unseen users.
+
+## 10. Experiment with the reinforcement learning lab
+
+<ReinforcementLab client:visible />
+
+### Exercise 1: discover the delayed reward
+
+Compare the default run with exploration set to zero. Then reset and reduce training to 60 episodes. Inspect the matched action's visit count.
+
+<details className="solution"><summary>Reveal the explanation</summary><p>Default training finds ask → match, returning 5 raw and 4.4 discounted. With zero exploration it stays with familiar, returning 2. At 60 episodes with seed 7, match has zero visits. Its Q value of zero reflects missing experience, not a measured bad outcome.</p></details>
+
+### Exercise 2: change the objective without blaming the learner
+
+Reset, then set the discount to zero. Reset again, then switch the reward to the click proxy. Why does familiar win in both cases?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>At discount zero, only the next reward counts: familiar earns 2 while asking earns −1. Under the click proxy, familiar earns 4 and is optimal for that proxy, but satisfaction remains 2. The algorithm follows the supplied objective; choosing that objective is our responsibility.</p></details>
+
+### Exercise 3: calculate a TD update
+
+Asking has Q value 0, reward −1, and next-state maximum Q of 6. Use a discount of 0.9 and learning rate of 0.5. What changes if the next state is terminal?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>The nonterminal target is −1 + 0.9 × 6 = 4.4, so the new Q value is 2.2. If that transition truly terminates, omit future value: target −1, new Q −0.5. The lab's asking action is nonterminal; the terminal version is a separate arithmetic check.</p></details>
+
+## 11. Check your understanding
+
+<Quiz questions={chapter38Questions} client:visible />
+
+## 12. Revise and connect the ideas
+
+Explain the complete chain: **the environment produces experience; exploration determines what is tried; rewards define the objective; value updates propagate credit; the policy selects actions; evaluation checks the outcome**. Then name what changes when the environment becomes a physical robot.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning |
+| --- | --- |
+| Agent / environment | Decision-maker / system it interacts with. |
+| Policy | A rule or distribution for choosing actions from available information. |
+| MDP / POMDP | A decision process with a Markov state / with partial observations. |
+| Episode / terminal state | One interaction sequence / a state where that sequence ends. |
+| Reward / return | One feedback value / an accumulation of rewards. |
+| Discount / learning rate | Weight on future reward / size of a learning update. |
+| Exploration / exploitation | Gather experience / use current estimates. |
+| Q value / TD error | Estimated action return / target minus current estimate. |
+| Bootstrapping | Using an existing estimate in another learning target. |
+| Actor / critic | Policy component / value-estimation component. |
+| Model-free / model-based | Learn without a planning model / use a model of consequences. |
+| Kinematics / dynamics | Geometry and motion relationships / forces and resulting motion. |
+| Feedback control / sim-to-real | Correct motion using observations / transfer from simulation to hardware. |
+
+</details>
+
+The linked textbook sections, research papers, Gymnasium documentation, and MIT robotics notes provide the formal foundations. The movie environment, reward scores, diagrams, and workbook are original teaching examples. RL is useful when sequential consequences matter and suitable feedback can be collected; it is not required for every recommender or robot.
+
+**Next: Chapter 39 — Vision, recommendations, and time-series applications.** We will connect the techniques already learned to practical application designs and their evaluation.

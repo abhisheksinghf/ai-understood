@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {data,defaults,normalize,runRequest,summarize,evaluate} from '../src/lib/operations.mjs';
+test('rollback preserves past results and changes later routing',()=>{const r=evaluate();assert.deepEqual(r.totals,{n:20,good:19,bad:1,goodPercent:95,httpOk:20,candidate:1,attempts:20,costUnits:59,p95:1200});assert.equal(r.rollbackAfter,1);assert.ok(r.rows.slice(5).every(x=>x.version==='baseline'));assert.equal(r.budgetRemaining,0);assert.equal(r.sloMet,true);});
+test('observe-only reveals continued bad release exposure',()=>{const r=evaluate({rollback:'observe'});assert.equal(r.totals.bad,4);assert.equal(r.totals.candidate,4);assert.equal(r.totals.costUnits,56);assert.equal(r.decision,'review_needed');});
+test('broad rollout has greater exposure before first check',()=>{const r=evaluate({share:100});assert.equal(r.totals.bad,2);assert.equal(r.totals.candidate,5);});
+test('healthy shares route expected counts but never auto-promote',()=>{for(const [share,count]of [[0,0],[20,4],[60,12],[100,20]]){const r=evaluate({scenario:'healthy',share});assert.equal(r.totals.candidate,count);assert.equal(r.totals.good,20);assert.equal(r.decision,share?'observe_more':'baseline_only');}});
+test('one bounded retry recovers transient failures at extra attempt cost',()=>{for(const [retries,good,attempts]of [[0,12,20],[1,16,28]]){const r=evaluate({scenario:'provider_fault',rollback:'observe',retries});assert.equal(r.totals.good,good);assert.equal(r.totals.attempts,attempts);}});
+test('deadline includes backoff and does not reset on retry',()=>{const r=evaluate({scenario:'provider_fault',rollback:'observe',deadline:1200}),row=r.rows[0];assert.equal(row.status,504);assert.equal(row.elapsedMs,1200);assert.deepEqual(row.attempts.map(a=>a.durationMs),[400,600]);assert.equal(row.costUnits,3);assert.equal(r.totals.good,12);});
+test('rollback cannot heal a shared dependency',()=>{const r=evaluate({scenario:'provider_fault',share:60});assert.equal(r.decision,'rolled_back');assert.equal(r.totals.bad,4);assert.ok(r.rows.slice(5).some(x=>!x.good));});
+test('quality failures are not treated as transient transport failures',()=>{const row=evaluate().rows[0];assert.equal(row.status,200);assert.equal(row.quality,false);assert.equal(row.attempts.length,1);});
+test('retry is refused when backoff consumes remaining time',()=>{const r=runRequest(data.requests[0],'baseline',{...defaults,scenario:'provider_fault',deadline:500});assert.equal(r.reason,'retry_budget_exhausted');assert.equal(r.attempts.length,1);});
+test('nearest rank and empty summaries are explicit',()=>{assert.equal(summarize([]).p95,null);assert.equal(summarize(evaluate().rows.slice(0,5)).p95,1200);});
+test('configuration is strict',()=>{for(const c of [null,[],{share:true},{deadline:'1200'},{scenario:'x'},{extra:1}])assert.throws(()=>normalize(c));});

@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-42.mdx';
+import raw from '../../content/chapter-42.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Capstone: build an evaluated movie knowledge assistant" chapter chapterNumber={42} headings={headings} searchSections={searchSections} tocTitles={["Product contract","Architecture","Traceable evidence","Retrieval & constraints","Tool outcomes","Adding an LLM","Evaluation","Project milestones","Python workbook","Capstone lab","Knowledge check","Continue practicing"]} searchPlaceholder="Try “capstone”, “fixture”, or “held-out”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 10 · Broader AI &amp; your capstone</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 42</span><span class="edition">BUILD · TRACE · EVALUATE</span></div>
+    <h1>Bring the ideas together.<br/><em>Build your movie assistant.</em></h1>
+    <p class="hero-description">Connect retrieval, recommendations, tools, and evaluation<br class="desktop-break"/> in an inspectable movie-assistant capstone.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>45–60 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-define-a-small-testable-product" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-42.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">REQUEST → EVIDENCE → ANSWER → EVALUATION</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you build, evaluate, and explain the whole system?</h2><p>Run the assistant, trace a result, reproduce the evaluation, explain a failure, and justify your next improvement.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 42 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">THE HANDBOOK IS YOUR STARTING POINT</span><h3>Keep building. Keep testing your understanding.</h3><p>Revisit a concept, improve one measured weakness, and keep a record of what you learned.</p><a class="text-button" href="/chapters/41-ai-research-agi-and-keeping-your-knowledge-current/">← Revisit Chapter 41</a></div><a class="primary-button" href="/curriculum/">Explore all 42 chapters →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 42 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

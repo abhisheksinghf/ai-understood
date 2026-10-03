@@ -1,0 +1,41 @@
+---
+import {entropy} from '../lib/optimization.mjs';
+interface Props {kind:'slope'|'chain'|'entropy'}
+const {kind}=Astro.props;
+const labels={slope:['A tangent describes a local rate','Figure 1. Dimensionless f(x) = x² (solid) and its tangent at x = 3 (dashed). The tangent has slope 6 and agrees with the curve at (3, 9); it is only a local approximation.'],chain:['Forward values, backward sensitivities','Figure 2. At w = 1, follow the values left to right and multiply the local derivatives right to left: dL/dw = −2 × 1 × 2 = −4. Input x = 2, bias b = 1, and target y = 5 are held fixed.'],entropy:['Binary entropy is largest at an even split','Figure 3. For probabilities [p, 1 − p], entropy is 1 bit at p = 0.5 and 0 at either certainty endpoint. At p = 0.25 or 0.75 it is about 0.8113 bits.']};
+const id='calculus-'+kind;
+const slopePath=Array.from({length:81},(_,i)=>{const x=i/20;return (i?'L':'M')+(90+120*x)+','+(220-10*x*x);}).join(' ');
+const entropyPath=Array.from({length:101},(_,i)=>{const p=i/100;return (i?'L':'M')+(100+560*p)+','+(211-157*entropy([p,1-p]));}).join(' ');
+---
+<figure class="diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}>
+    <svg viewBox={kind==='chain'?'0 0 760 218':'0 0 760 277'} role="img" aria-labelledby={id+'-title '+id+'-desc'}>
+      <title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc>
+      <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+      {kind==='slope'&&<>
+        <line x1="90" x2="590" y1="220" y2="220" class="plot-axis"/><line x1="90" x2="90" y1="40" y2="220" class="plot-axis"/>
+        {[0,1,2,3,4].map(x=><text x={90+120*x} y="241" text-anchor="middle" class="node-detail">{x}</text>)}
+        {[0,4,9,16].map(y=><text x="75" y={224-10*y} text-anchor="end" class="node-detail">{y}</text>)}
+        <path d={slopePath} fill="none" stroke="var(--accent)" stroke-width="3"/><line x1="270" y1="220" x2="570" y2="70" stroke="var(--gold)" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="450" cy="130" r="5" fill="var(--ink)"/><path d="M90 130 H450 V220" fill="none" stroke="var(--line)" stroke-dasharray="3 3"/>
+        <text x="466" y="142" class="node-title">(3, 9)</text><text x="105" y="44" class="node-title">f(x)</text><text x="335" y="265" class="node-detail">Input x</text>
+        <text x="608" y="70" class="node-title">f(x) = x²</text><text x="608" y="98" class="node-detail">tangent slope = 6</text>
+      </>}
+      {kind==='chain'&&<>
+        {[['w = 1','parameter'],['p = 3','p = 2w + 1'],['r = −2','r = p − 5'],['L = 2','L = r² / 2']].map(([name,detail],i)=><g><rect x={10+195*i} y="28" width="145" height="65" rx="7" class="node"/><text x={82.5+195*i} y="56" text-anchor="middle" class="node-title">{name}</text><text x={82.5+195*i} y="78" text-anchor="middle" class="node-detail">{detail}</text></g>)}
+        {[0,1,2].map(i=><g><line x1={160+195*i} x2={197+195*i} y1="60" y2="60" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/><line x1={230+195*i} x2={130+195*i} y1="128" y2="128" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/></g>)}
+        {['dp/dw = 2','dr/dp = 1','dL/dr = −2'].map((text,i)=><text x={180+195*i} y="154" text-anchor="middle" class="node-detail">{text}</text>)}
+        <text x="380" y="195" text-anchor="middle" class="node-title">Backward product: −2 × 1 × 2 = −4</text>
+      </>}
+      {kind==='entropy'&&<>
+        <line x1="100" x2="660" y1="211" y2="211" class="plot-axis"/><line x1="100" x2="100" y1="34" y2="211" class="plot-axis"/>
+        {[0,.5,1].map(y=><g><line x1="100" x2="660" y1={211-157*y} y2={211-157*y} class="plot-grid"/><text x="85" y={215-157*y} text-anchor="end" class="node-detail">{y}</text></g>)}
+        {[0,.25,.5,.75,1].map(p=><text x={100+560*p} y="235" text-anchor="middle" class="node-detail">{p}</text>)}
+        <path d={entropyPath} fill="none" stroke="var(--accent)" stroke-width="3"/><circle cx="380" cy="54" r="5" fill="var(--accent)"/><circle cx="520" cy={211-157*entropy([.75,.25])} r="5" fill="var(--gold)"/>
+        <text x="380" y="34" text-anchor="middle" class="node-title">maximum: 1 bit</text><text x="535" y="80" class="node-detail">0.8113 bits</text><text x="103" y="23" class="node-detail">Entropy (bits)</text><text x="380" y="263" text-anchor="middle" class="node-detail">Probability p of the first outcome</text>
+      </>}
+    </svg>
+  </div>
+  <figcaption>{labels[kind][1]}</figcaption>
+</figure>

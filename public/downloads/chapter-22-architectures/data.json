@@ -1,0 +1,14 @@
+{
+  "description": "Original teaching fixtures: tiny poster patterns, genre-coded viewing events, and hand-set network weights. No pretrained model or measured recommendation data.",
+  "posters": {
+    "edge": [[1,1,0,0,0],[1,1,0,0,0],[1,1,0,0,0],[1,1,0,0,0],[1,1,0,0,0]],
+    "stripe": [[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
+    "cross": [[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0]]
+  },
+  "kernels": {
+    "vertical": [[1,0,-1],[1,0,-1],[1,0,-1]],
+    "horizontal": [[1,1,1],[0,0,0],[-1,-1,-1]]
+  },
+  "histories": {"original": [1,1,-1], "reversed": [-1,1,1]},
+  "transfer": {"input": [0.8,0.2], "label": 1, "theta": [0.6,-0.2,0.1,-0.3,0.7,-0.1,0.4,-0.5,0.05], "rate": 0.1}
+}

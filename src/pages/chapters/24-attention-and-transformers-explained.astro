@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-24.mdx';
+import raw from '../../content/chapter-24.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Attention and transformers explained" chapter chapterNumber={24} headings={headings} searchSections={searchSections} tocTitles={["Gather context","Queries, keys, values","Calculate a head","Control visibility","Combine heads","Represent position","Transformer blocks","Architecture families","Training & generation","Explore & practice","Knowledge check","Toward LLM training"]} searchPlaceholder="Try “causal mask”, “residual”, or “KV cache”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 06 · Deep learning &amp; LLM internals</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 24</span><span class="edition">CONTEXT · ATTENTION · TRANSFORMERS</span></div>
+    <h1>Connect the context.<br/><em>Understand the transformer.</em></h1>
+    <p class="hero-description">Follow the attention weights between words,<br class="desktop-break"/> then see how transformer blocks build representations.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 20–25 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-give-each-position-access-to-useful-context" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-24.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">MATCH → COMBINE → TRANSFORM</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you trace how a token gathers context?</h2><p>Explain Q, K, V, inspect a causal mask, combine heads, and place attention inside a transformer block.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 24 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>How LLMs are trained and generate text</h3><p>Connect the architecture to pretraining, adaptation, and the generation process.</p><a class="text-button" href="/chapters/23-nlp-tokenization-and-language-modeling/">← Revisit Chapter 23</a></div><a class="primary-button" href="/chapters/25-how-llms-are-trained-and-generate-text/">Read Chapter 25 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 24 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

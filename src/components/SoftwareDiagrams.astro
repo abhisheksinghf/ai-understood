@@ -1,0 +1,32 @@
+---
+interface Props {kind:'layers'|'pipeline'|'project'}
+const {kind}=Astro.props;
+const configs={
+  layers:{title:'Separate the responsibilities',caption:'Figure 1. The backend coordinates prediction and storage. The database is not itself the model. Arrows show requests and returned results.',nodes:[['Frontend','Collect input; show result'],['Backend','Validate and coordinate'],['Model / calculation','Produce a prediction'],['Database','Keep durable records']]},
+  pipeline:{title:'Make each transformation explainable',caption:'Figure 2. Preserve source context, check meaning as well as format, and keep the accepted records traceable to their origin.',nodes:[['Source','Input and its origin'],['Validate','Fields, types, units'],['Transform','Normalize; check quality'],['Persist','Records and provenance']]},
+  project:{title:'An actual local request, then a durable record',caption:'Figure 3. The Python client calls the service and validates the returned JSON. Only then does the client save a history row; the server keeps no prediction history.',nodes:[['Python client','Send size_mb = 3'],['Local API','Return 7.0 seconds'],['Python client','Check response fields'],['SQLite file','Append one history row']]},
+};
+const d=configs[kind],id='software-'+kind;
+---
+<figure class="diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{d.title}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={d.title}>
+    <svg viewBox={kind==='layers'?'0 0 760 226':'0 0 760 116'} role="img" aria-labelledby={id+'-title '+id+'-desc'}>
+      <title id={id+'-title'}>{d.title}</title><desc id={id+'-desc'}>{kind==='layers'?'Frontend exchanges requests and results with backend. Backend calls model and accesses database.':d.nodes.map(n=>n.join(': ')).join(' → ')}</desc>
+      <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/></marker></defs>
+      {kind==='layers'?<>
+        {d.nodes.map((n,i)=><g transform={'translate('+(i===3?282:28+254*i)+','+(i===3?142:22)+')'}>
+          <rect width="196" height="66" rx="8" class={i===1?'node node-accent':'node'}/>
+          <text x="98" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="98" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
+        </g>)}
+        {[230,484].map(x=><line x1={x} y1="55" x2={x+46} y2="55" class="connector" marker-start={'url(#'+id+'-arrow)'} marker-end={'url(#'+id+'-arrow)'}/>)}
+        <line x1="380" y1="95" x2="380" y2="135" class="connector" marker-start={'url(#'+id+'-arrow)'} marker-end={'url(#'+id+'-arrow)'}/>
+      </>:d.nodes.map((n,i)=><g transform={'translate('+(15+190*i)+',24)'}>
+        <rect width="164" height="66" rx="8" class={i===2?'node node-accent':'node'}/>
+        <text x="82" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="82" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
+        {i<3&&<line x1="168" y1="33" x2="184" y2="33" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
+      </g>)}
+    </svg>
+  </div>
+  <figcaption>{d.caption}</figcaption>
+</figure>

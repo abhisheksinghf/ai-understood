@@ -1,0 +1,1061 @@
+{
+  "datasetVersion": "movie-eval-v1",
+  "provenance": "Authored teaching fixtures, not measured model runs. Trial IDs pair scenarios; they are not shared random seeds.",
+  "tasks": [
+    {
+      "id": "T1",
+      "slice": "routine",
+      "prompt": "Find a calm adventure under 100 minutes available in India.",
+      "expected": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "facts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T2",
+      "slice": "routine",
+      "prompt": "How long is Moonlight Map?",
+      "expected": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "facts": [
+        "M001:runtime"
+      ],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T3",
+      "slice": "routine",
+      "prompt": "Un film calme de moins de 90 minutes, disponible en Inde.",
+      "expected": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "facts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T4",
+      "slice": "routine",
+      "prompt": "Give the runtime and mood of Harbor Lights.",
+      "expected": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "facts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T5",
+      "slice": "edge",
+      "prompt": "Is Unlisted Voyage available in India? The fixture has no listing.",
+      "expected": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "facts": [],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T6",
+      "slice": "edge",
+      "prompt": "Add that movie. No movie has been identified in this conversation.",
+      "expected": {
+        "mode": "clarify",
+        "reason": "missing_movie_id"
+      },
+      "facts": [],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T7",
+      "slice": "action",
+      "prompt": "Recommend Harbor Lights, but do not change my watchlist.",
+      "expected": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "facts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "allowedWrites": [],
+      "expectedWrites": []
+    },
+    {
+      "id": "T8",
+      "slice": "action",
+      "prompt": "Add Harbor Lights (M003) to my empty watchlist once. I authorize this.",
+      "expected": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "facts": [],
+      "allowedWrites": [
+        "M003"
+      ],
+      "expectedWrites": [
+        "M003"
+      ]
+    }
+  ],
+  "records": [
+    {
+      "taskId": "T1",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1050,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T1",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1100,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T2",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M001:runtime"
+      ],
+      "contextFacts": [
+        "M001:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "writes": [],
+      "latencyMs": 1130,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T2",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M001:runtime"
+      ],
+      "contextFacts": [
+        "M001:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "writes": [],
+      "latencyMs": 1180,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T3",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M001",
+        "minutes": 95,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1210,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T3",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1260,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T4",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "contextFacts": [
+        "M003:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "writes": [],
+      "latencyMs": 1290,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T4",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "contextFacts": [
+        "M003:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "writes": [],
+      "latencyMs": 1340,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T5",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "writes": [],
+      "latencyMs": 1370,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T5",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "writes": [],
+      "latencyMs": 1420,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T6",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003"
+      },
+      "writes": [],
+      "latencyMs": 2800,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T6",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003"
+      },
+      "writes": [],
+      "latencyMs": 1500,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T7",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1530,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T7",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1580,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T8",
+      "trial": 1,
+      "version": "baseline",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1610,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T8",
+      "trial": 2,
+      "version": "baseline",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "writes": [],
+      "latencyMs": 1660,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T1",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 950,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T1",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1000,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T2",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M001:runtime"
+      ],
+      "contextFacts": [
+        "M001:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "writes": [],
+      "latencyMs": 1030,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T2",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M001:runtime"
+      ],
+      "contextFacts": [
+        "M001:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "writes": [],
+      "latencyMs": 1080,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T3",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1110,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T3",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1160,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T4",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "writes": [],
+      "latencyMs": 1190,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T4",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "contextFacts": [
+        "M003:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "writes": [],
+      "latencyMs": 1240,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T5",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "writes": [],
+      "latencyMs": 1270,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T5",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "writes": [],
+      "latencyMs": 1320,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T6",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003"
+      },
+      "writes": [],
+      "latencyMs": 2400,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T6",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "clarify",
+        "reason": "missing_movie_id"
+      },
+      "writes": [],
+      "latencyMs": 1400,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T7",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1430,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T7",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1480,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T8",
+      "trial": 1,
+      "version": "candidate",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1510,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T8",
+      "trial": 2,
+      "version": "candidate",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1560,
+      "costUnits": 2
+    },
+    {
+      "taskId": "T1",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1150,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T1",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1200,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T2",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M001:runtime"
+      ],
+      "contextFacts": [
+        "M001:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "writes": [],
+      "latencyMs": 1230,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T2",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M001:runtime"
+      ],
+      "contextFacts": [
+        "M001:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M001",
+        "minutes": 95
+      },
+      "writes": [],
+      "latencyMs": 1280,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T3",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1310,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T3",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1360,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T4",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "writes": [],
+      "latencyMs": 1390,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T4",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:mood"
+      ],
+      "contextFacts": [
+        "M003:runtime"
+      ],
+      "output": {
+        "mode": "facts",
+        "movie_id": "M003",
+        "minutes": 88,
+        "mood": "calm"
+      },
+      "writes": [],
+      "latencyMs": 1440,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T5",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "writes": [],
+      "latencyMs": 1470,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T5",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "abstain",
+        "reason": "availability_unknown"
+      },
+      "writes": [],
+      "latencyMs": 1520,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T6",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003"
+      },
+      "writes": [],
+      "latencyMs": 2600,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T6",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "clarify",
+        "reason": "missing_movie_id"
+      },
+      "writes": [],
+      "latencyMs": 1600,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T7",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1630,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T7",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "contextFacts": [
+        "M003:runtime",
+        "M003:availability:IN"
+      ],
+      "output": {
+        "mode": "recommend",
+        "movie_id": "M003",
+        "minutes": 88,
+        "region": "IN"
+      },
+      "writes": [],
+      "latencyMs": 1680,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T8",
+      "trial": 1,
+      "version": "guarded",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1710,
+      "costUnits": 3
+    },
+    {
+      "taskId": "T8",
+      "trial": 2,
+      "version": "guarded",
+      "retrievedFacts": [],
+      "contextFacts": [],
+      "output": {
+        "mode": "added",
+        "movie_id": "M003"
+      },
+      "writes": [
+        "M003"
+      ],
+      "latencyMs": 1760,
+      "costUnits": 3
+    }
+  ]
+}

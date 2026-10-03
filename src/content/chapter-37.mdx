@@ -1,0 +1,250 @@
+import ReasoningDiagrams from '../components/ReasoningDiagrams.astro';
+import ReasoningLab from '../components/ReasoningLab';
+import Quiz from '../components/Quiz';
+import {chapter37Questions} from '../data/chapter37';
+
+<p className="chapter-intro">“Pick a movie for our offline train journey. We have 100 minutes, and I liked that sci-fi trailer.” Part of this request is a strict rule, part is uncertain preference, and part may require a sequence of actions. AI has tools for each of these, including many that do not require a neural network.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>The main question:</strong> how can an AI system represent facts, find a plan, and make a decision with incomplete information?</p><p><strong>The practical path:</strong> express constraints, search possible steps, update a belief with evidence, and compare the value of feasible choices.</p><p><strong>Reading path:</strong> twelve short sections, three diagrams, a movie reasoning lab, and a Python workbook. Open the optional notes for the deeper connections.</p></div>
+
+## 1. AI includes more than learned predictions
+
+**Symbolic AI** represents knowledge explicitly using objects, facts, rules, and relationships. **Search** explores possible solutions. **Probabilistic AI** represents uncertainty with distributions. These approaches overlap: a planner can use learned estimates, and a rule system can consume a probabilistic prediction. “Classical AI” is a broad historical label, not a precise boundary excluding machine learning.
+
+| Movie-night question | Useful representation |
+| --- | --- |
+| Is this film short enough and available offline? | Facts and constraints. |
+| Which actions get us from an unprepared device to a ready movie? | States, actions, and a search graph. |
+| Does liking this trailer suggest a sci-fi mood? | A probability model and evidence. |
+| Which allowed choice is worth making? | Expected utility, including an option to skip. |
+
+These are different tasks. A film can be likely to please you and still exceed your available time. A valid plan can be expensive. A logically correct conclusion can fail in practice if its starting facts are wrong.
+
+<ReasoningDiagrams kind="rules" />
+
+## 2. Represent facts and draw logical conclusions
+
+A **proposition** is a statement that can be true or false, such as “Quiet Orbit is downloaded.” A **predicate** expresses a property or relation, such as `downloaded(movie)` or `short_enough(movie, time_limit)`. A **knowledge base** stores the relevant facts and rules.
+
+```text
+Fact: downloaded(QuietOrbit)
+Fact: short_enough(QuietOrbit, 100)
+Rule: downloaded(m) AND short_enough(m, 100)
+      IMPLIES eligible_offline(m)
+Conclusion: eligible_offline(QuietOrbit)
+```
+
+**Deduction** derives what follows from those premises. The rule does not establish that Quiet Orbit is enjoyable; it only establishes eligibility under our definition. **Forward chaining** starts with known facts and repeatedly applies matching rules. **Backward chaining** starts with a query, such as `eligible_offline(QuietOrbit)`, then looks for rules and facts that could prove it. See Poole and Mackworth's [definite-clause treatment](https://artint.info/3e/html/ArtInt3e.Ch5.S3.html).
+
+An **expert system** combines domain knowledge, an inference procedure, and often an explanation of which rules fired. It can be useful when conditions are explicit and stable. Maintaining rules, resolving conflicts, and handling missing facts can become difficult as the domain grows.
+
+<details className="optional-depth">
+<summary>Go deeper: truth, missing knowledge, and proof guarantees</summary>
+
+“We cannot prove downloaded” need not mean “we proved not downloaded.” Under an **open-world assumption**, absent facts remain unknown. Under a **closed-world assumption**, an application may treat unrecorded facts as false when its data is intended to be complete. Our offline catalog uses the latter convention with explicit Boolean fields. That is a modeling choice, not a law of logic.
+
+A **sound** inference procedure derives only consequences of its premises. A **complete** one can derive every consequence in the logic under discussion. Neither guarantees that the premises describe reality. First-order logic adds variables and quantifiers: “every downloaded short film is eligible” uses “for all”; “some film fits” uses “there exists.” Richer languages need more expensive reasoning. Restricted rule languages such as [Datalog](https://artint.info/3e/html/ArtInt3e.Ch15.S4.html) trade expressive freedom for useful structure.
+
+</details>
+
+## 3. Search through possible states
+
+A search problem specifies an **initial state**, available **actions**, a **transition model**, a **goal test**, and usually an **action cost**. A state is the information needed to decide what can happen next. A path is a sequence of transitions. The **frontier** holds paths waiting to be explored; the search strategy decides which to examine next.
+
+Our small movie-preparation graph has two routes to Ready. A bundled preparation action costs 10 fictional effort units. Checking, choosing, and preparing separately costs 1 + 1 + 1. A detour returns to Start. All routes and costs are authored teaching data.
+
+<ReasoningDiagrams kind="search" />
+
+| Strategy | Which path is next? | Main tradeoff |
+| --- | --- | --- |
+| Breadth-first search (BFS) | Fewest edges from the start. | Finds a shallowest goal; cheapest only when step costs are equal. |
+| Depth-first search (DFS) | Follow one branch deeply, then backtrack. | Often uses less frontier memory; may miss cheaper routes or follow an endless branch. |
+| Uniform-cost search (UCS) | Lowest accumulated cost $g$. | Finds a cheapest solution under standard cost conditions; may explore many paths. |
+| Greedy best-first | Lowest estimate $h$. | Can reach a goal quickly, but ignores the cost already paid. |
+| A* | Lowest $f=g+h$. | Combines actual cost with an estimate of what remains. |
+
+BFS returns Start → Ready, cost **10**. UCS returns Start → Check → Pick → Ready, cost **3**. A* returns the same cheaper route using the heuristic below. Search over possible states differs from chapter 16's search for relevant documents. The [uninformed search discussion](https://artint.info/3e/html/ArtInt3e.Ch3.S5.html) covers BFS, DFS, and UCS.
+
+## 4. Understand heuristics and search guarantees
+
+A **heuristic** estimates remaining cost. In our graph, use $h(Start)=3$, $h(Check)=2$, $h(Pick)=1$, $h(Detour)=4$, and $h(Ready)=0$. After Start is expanded, the direct goal has $f=10$, Check has $f=1+2=3$, and Detour has $f=1+4=5$. A* explores Check first and reaches Ready through the cheaper route.
+
+An **admissible** heuristic never overestimates the true cheapest remaining cost. A **consistent** heuristic also satisfies $h(n)\leq c(n,n')+h(n')$ along every edge, with zero at a goal. These properties matter to A*'s optimality guarantees. Setting $h=0$ reduces A* to UCS. [Informed search](https://artint.info/3e/html/ArtInt3e.Ch3.S6.html) explains the conditions.
+
+Our workbook records a best cost per state, allows a cheaper path to replace an earlier one, and tests the goal when it is removed from the frontier. Returning when Ready is first *generated* would wrongly select cost 10. The supplied heuristic is consistent; on this graph A* avoids the detour that UCS examines.
+
+<details className="optional-depth">
+<summary>Go deeper: completeness, cycles, memory, and adversarial search</summary>
+
+For a finite graph, tracking visited states prevents repeatedly traversing a cycle. With infinitely many states, the conditions are more delicate: BFS needs finite branching and a goal at finite depth; UCS and A* commonly assume finite branching and step costs bounded below by a positive value. A* graph search must handle improved paths correctly; an admissible but inconsistent heuristic can require reopening states. A learned heuristic can guide search without satisfying these guarantees. See [search pruning](https://artint.info/3e/html/ArtInt3e.Ch3.S7.html).
+
+Large frontiers can exhaust memory even when an algorithm is correct. Beam search keeps only a limited number of candidates and can discard the best route. In two-player zero-sum games, **minimax** models alternating choices by a maximizing player and a minimizing opponent; **alpha-beta pruning** skips branches that cannot change the minimax decision. A movie planner normally has no adversarial opponent, so ordinary path search is the closer match.
+
+</details>
+
+## 5. Planning adds the meaning of actions
+
+A planner searches using an action model. Each action has **preconditions** that must hold and **effects** describing the state afterward. In a simple deterministic model, `download(movie)` requires connectivity and enough storage; its effect is that the movie becomes available offline. `watch(movie)` requires availability and sufficient time; it consumes time and records that it was watched.
+
+```text
+Initial: online, enough_storage, not_downloaded
+Action:  download(QuietOrbit)
+Result:  online, enough_storage, downloaded
+Action:  go_offline
+Goal:    offline AND downloaded
+```
+
+An action description should preserve unaffected facts and explicitly add or remove changed ones. Our sketch omits download duration and exact storage use; a real planner would need them. If the device is already offline, the download precondition fails. Generating “download, then watch” as fluent text does not establish that the plan is executable.
+
+**Forward planning** searches from the known initial state toward a goal. A classical deterministic planner commonly assumes a known state and predictable action effects. Real tools can fail or change state, so execution needs observation and replanning. This is the bridge to chapters 31–32's workflows and agents. See [forward planning](https://artint.info/3e/html/ArtInt3e.Ch6.S2.html).
+
+## 6. Constraints describe what a solution must satisfy
+
+A **constraint satisfaction problem (CSP)** consists of variables, possible values called **domains**, and constraints on valid combinations. For a two-film evening, variables are `first_movie` and `second_movie`; domains contain the catalog; constraints might require different films, both downloaded, and a combined duration of at most 190 minutes.
+
+**Backtracking** assigns values and returns to an earlier choice when a constraint fails. **Constraint propagation** removes values that cannot work with the remaining possibilities. Neither means the system has learned a preference. Once feasible assignments exist, **optimization** chooses the best according to a separate objective. See [CSP search](https://artint.info/3e/html/ArtInt3e.Ch4.S2.html) and [propagation](https://artint.info/3e/html/ArtInt3e.Ch4.S3.html).
+
+In the lab, 100 minutes and offline access leave Quiet Orbit (95 minutes) and Lantern Lane (88 minutes). Comet Chase is both too long and not downloaded; Silent Harbor is too long. With 80 minutes, **no movie is feasible**. The correct response is to explain that, or ask which constraint may change. Quietly replacing 80 with 100 breaks the stated problem.
+
+<details className="optional-depth">
+<summary>Go deeper: hard rules, soft preferences, SAT, and optimization</summary>
+
+A **hard constraint** must hold. A **soft preference** affects a score but may be traded against other preferences. “Offline only” is hard here; “probably enjoyable” is soft. A large preference score cannot cancel an offline violation. Filter or constrain first, then optimize within the feasible set.
+
+**SAT** asks whether Boolean variables can make a logical formula true. **SMT** adds supported theories such as arithmetic. Integer programming represents decisions with integer variables and algebraic constraints, often optimizing a numeric objective. These are related ways to formalize problems, with different modeling and solver strengths. Our four-row enumeration illustrates the distinction between feasibility and value; it is not an implementation of a general CSP, SAT, or SMT solver.
+
+</details>
+
+## 7. Update uncertain beliefs with Bayes' rule
+
+Let $H$ mean “the viewer is in a sci-fi mood tonight” and $E$ mean “the viewer liked a sci-fi trailer.” A **prior** is the belief before this evidence. A **likelihood** describes how probable the evidence is under a hypothesis. A **posterior** is the updated belief after observing it. Revisit chapter 7 if conditional probability feels unfamiliar.
+
+Our fictional model sets $P(H)=0.5$, $P(E\mid H)=0.8$, and $P(E\mid\neg H)=0.2$. Bayes' rule gives:
+
+$$
+P(H\mid E)=\frac{P(E\mid H)P(H)}{P(E\mid H)P(H)+P(E\mid\neg H)P(\neg H)}
+=\frac{0.8\times0.5}{0.8\times0.5+0.2\times0.5}=0.8.
+$$
+
+The denominator counts both ways the evidence could occur. A liked trailer raises our belief to **80%**, not certainty. Unknown trailer feedback leaves the prior unchanged. Disliked feedback uses complementary likelihoods: $0.2$ under $H$ and $0.8$ otherwise. Missing feedback is not the same as disliked feedback. See the [probability foundations](https://artint.info/3e/html/ArtInt3e.Ch9.S1.html).
+
+A **Bayesian network** organizes random variables in a directed acyclic graph, with a probability distribution for each variable given its parents. The graph and these distributions define a joint distribution; the arrows encode a chosen dependency structure. See [belief networks](https://artint.info/3e/html/ArtInt3e.Ch9.S3.html).
+
+<ReasoningDiagrams kind="bayes" />
+
+For a fixed movie, our model assumes trailer feedback and enjoyment are conditionally independent given the mood. Quiet Orbit has authored enjoyment probabilities 0.9 in a sci-fi mood and 0.3 otherwise. After the liked trailer:
+
+$$
+P(\text{enjoy Quiet Orbit}\mid E)=0.8(0.9)+0.2(0.3)=0.78.
+$$
+
+The **80% mood probability** and **78% enjoyment probability** answer different questions.
+
+<details className="optional-depth">
+<summary>Go deeper: inference, independence, and causal claims</summary>
+
+Marginalization sums over unobserved possibilities, as we just did over the two moods. Exact inference methods include enumeration and variable elimination; sampling approximates quantities when exact calculation is too expensive. Efficiency depends on network structure as well as variable count. A hidden Markov model extends probabilistic reasoning to a sequence with hidden states and observations. See the [uncertainty review](https://artint.info/3e/html/ArtInt3e.Ch9.S9.html).
+
+Do not multiply likelihoods for repeated evidence unless the required conditional independence is justified. Counting the same trailer feedback twice would exaggerate certainty. The probabilities here are authored, not estimated from users or calibrated on held-out data. A real model needs evidence for its numbers and assumptions. A Bayesian-network arrow does not by itself prove causation; a causal interpretation needs additional assumptions. Chapter 40 develops that distinction.
+
+</details>
+
+## 8. Choose actions using expected utility
+
+Probability describes possible outcomes; **utility** expresses how desirable those outcomes are for a particular decision. **Expected utility** weights each outcome's utility by its probability. Choose among feasible actions, including doing nothing when appropriate. The [preferences and utility chapter](https://artint.info/3e/html/ArtInt3e.Ch12.S1.html) develops this decision-theoretic view.
+
+Our lab assigns enjoyment **+5**, disappointment **−4**, and skipping **0**. These are fictional preference units, not money or universal human values. If enjoyment probability is $p$:
+
+$$
+EU(\text{watch})=5p-4(1-p)=9p-4.
+$$
+
+Quiet Orbit has $p=0.78$, so its expected utility is **3.02**. Lantern Lane has $p=0.48$, giving **0.32**. Both satisfy the default constraints, so choose Quiet Orbit. Watching beats skipping only when $p>4/9$. If disappointment instead costs 10, that threshold becomes $10/15$: beliefs can stay the same while the preferred action changes.
+
+<details className="optional-depth">
+<summary>Go deeper: combine learned perception with explicit reasoning</summary>
+
+A **hybrid** system can use a neural model to interpret “a short, quiet film,” a structured catalog to check runtime, a solver to enforce constraints, and a probabilistic model to rank feasible choices. **Neuro-symbolic AI** explores combinations of learned representations and symbolic structure, with many possible designs rather than one standard architecture.
+
+Validate the boundaries: an LLM-extracted duration is a proposal until grounded in trusted data. Symbolic reasoning cannot repair a wrong premise automatically. Explicit rules are inspectable but costly to maintain; learned systems generalize but can make opaque errors. Test each component and the full decision. In our lab, no text model, learning algorithm, or general theorem prover is running: fixed code applies the authored rules and probability tables.
+
+</details>
+
+## 9. Run the Python reasoning workbook
+
+<a className="download-link" href="/downloads/chapter-37-reasoning.zip" download>Download the reasoning workbook ZIP <span>Four files · Python standard library</span></a>
+
+Extract the ZIP and open a terminal in that folder. Use Python 3.10 or later. No packages or API keys are needed.
+
+```bash
+python reasoning.py
+python reasoning.py --minutes 120 --offline no
+python reasoning.py --evidence unknown --penalty 10
+python reasoning.py --minutes 80
+python -m unittest -v test_reasoning.py
+```
+
+| File | What to inspect |
+| --- | --- |
+| `data.json` | Four fictional films, probability tables, graph edges, and heuristic. |
+| `reasoning.py` | Eligibility checks, Bayes update, expected utility, BFS, UCS, and A*. |
+| `test_reasoning.py` | Hand calculations, constraints, abstention, all settings, and search guarantees on this graph. |
+| `README.md` | Commands, assumptions, limitations, and suggested experiments. |
+
+The default JSON reports `posterior: 0.8`, `eligible: 2`, `chosen: "M01"`, and `bestUtility: 3.02`. The separate `searches` field reports BFS cost 10 and UCS/A* cost 3. Changing movie preferences does not change this fixed preparation graph.
+
+The workbook uses a sorted list for search clarity and enumerates just four movies. It rounds report probabilities and utilities to six decimal places; selection uses those utilities. Ties prefer skipping at zero, then the earlier eligible catalog film. This is a readable teaching implementation, not a scalable solver or a trained recommender.
+
+## 10. Experiment with the movie reasoning lab
+
+<ReasoningLab client:visible />
+
+### Exercise 1: a strong score cannot override a rule
+
+Set 120 minutes, liked feedback, a 50% prior, and disappointment cost 4. Compare offline required with online allowed. Which choice changes, and why?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>Offline, Quiet Orbit wins. Online, Comet Chase becomes feasible and wins with enjoyment probability 0.864 and expected utility 3.776. Its score was already high while offline; the missing download prevented selection.</p></details>
+
+### Exercise 2: distinguish uncertainty from a negative observation
+
+Use default 100 minutes and offline mode, a 50% prior, unknown feedback, and disappointment cost 10. Then change only the feedback to liked.
+
+<details className="solution"><summary>Reveal the explanation</summary><p>With unknown feedback, the posterior remains 0.5 and both eligible films have enjoyment probability 0.6. Their utility is −1, so skip. Liked feedback raises the posterior to 0.8; Quiet Orbit then has utility 1.7 and wins. At an 80-minute limit there would instead be no feasible movie, regardless of the belief.</p></details>
+
+### Exercise 3: choose the right search objective
+
+Inspect the search traces. Why does BFS return cost 10 while UCS and A* return cost 3? Why should UCS not stop when it first sees Ready?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>BFS minimizes the number of edges, so the single direct edge wins. UCS minimizes accumulated cost and A* uses cost plus a valid remaining-cost estimate. Ready is initially discovered through the expensive edge; the cheaper path reaches it later. Testing the goal when it is popped preserves the intended cheapest-path behavior here.</p></details>
+
+## 11. Check your understanding
+
+<Quiz questions={chapter37Questions} chapterNumber={37} client:visible />
+
+## 12. Revise and connect the ideas
+
+Try explaining the movie decision without opening the notes: **facts support rules; rules restrict choices; search explores paths; probability updates beliefs; utility selects an action**. Name one assumption that could make each step wrong in a real application.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning |
+| --- | --- |
+| Knowledge base / inference | Stored facts and rules / deriving consequences from them. |
+| Predicate / quantifier | A property or relation / “for all” or “there exists.” |
+| State / action / goal | Current modeled situation / allowed transition / desired condition. |
+| Frontier / heuristic | Pending search candidates / estimated remaining cost. |
+| Admissible / consistent | Never overestimates / also respects each edge's cost inequality. |
+| Planning | Finding actions whose preconditions and effects achieve a goal. |
+| CSP / feasible solution | Variables, domains, and constraints / an assignment satisfying them. |
+| Prior / likelihood / posterior | Belief before / evidence probability under a hypothesis / belief after. |
+| Bayesian network | A directed acyclic probability model with conditional distributions. |
+| Marginalization | Summing or integrating over unobserved possibilities. |
+| Expected utility | Probability-weighted value of an action's outcomes. |
+| Hybrid / neuro-symbolic | Combining approaches / combining neural and symbolic methods. |
+
+</details>
+
+The linked sections of Poole and Mackworth's *Artificial Intelligence: Foundations of Computational Agents* provide the formal foundations. The movie data, diagrams, calculations, and workbook here are original teaching examples. For additional breadth, read their [adversarial search](https://artint.info/3e/html/ArtInt3e.Ch14.S3.html) and [constraint reasoning](https://artint.info/3e/html/ArtInt3e.Ch4.html) chapters.
+
+**Next: Chapter 38 — Reinforcement learning and robotics.** We will move from choosing with a supplied model to learning actions through interaction, feedback, and delayed rewards.

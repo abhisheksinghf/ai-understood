@@ -1,0 +1,28 @@
+---
+interface Props{kind:'pipeline'|'chunks'|'checks'}
+const {kind}=Astro.props;
+const labels={pipeline:['Two paths meet at the evidence','Figure 1. Prepare and index sources offline. At question time, retrieve relevant passages, fit them into context, then generate and check an answer. Source updates and model training are separate operations.'],chunks:['Preserve the facts a question needs','Figure 2. A whole card keeps plot and runtime together. Separate sections are smaller, but retrieval can return the runtime without the plot. Keep movie identity and revision on every chunk.'],checks:['Check the citation and inspect the meaning','Figure 3. The checker rejects unknown context IDs and quotes absent from the cited passage. Passing these checks proves traceability only; relevance, entailment, source quality, and completeness need separate evaluation.']};
+const id='rag-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox="0 0 760 285" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='pipeline'&&<>
+ <text x="20" y="25" class="lane-label">OFFLINE · INGEST, PREPARE, INDEX</text>
+ {[['Source documents','clean text + provenance'],['Chunks + metadata','boundaries, IDs, revisions'],['Search index','lexical, vector, or hybrid']].map(([a,b],i)=><g><rect x={15+255*i} y="40" width="223" height="75" rx="7" class="node"/><text x={126+255*i} y="70" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="96" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ <text x="20" y="153" class="lane-label">ONLINE · QUESTION → RETRIEVE → ANSWER</text>
+ {[['Retrieve','query + eligibility filters'],['Build context','select complete evidence'],['Generate + check','citations or abstention']].map(([a,b],i)=><g><rect x={15+255*i} y="167" width="223" height="75" rx="7" class={i===1?'node node-accent':'node'}/><text x={126+255*i} y="198" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="223" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[78,205].map(y=>[0,1].map(i=><line x1={241+i*255} x2={266+i*255} y1={y} y2={y} stroke="var(--accent)" stroke-width="1.6" marker-end={'url(#'+id+'-arrow)'}/>))}
+ <text x="380" y="273" text-anchor="middle" class="node-detail">Retrieval reads the index; generation reads the selected source text.</text>
+</>}
+{kind==='chunks'&&<>
+ <rect x="15" y="25" width="320" height="223" rx="8" class="node node-accent"/><text x="35" y="59" class="node-title">M004:r1:card · Quiet Orbit</text><text x="35" y="99" class="node-detail">A space crew plans a rescue</text><text x="35" y="122" class="node-detail">near a silent planet.</text><text x="35" y="160" class="node-detail">Runtime: 110 minutes.</text><text x="35" y="218" class="node-detail">21 units with source wrapper</text>
+ <line x1="350" y1="136" x2="410" y2="136" stroke="var(--accent)" stroke-width="1.6" marker-end={'url(#'+id+'-arrow)'}/>
+ <rect x="430" y="25" width="315" height="111" rx="8" class="node"/><text x="448" y="54" class="node-title">M004:r1:plot · Quiet Orbit</text><text x="448" y="80" class="node-detail">A space crew plans a rescue</text><text x="448" y="102" class="node-detail">near a silent planet. · 18 units</text>
+ <rect x="430" y="153" width="315" height="95" rx="8" class="node"/><text x="448" y="186" class="node-title">M004:r1:facts · Quiet Orbit</text><text x="448" y="216" class="node-detail">Runtime: 110 minutes. · 11 units</text>
+ <text x="380" y="276" text-anchor="middle" class="node-detail">Smaller chunks can focus retrieval, but they can separate needed evidence.</text>
+</>}
+{kind==='checks'&&<>
+ {[['1 · Context membership','Was this ID actually supplied?'],['2 · Quote check','Does this exact text occur there?'],['3 · Task evaluation','Does the evidence answer this question?']].map(([a,b],i)=><g><rect x={15+255*i} y="50" width="223" height="113" rx="7" class={i===2?'node node-accent':'node'}/><text x={126+255*i} y="90" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="126" text-anchor="middle" class="node-detail">{b}</text></g>)}
+ {[0,1].map(i=><line x1={241+i*255} x2={266+i*255} y1="107" y2="107" stroke="var(--accent)" stroke-width="1.6" marker-end={'url(#'+id+'-arrow)'}/>)}
+ <text x="255" y="206" text-anchor="middle" class="node-detail">Implemented as deterministic checks</text><text x="635" y="206" text-anchor="middle" class="node-detail">Still requires judgment</text><text x="380" y="258" text-anchor="middle" class="node-title">A real quote can still be the wrong evidence.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

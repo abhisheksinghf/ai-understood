@@ -1,0 +1,267 @@
+import ConnectionsDiagrams from '../components/ConnectionsDiagrams.astro';
+import ConnectionsLab from '../components/ConnectionsLab';
+import Quiz from '../components/Quiz';
+import {chapter40Questions} from '../data/chapter40';
+
+<p className="chapter-intro">Our movie app now has viewers, films, reviews, and promotions. Relationships may help it represent a movie. A controlled comparison may tell us whether a promotion changes viewing. Choosing which reviews to label may reduce annotation work. These are different questions, even when they use the same underlying data.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>The main question:</strong> what changes when relationships matter, the goal is a causal effect, or training labels and data cannot be collected in the usual way?</p><p><strong>The practical path:</strong> trace graph messages, separate association from intervention, and compare ways to acquire labels and update models.</p><p><strong>Reading path:</strong> twelve short sections, three diagrams, three interactive experiments, and a Python workbook. Open the optional notes when you want the deeper assumptions.</p></div>
+
+## 1. Represent relationships with graphs
+
+A **graph** consists of nodes and edges. Nodes represent entities; edges represent specified relationships. A movie app might have viewer nodes, movie nodes, and “watched” edges. A different graph might connect movies that share an actor. These graphs answer different questions.
+
+| Graph concept | Meaning | Movie example |
+| --- | --- | --- |
+| Directed edge | A relation with a direction. | Viewer → watched → movie. |
+| Undirected edge | A symmetric relation. | Two films share a cast member. |
+| Edge type / weight | Relation kind / numerical strength. | “Directed by” / number of shared viewers. |
+| Node features | Values attached to an entity. | A movie’s genre vector or text embedding. |
+| Neighborhood / degree | Adjacent nodes / number of incident connections. | Movies directly linked to Harbor Lights. |
+
+An **adjacency list** stores each node’s neighbors; an adjacency matrix stores pairwise connections in a table. A path crosses successive edges. Chapter 37 used graphs for search; here we also use relationships as inputs to learning.
+
+An edge needs a definition and provenance. “Watched together,” “similar plot,” and “causes more viewing” are not interchangeable. A similarity graph does not become a causal graph because its edges are drawn with arrows.
+
+## 2. Learn representations by passing messages
+
+A **graph neural network (GNN)** can update a node’s representation using its neighbors. A typical layer aggregates neighbor messages and combines the result with the node’s own features, using trainable transformations. Stacked local layers can incorporate information from more hops away. [GraphSAGE](https://snap.stanford.edu/graphsage/) is one example of learning an aggregation function that can be applied to unseen nodes with compatible features.
+
+<ConnectionsDiagrams kind="graph" />
+
+Our lab isolates the aggregation idea with a fixed numerical rule. It has no learned weights, loss, or training. For a node with neighbors $N(v)$:
+
+$$
+h_v^{(t+1)}=0.5h_v^{(t)}+0.5\frac{\sum_{u\in N(v)}h_u^{(t)}}{|N(v)|}.
+$$
+
+All nodes update **simultaneously from the previous step**. An isolated node keeps its value. Initially, A has feature 1, B–D have 0, and isolated E has 0.4. In the chain A–B–C–D, one update gives **A = 0.5, B = 0.25, C = D = 0**, while E stays 0.4. B averages A and C before mixing that mean with itself.
+
+After three steps, D reaches **0.03125**: information has traveled three hops. Adding the A–D shortcut gives D **0.25 after one step**. The structure matters. These values are features, not calibrated probabilities or evidence of preference quality.
+
+<details className="optional-depth">
+<summary>Go deeper: useful neighbors, oversmoothing, and model limits</summary>
+
+Mean or sum aggregation is insensitive to the order in which neighbors are listed. That is useful when a graph has no meaningful neighbor ordering. Real GNNs may use different relations, attention weights, nonlinear transformations, and task-specific prediction heads; our single scalar is deliberately simpler.
+
+Neighbor similarity is an assumption, not a law. Shared viewers may connect very different films. Repeated averaging can make connected representations increasingly alike, losing distinctions: this illustrates **oversmoothing**. More layers also increase the range of information and computational work. Sampling neighbors reduces work but changes what a layer sees. Compare graph models with a feature-only baseline; an expensive graph is useful only if its relationships add reliable information.
+
+</details>
+
+## 3. Distinguish knowledge graphs from graph predictions
+
+A **knowledge graph** stores entities and typed relations, often as triples such as `(Harbor Lights, directed_by, Mira Sen)`. Here both names are fictional. A schema defines allowed relation types; entity resolution decides whether two names refer to the same entity. Provenance records where a claim came from. See the [Knowledge Graphs survey](https://arxiv.org/abs/2003.02320).
+
+| Use | What the system returns | What still needs checking |
+| --- | --- | --- |
+| Graph query | Stored relations or paths satisfying a query. | Data completeness, permissions, and source quality. |
+| Node prediction | A label or score for an entity. | Performance on the intended nodes or future period. |
+| Link prediction | A score for a possible missing relationship. | Whether the proposed edge is actually true. |
+| Graph-assisted retrieval | Entities, paths, or linked evidence for an answer. | Whether that evidence supports the generated claim. |
+
+A missing edge need not mean a false relation. A predicted edge is a hypothesis, not an automatically verified fact. A graph database can answer explicit relationship questions without a GNN. A graph can also support RAG retrieval without establishing the answer’s truth by itself.
+
+<details className="optional-depth">
+<summary>Go deeper: transductive, inductive, and temporal evaluation</summary>
+
+**Transductive evaluation** can use the known graph structure and features while holding out some labels. **Inductive evaluation** asks about unseen nodes or graphs. State exactly what is visible: “test labels hidden” does not mean “test nodes absent.” For link prediction, exclude held-out target edges from the graph used to create representations, including any reverse-edge copy. For a future-interaction task, later edges and features are unavailable at the training cutoff.
+
+Negative sampling selects examples treated as absent links; some may merely be unobserved. Candidate choices can change reported metrics. Evaluate the retrieval/ranking task that deployment will actually perform, and compare under the same graph visibility rules. The lab has no held-out prediction task, so its propagation trace makes no accuracy claim.
+
+</details>
+
+## 4. Separate observing an action from intervening on it
+
+Suppose viewers who see a promotional banner watch more movies. Does the banner help? Perhaps the app already shows it mainly to highly interested viewers. Their prior interest influences both exposure and viewing, creating **confounding**.
+
+<ConnectionsDiagrams kind="cause" />
+
+The diagram is a **causal directed acyclic graph (DAG)**: arrows encode assumed direct causal relationships, and there are no directed cycles. Its structure comes from a proposed account of the world; predictive fit alone does not prove the arrows. A common cause opens a noncausal route between exposure and outcome.
+
+**Observation** asks about $P(Y=1\mid T=1)$: viewing among people who happened to receive the banner. **Intervention** asks about $P(Y=1\mid do(T=1))$: viewing if banner exposure were set by an intervention. The `do` notation replaces the usual exposure-assignment mechanism. They need not be equal. [Pearl’s causal-inference overview](https://ftp.cs.ucla.edu/pub/stat_ser/r350.pdf) develops this distinction.
+
+Using potential outcomes, $Y(1)$ is a viewer’s outcome under exposure and $Y(0)$ under no exposure. The **average treatment effect** is $E[Y(1)-Y(0)]$. We normally observe only one of these outcomes for a viewer in a given situation. A counterfactual asks what would have happened under the alternative; changing a field in a predictive model does not automatically answer it.
+
+## 5. Compare like with like before interpreting an effect
+
+Our authored table has two **pre-exposure interest groups**. “Watched” means watched during the same defined follow-up window. Exposure is a single specified banner, not an unspecified mixture of promotions.
+
+| Prior interest | Banner: watched / exposed | Rate | No banner: watched / unexposed | Rate |
+| --- | --- | --- | --- | --- |
+| High | 64 / 80 | 80% | 18 / 20 | 90% |
+| Low | 4 / 20 | 20% | 24 / 80 | 30% |
+| Pooled | 68 / 100 | 68% | 42 / 100 | 42% |
+
+The pooled association is **+26 percentage points**, even though each group’s comparison is **−10 points**. More high-interest viewers received the banner. This reversal illustrates **Simpson’s paradox**: different group mixtures can reverse an aggregate comparison.
+
+**Standardization** computes both exposure outcomes using the same target group proportions. With half high-interest and half low-interest viewers:
+
+$$
+\hat\mu_1=0.5(0.8)+0.5(0.2)=0.5,\qquad
+\hat\mu_0=0.5(0.9)+0.5(0.3)=0.6.
+$$
+
+The standardized contrast is **50% − 60% = −10 percentage points**. Changing the target to 75% high interest gives **65% versus 75%**. The contrast stays −10 points because the two authored group contrasts happen to match; that is not a general property.
+
+This arithmetic estimates a causal effect **only under the required assumptions**: comparable potential outcomes within measured groups (conditional exchangeability), both exposure options possible in each target group (positivity), and well-defined interventions whose observed outcomes agree with the corresponding potential outcomes (consistency). Also consider interference between viewers, measurement, missing outcomes, and transport to the target population. [Hernán and Robins’ causal-inference text](https://miguelhernan.org/whatifbook) develops these conditions. The lab calculates a standardized association; it does not verify them.
+
+<details className="optional-depth">
+<summary>Go deeper: adjustment sets, randomization, and counterfactual limits</summary>
+
+Adjusting for every available column can make an estimate worse. A pre-exposure common cause can be useful to adjust for. A **mediator**, such as interest generated by the banner, lies on a causal path; adjusting for it changes a total-effect question. A **collider** is a common effect of two causes; conditioning on it can introduce an association. A causal model guides the adjustment set.
+
+Random assignment can remove systematic confounding of the assigned treatment in expectation, but finite samples still have uncertainty. Noncompliance, attrition, interference, or a changed target population require further reasoning. The lab’s second table is balanced within groups; balanced observed counts alone do not prove randomization. Its pooled and standardized contrasts agree by construction. Neither table reveals individual counterfactual outcomes or provides an uncertainty interval.
+
+</details>
+
+## 6. Change where training labels come from
+
+Not every useful learning setup starts with a large collection of manually labeled examples. These methods change different parts of the workflow:
+
+| Method | Learning signal | Movie example | Main caveat |
+| --- | --- | --- | --- |
+| Self-supervised | Targets derived from the input data. | Learn poster representations from two transformed views. | The pretraining task may not capture the downstream distinction. |
+| Semi-supervised | A small labeled set plus unlabeled data. | Use confident review predictions as provisional labels. | Wrong pseudo-labels can reinforce mistakes. |
+| Weak supervision | Noisy rules, heuristics, or other indirect labels. | Combine review-word rules and rating-derived labels. | Rule agreement is not proof of correctness. |
+| Active learning | The learner chooses examples to request labels for. | Ask a human to label reviews near a decision boundary. | Uncertainty need not mean the example is useful or labelable. |
+
+[SimCLR](https://arxiv.org/abs/2002.05709), [FixMatch](https://arxiv.org/abs/2001.07685), and [Snorkel](https://arxiv.org/abs/1711.10160) illustrate the first three approaches. They are examples, not requirements for the workbook.
+
+<ConnectionsDiagrams kind="labels" />
+
+<div className="connections-entropy">
+
+For binary predictions, **uncertainty sampling** can select the largest predictive entropy:
+
+$$
+H(p)=-p\log_2p-(1-p)\log_2(1-p).
+$$
+
+</div>
+
+Entropy is 1 bit at $p=0.5$, and 0 at certainty ($p=0$ or 1, using the limiting value). Our review pool has authored probabilities of a positive review. With a two-label budget, highest entropy selects **R1 and R2**; lowest entropy selects **R5 and R6**. R5 is confidently wrong about sarcasm. A selection rule can miss mistakes it does not consider uncertain.
+
+The lab reveals supplied annotations only for the chosen rows. It does **one query-selection round**, with no retraining or measured accuracy gain. [Settles’ active-learning paper](https://proceedings.mlr.press/v16/settles11a.html) discusses practical query selection and its limitations.
+
+<details className="optional-depth">
+<summary>Go deeper: annotation quality and honest label-efficiency claims</summary>
+
+Uncertain examples may be duplicates, outliers, or genuinely ambiguous. Batch selection can combine uncertainty with diversity and representativeness. Annotators need clear instructions and a way to flag disagreement. A “positive review” label is not identical to “this viewer will enjoy the movie.”
+
+To test active learning, compare held-out quality at the same annotation budget, including a random-selection baseline, across repeated runs. Keep an independent, representative evaluation set: a query-selected pool is not automatically representative. In our simulator, entropy keys are rounded to six decimals and exact ties use review ID. Selection sees only predictions, never annotations. A larger mean entropy simply describes the requested batch; it does not establish that retraining will improve the model.
+
+</details>
+
+## 7. Change where and how the model learns
+
+**Federated learning** coordinates training across devices or organizations while leaving raw training records at their sources. Clients compute local updates, and a coordinator combines them. The [federated-averaging paper](https://research.google/pubs/communication-efficient-learning-of-deep-networks-from-decentralized-data/) is a foundational example. “The data stays local” does not mean the updates reveal nothing; [gradient-leakage research](https://arxiv.org/abs/1906.08935) demonstrates why privacy needs a separate analysis.
+
+**Continual learning** aims to learn from successive tasks or changing data while retaining useful earlier abilities. A movie-review model updated on slang may lose performance on older writing: **catastrophic forgetting**. Rehearsal, parameter constraints, and architectural approaches address different tradeoffs; [elastic weight consolidation](https://arxiv.org/abs/1612.00796) is one example. Re-test older and newer tasks after each update.
+
+**Meta-learning** trains across tasks to make later adaptation easier. For example, learn an initialization that adapts to a new cinema’s small dataset; [MAML](https://proceedings.mlr.press/v70/finn17a.html) is one approach. Transfer learning reuses knowledge from a source task; meta-learning explicitly trains the adaptation process. Neither term means that an application automatically updates from every chat.
+
+**Evolutionary and other derivative-free methods** search by proposing candidates, measuring fitness, and selecting or modifying promising ones. A cinema scheduling policy could be scored in a simulator even when its objective has no usable gradient. Mutation perturbs candidates; some evolutionary algorithms also recombine them. [Evolution strategies](https://arxiv.org/abs/1703.03864) provide one example. They can require many evaluations and can exploit a badly chosen fitness measure, just as other optimizers can.
+
+<details className="optional-depth">
+<summary>Go deeper: federated coordination is not a privacy guarantee</summary>
+
+Clients may have different data distributions, amounts of data, hardware, and availability. A weighted average of updates depends on the weighting rule and who participates. Communication, unreliable clients, and malicious updates complicate training. Centralized training on pooled records, distributed computation inside one organization, and federated training across data holders are different arrangements.
+
+Secure aggregation can hide individual updates from an aggregator under its protocol assumptions. Differential privacy can bound information leakage under a specified privacy budget and mechanism. Neither should be assumed just because a system is called federated. The lab implements neither federated training nor a privacy mechanism; this section explains where those ideas fit.
+
+</details>
+
+## 8. Combine methods only when the problem calls for them
+
+These are overlapping design dimensions, not competing names for one algorithm. A graph model could be pretrained with a self-supervised objective, fine-tuned on actively acquired labels, and trained across federated clients. Each added method brings a reason, an assumption, and a new evaluation need.
+
+| Need | Candidate approach | Evidence to seek |
+| --- | --- | --- |
+| Relationships add predictive information | Graph features or a GNN. | Improvement over a feature-only baseline with appropriate graph splits. |
+| Estimate the effect of changing a policy | Experiment or justified causal analysis. | Identifiable effect, credible assumptions, uncertainty, and the right population. |
+| Labels are scarce or costly | Self-, semi-, weakly supervised or active learning. | Quality at a fixed labeling budget on independent evaluation data. |
+| Records must remain at multiple sources | Federated training. | Utility, participation coverage, and separately assessed privacy/security. |
+| Tasks arrive over time | Continual or meta-learning. | Adaptation plus retention on earlier tasks. |
+| Objective lacks a usable gradient | Derivative-free search. | Quality at a fixed evaluation budget, including simple search baselines. |
+
+Prediction, explanation, and intervention answer different questions. An accurate predictor need not estimate a treatment effect; a graph representation need not explain a real causal mechanism. Choose the claim first, then collect evidence that can support it.
+
+## 9. Run the Python connections workbook
+
+Extract the ZIP and use Python 3.10 or later. Everything runs locally with the standard library; no model, network, or account is required.
+
+```bash
+python connections.py
+python connections.py --steps 3
+python connections.py --topology shortcut
+python connections.py --allocation balanced
+python connections.py --targetHigh 0.75
+python connections.py --strategy confident --budget 2
+python -m unittest -v test_connections.py
+```
+
+<a className="download-link" href="/downloads/chapter-40-connections.zip" download>Download the connections workbook ZIP <span>↓</span></a>
+
+| File | Purpose |
+| --- | --- |
+| `data.json` | Authored graph, promotion tables, and review pool. |
+| `connections.py` | Simultaneous propagation, group standardization, and label-query selection. |
+| `test_connections.py` | Hand calculations, ordering independence, and label-isolation checks. |
+| `README.md` | Commands, expected outputs, and modeling limits. |
+
+The report separates `graph`, `causal`, and `active`. Trace each graph update’s old value and neighbor mean, compare crude and standardized rates, and inspect which annotations were requested. Every control change starts a fresh calculation. Internal propagation and standardization use full precision; exported numbers round to six decimals.
+
+## 10. Experiment with the connections lab
+
+<ConnectionsLab client:visible />
+
+### Exercise 1: trace a message across the graph
+
+In Graphs, compare one and three steps on the chain. Then reset to one step and add the shortcut. Why does D change sooner? What happens to isolated E?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>In the chain, D is three hops from A: its value is 0 after one step and 0.03125 after three. The A–D shortcut makes A a direct neighbor, so D reaches 0.25 after one step. E has no neighbors and stays 0.4. All updates use the previous step, so node iteration order cannot accelerate propagation.</p></details>
+
+### Exercise 2: explain the sign reversal
+
+In Causality, inspect the unbalanced table with a 50% high-interest target. Explain +26 points versus −10 points. Then choose the balanced table and change the target to 75% high interest.
+
+<details className="solution"><summary>Reveal the explanation</summary><p>The pooled unbalanced groups have different interest mixtures, giving 68% versus 42%. Equal target weights give 50% versus 60%. The balanced table’s crude contrast is already −10 points. A 75% high-interest target gives standardized rates of 65% and 75%, also −10 points. Causal interpretation still requires assumptions; balance alone does not prove random assignment.</p></details>
+
+### Exercise 3: inspect what uncertainty selection misses
+
+In Label queries, request two annotations using each strategy. Inspect R5’s probability and revealed annotation. Can either batch establish that the model has improved?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>Highest entropy requests R1/R2. Lowest entropy requests R5/R6. R5 has p = 0.99 but its supplied annotation is negative: the model missed sarcasm. Neither batch measures improvement because this lab stops after selection. Retraining and independent evaluation at a fixed budget are needed.</p></details>
+
+## 11. Check your understanding
+
+<Quiz questions={chapter40Questions} client:visible />
+
+## 12. Revise and connect the ideas
+
+Explain four boundaries: **a connection is not automatically a cause; a standardized contrast needs assumptions; a query-selected batch is not a test set; local data does not automatically imply private updates.** Then name one situation where each method could help the movie app.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning |
+| --- | --- |
+| Node / edge / neighborhood | Entity / relation / adjacent entities. |
+| Message passing / GNN | Neighbor-based representation updates / a trainable graph model. |
+| Knowledge graph | Entities and typed relations, ideally with provenance. |
+| Transductive / inductive | Evaluate within visible structure / generalize to unseen nodes or graphs. |
+| Causal DAG / confounder | Directed acyclic causal assumptions / a common cause affecting a comparison. |
+| Intervention / counterfactual | Set an action / ask about an alternative outcome for a situation. |
+| Standardization | Apply the same target group weights to exposure-specific outcomes. |
+| Exchangeability / positivity / consistency | Comparability / exposure overlap / agreement with well-defined interventions. |
+| Mediator / collider | Variable along a causal path / common effect of causes. |
+| Self-supervised / semi-supervised | Data-derived targets / labeled plus unlabeled learning. |
+| Weak supervision / active learning | Noisy indirect labels / choosing which labels to request. |
+| Federated / continual learning | Coordinate across data holders / learn over time while retaining abilities. |
+| Meta-learning / evolutionary search | Learn to adapt / propose and select by fitness. |
+
+</details>
+
+The linked research and causal-inference references offer deeper mathematical treatments. The movie data, diagrams, and workbook are original teaching examples. This chapter maps several families and demonstrates selected mechanisms; it does not replace practical training and evaluation of each full method.
+
+**Next: Chapter 41 — AI research, AGI, and keeping your knowledge current.** We will learn how to read evidence, assess capability claims, and update our understanding as the field changes.

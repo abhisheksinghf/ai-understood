@@ -1,0 +1,264 @@
+import ResearchDiagrams from '../components/ResearchDiagrams.astro';
+import ResearchLab from '../components/ResearchLab';
+import Quiz from '../components/Quiz';
+import {chapter41Questions} from '../data/chapter41';
+
+<p className="chapter-intro">A headline says a new movie assistant is “50% better” and “a step toward general intelligence.” Before replacing our application, we need to know: better at which task, compared with what, under which conditions, and with how much uncertainty? This chapter gives you a repeatable way to turn research claims into useful understanding.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>The main question:</strong> what does the evidence justify, and what remains untested?</p><p><strong>The practical path:</strong> read a paper, audit its comparison, interpret uncertainty, and separate demonstrated capability from broader claims.</p><p><strong>Reading path:</strong> twelve short sections, three diagrams, three local experiments, and a Python workbook. The optional notes add statistical and research detail.</p></div>
+
+## 1. Turn a headline into a testable claim
+
+An **operational definition** describes how an idea will be measured. “Understands movies” is vague. “Answers catalog questions with a correct supporting source under a fixed token budget” is testable.
+
+Write the claim as a small contract:
+
+| Field | Movie-assistant example |
+| --- | --- |
+| Task and population | Catalog questions from a specified mix of viewers and films. |
+| System and comparison | Candidate v2 versus baseline v1, with recorded prompts and tools. |
+| Metric and protocol | Percentage passing a fixed rubric, one attempt per question. |
+| Resources | Same allowed tokens, retrieval access, and human assistance. |
+| Scope and limitation | These cases and settings; future viewers and other tasks remain untested. |
+
+If accuracy rises from 50% to 75%, the change is **25 percentage points**, or a **50% relative increase**: $(0.75-0.50)/0.50$. Both are valid descriptions, but they sound different. Always recover the starting value and denominator. A relative change is undefined when the baseline denominator is zero.
+
+A demo establishes that a behavior happened in a particular setup. A benchmark estimates performance under a scoring procedure. A deployment study examines behavior with real users. These provide different evidence; one does not automatically establish the others.
+
+## 2. Read a paper with a purpose
+
+Use three passes, adapted from [Keshav’s paper-reading guide](https://cs.uwaterloo.ca/~brecht/courses/854-http-video-2012/readings/keshav-paper-reading.pdf):
+
+1. **Orient:** read the abstract, main figures, conclusion, and limitations. Identify the question and claimed contribution.
+2. **Trace the evidence:** inspect data, methods, baselines, metrics, tables, and appendices. Explain one result in your own words.
+3. **Reconstruct:** when the paper matters to your work, follow the mathematics or implementation closely enough to reproduce a small central result.
+
+You do not need the third pass for every paper. Stop when the work is irrelevant, or record the prerequisite you need before returning.
+
+<ResearchDiagrams kind="reading" />
+
+A **preprint** is a publicly shared manuscript that may not have completed peer review. A reviewed paper has received scrutiny, but acceptance does not guarantee every conclusion. Surveys organize a field; position papers argue for a viewpoint; empirical papers report experiments; theoretical papers prove results under assumptions. Check which kind of evidence a sentence offers.
+
+<details className="optional-depth">
+<summary>Go deeper: understand an equation or algorithm before trusting its result</summary>
+
+For each symbol, write its meaning, shape or units, and whether it is observed, learned, or assumed. Test a tiny input by hand. For an algorithm, trace inputs, intermediate states, outputs, and stopping conditions. For a theorem, identify its assumptions and whether your application satisfies them: a proof for an idealized setting does not prove a deployment claim.
+
+Keep three notes separate: “the authors claim,” “the experiment reports,” and “my interpretation.” Check paper version, appendix, code commit, and later corrections. A secondary summary can help you find the argument, but verify the decisive claim against the original source.
+
+</details>
+
+## 3. Compare complete experimental setups
+
+A baseline is a reference system, not simply the oldest model available. Compare against a credible existing approach and a simple alternative. Our movie assistant might compare against keyword retrieval plus a template before requiring an expensive agent.
+
+| Comparison detail | Why it changes the meaning |
+| --- | --- |
+| Data split and preprocessing | Different examples or cleaning can change difficulty. |
+| Prompts, demonstrations, retrieval, tools | The measured object may be an entire system, not the model alone. |
+| Attempts and selection | Best of ten attempts differs from success on the first attempt. |
+| Compute and tuning budgets | More search, tokens, or tuning may explain a gain. |
+| Scoring and exclusions | Different rubrics or omitted failures change the denominator. |
+| Human baseline | Expertise, time, training, and tool access must be specified. |
+
+Look for repeated runs, error analysis, and costs alongside the headline score. Accuracy, latency, cost, and reliability can favor different designs. An improvement too small to matter operationally may still be statistically detectable; a useful improvement may be uncertain in a small study.
+
+The [NeurIPS paper checklist](https://neurips.cc/public/guides/PaperChecklist) asks authors to make claims, assumptions, limitations, experimental details, and uncertainty explicit. Use those questions as reading aids rather than treating a checked box as proof.
+
+## 4. Audit the benchmark and its boundaries
+
+A **benchmark** combines tasks, data, a protocol, and a scoring rule. A leaderboard rank summarizes that setup. It does not certify competence on every task, population, or environment.
+
+In the lab, twelve authored movie cases give the baseline **6/12 = 50%** and candidate **9/12 = 75%**. Four candidate successes are flagged as documented overlap with its training material. Excluding those same four cases from **both** systems leaves baseline **6/8 = 75%**, candidate **5/8 = 62.5%**. The apparent advantage reverses.
+
+<ResearchDiagrams kind="audit" />
+
+This is a sensitivity check, not proof that overlap caused the gain. Removing cases changes the evaluated population. The remaining cases might still have undetected overlap or other biases. The example shows why a score needs an audit trail, not that filtering alone creates an unbiased test.
+
+Inspect task slices, languages, difficulty, and failure types. A tool-use score also depends on the environment and permissions. A model-based judge needs a rubric and checks for systematic preferences; “another model liked the answer” is not the same as verified correctness.
+
+<details className="optional-depth">
+<summary>Go deeper: contamination, leakage, and adaptive benchmark use</summary>
+
+**Data contamination** includes evaluation material appearing in training or tuning. **Leakage** also includes information that would be unavailable at prediction time entering an experiment. Rephrasing a known question does not necessarily remove its underlying information; [research on rephrased benchmark samples](https://arxiv.org/abs/2311.04850) demonstrates this concern.
+
+Repeatedly choosing prompts or models by test-set results turns that test set into development feedback. Keep a separate final evaluation and record what has been inspected. A benchmark can also saturate: high scores leave little ability to distinguish systems. Add justified new tasks and preserve older measurements for comparison instead of silently changing the scoring contract.
+
+The lab’s overlap flags are supplied fictional audit facts. It does not detect contamination, inspect a model’s training data, or prove that unflagged cases are unseen.
+
+</details>
+
+## 5. Read uncertainty alongside the score
+
+An observed score depends on the sampled cases and, often, on training seeds, generated outputs, annotators, and environments. Twenty successes out of twenty-five is **80%**, but it carries less sampling precision than 320 out of 400 independently sampled cases under the same assumptions.
+
+The lab illustrates a **95% Wilson confidence interval** for one binary success rate:
+
+| Authored result | Observed rate | Approximate 95% interval |
+| --- | --- | --- |
+| 20 / 25 | 80% | 60.87%–91.14% |
+| 80 / 100 | 80% | 71.12%–86.66% |
+| 320 / 400 | 80% | 75.80%–83.63% |
+
+The interval procedure targets roughly 95% coverage across repeated samples under its assumptions. It does **not** mean 95% of individual answers are correct. A narrower interval does not repair contamination, poor labels, or a mismatch with future users. See the [NIST explanation of proportion intervals](https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm).
+
+These are three hypothetical study summaries, not the same 25 examples copied repeatedly. The lab computes intervals; it does not collect new evidence. For repeated questions from the same viewer or film, account for clustering rather than treating every row as independent.
+
+<details className="optional-depth">
+<summary>Go deeper: interval arithmetic, paired comparisons, and significance</summary>
+
+For $\hat p=k/n$, the Wilson center and half-width use $z=1.96$:
+
+$$
+c=\frac{\hat p+z^2/(2n)}{1+z^2/n},\qquad
+h=\frac{z\sqrt{\hat p(1-\hat p)/n+z^2/(4n^2)}}{1+z^2/n}.
+$$
+
+The interval is $[c-h,c+h]$. This binomial calculation assumes independent trials with a common success probability; it does not capture variation between training runs. The workbook returns no interval when $n=0$.
+
+When two systems answer the same cases, preserve the pairing: their outcomes are related. Estimate uncertainty for the **difference** with an appropriate paired method; do not infer a winner from the overlap of two separate intervals. A p-value measures incompatibility with a specified null model, not the probability that a research claim is true. Report effect sizes and practical consequences too.
+
+Uncertainty across tasks and runs can require richer methods. [Agarwal and colleagues’ RL evaluation study](https://proceedings.neurips.cc/paper/2021/hash/f514cec81cb148559cf475e7426eed5e-Abstract.html) shows why point estimates from a few runs can lead to unstable conclusions. Choose a method that matches what was sampled.
+
+</details>
+
+## 6. Use ablations and reproduction to inspect explanations
+
+An **ablation** removes or changes part of a system to study its contribution. Our authored movie experiment uses a small catalog available to every variant: retrieval narrows candidates, a reranker reorders them, and the variant with neither uses a fixed ordering.
+
+With the same 1,500-token limit and 100 evaluation cases, the supplied pass rates are: **neither 60%, retrieval only 75%, reranker only 65%, both 84%**. Removing retrieval from the full system gives a **19-point drop**, while removing the reranker gives a **9-point drop**. These are conditional comparisons in this setup, not universal values for either component.
+
+In the unequal-budget version, the full system gets 3,000 tokens and scores 90%. Its 25-point advantage over the reranker-only variant mixes two changes: retrieval and budget. It cannot isolate retrieval’s contribution.
+
+For a reproduction attempt, freeze the paper version, data snapshot and split, code, dependencies, model settings, prompts, seeds, hardware or service version, scoring code, and expected tolerances. Re-running provided code tests a different claim from independently rebuilding the method or testing it on a new population. Terminology varies, so state exactly what you repeated.
+
+<details className="optional-depth">
+<summary>Go deeper: interactions and unsuccessful reproductions</summary>
+
+Component effects need not add. In the matched table, the descriptive interaction contrast is **84 − 75 − 65 + 60 = 4 percentage points**. Retrieval’s gain without reranking is 15 points; with reranking it is 19. The difference is 4. The lab hides this comparison for the unequal-budget table because budget also changes.
+
+Matched token limits control one resource dimension; they do not establish equal latency or equal cost. Repeated runs and uncertainty still matter. The supplied table has no case-level ablation outcomes, so the workbook cannot compute a paired confidence interval for these differences.
+
+If reproduction differs, check data versions, preprocessing, metric definitions, randomness, and hidden implementation choices before drawing a conclusion about the paper. Preserve logs and report the difference. A failed reproduction is evidence to investigate, not by itself evidence of misconduct.
+
+</details>
+
+## 7. Separate AGI definitions from capability measurements
+
+**Artificial general intelligence (AGI)** concerns broadly applicable intelligence rather than success on one narrow task. The operational definition matters: which tasks, what performance standard, how much prior training, what adaptation, and which resources?
+
+The [Levels of AGI position paper](https://arxiv.org/abs/2311.02462) proposes distinguishing performance, generality, and autonomy. Treat it as a useful framework, not a universal certification scheme. [Chollet’s measurement proposal](https://arxiv.org/abs/1911.01547) emphasizes acquiring new skills relative to prior knowledge and experience; it illustrates why existing skill and generalization are different measurement questions.
+
+<ResearchDiagrams kind="agi" />
+
+A movie assistant could be excellent at catalog questions, poor at unfamiliar planning problems, and allowed to act only after confirmation. These facts describe different dimensions. Granting it more permissions increases autonomy without demonstrating broader intelligence. Strong language output does not by itself establish consciousness or human-like experience.
+
+Before accepting “human-level” or “general,” ask for the task range, human comparison, resource rules, novel situations, reliability, and independent evaluation. A particular benchmark can contribute evidence while leaving many of these questions open. None of this chapter’s movie experiments is an AGI test.
+
+<details className="optional-depth">
+<summary>Go deeper: emergence, extrapolation, and forecasts</summary>
+
+An apparent sudden capability jump can depend on the measurement. If a score counts only perfectly completed ten-step tasks, gradual improvements at each step may produce a sharp-looking change in total success. [Schaeffer and colleagues](https://arxiv.org/abs/2304.15004) study how metric choices can create apparent emergence. This supports inspecting the measurement; it does not prove that every new behavior is an artifact.
+
+An observed scaling trend describes measured conditions. Extending it beyond those conditions is an extrapolation with assumptions. An AGI timeline is a forecast tied to a definition, not a demonstrated fact. Record the event being predicted, time horizon, probability, and reasons for updating. Distinguish uncertainty about a forecast from evidence about a system you can test now.
+
+</details>
+
+## 8. Keep a small, evidence-based learning record
+
+Keep stable concepts separate from changing details. Generalization, experimental controls, and uncertainty remain useful; model versions, API behavior, prices, and leaderboard positions need fresh checks before use.
+
+A research note should be short enough to revisit:
+
+| Note field | What to record |
+| --- | --- |
+| Source and version | Primary paper or documentation link, publication/revision date, date checked. |
+| Claim | One measurable statement, written in your own words. |
+| Evidence | Dataset, comparison, metric, resources, and uncertainty. |
+| Limits | Untested populations, missing controls, known failure modes. |
+| Your check | A hand calculation, small reproduction, or unresolved question. |
+| Next decision | Adopt, test further, revisit on new evidence, or set aside. |
+
+For our audit example: “The candidate scores 9/12 on the full toy set, but 5/8 after documented overlap cases are removed. It does not yet justify replacing the baseline.” This is more useful than recording only “new model is better.”
+
+Try a weekly routine: skim a few primary sources, read one relevant paper more closely, and reproduce one small idea. Keep links to corrections and competing results. Use an AI summary as a reading aid, then inspect the source’s decisive table, assumptions, and limitations yourself. Model documentation can help here; [Model Cards](https://research.google/blog/introducing-the-model-card-toolkit-for-easier-model-transparency-reporting/) organize intended use, evaluation, and limitations.
+
+**Reading-guide review date: 3 October 2026.** This chapter teaches a method for assessing research; it is not a live leaderboard, an AGI-status verdict, or an automatic news monitor. Recheck dated claims against their original sources when a decision depends on them.
+
+## 9. Run the Python research workbook
+
+Extract the ZIP and use Python 3.10 or later. No packages, models, accounts, or network access are required.
+
+```bash
+python research.py
+python research.py --overlap exclude
+python research.py --scope facts --overlap exclude
+python research.py --sample 400
+python research.py --protocol unequal --remove retrieval
+python -m unittest -v test_research.py
+```
+
+<a className="download-link" href="/downloads/chapter-41-research.zip" download>Download the research workbook ZIP <span>↓</span></a>
+
+| File | Purpose |
+| --- | --- |
+| `data.json` | Fictional case outcomes, study counts, and ablation tables. |
+| `research.py` | Audit paired outcomes, calculate Wilson intervals, compare ablations. |
+| `test_research.py` | Hand calculations, filter symmetry, interval boundaries, and independence checks. |
+| `README.md` | Commands, assumptions, expected results, and a research-note template. |
+
+The JSON report separates `audit`, `uncertainty`, and `ablation`. They use different teaching datasets. Every change starts a fresh calculation; no model is trained or called. Outputs round to six decimals after calculation.
+
+## 10. Experiment with the research lab
+
+<ResearchLab client:visible />
+
+### Exercise 1: qualify the headline
+
+In Benchmark audit, compare all twelve cases with the subset excluding documented overlap. Then inspect each task slice. Write a conclusion that preserves the denominator and does not claim that filtering proves the cause of the change.
+
+<details className="solution"><summary>Reveal the explanation</summary><p>The full set gives 50% versus 75%, a +25-point candidate advantage. Excluding four cases gives 75% versus 62.5%, a −12.5-point difference. In the remaining facts slice, the candidate loses one of two cases; the other two slices tie. The evaluated population changed, and unflagged cases are not certified clean. More evidence is needed.</p></details>
+
+### Exercise 2: distinguish precision from validity
+
+In Uncertainty, move from 25 to 400 hypothetical trials. What stays the same, what changes, and why would copying the original rows not justify the larger-sample interval?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>The observed rate stays 80%. The Wilson interval narrows from about 60.87%–91.14% to 75.80%–83.63%. A larger independent sample gives more sampling precision under the assumed model. Copying rows adds no independent evidence; neither interval fixes biased sampling, contamination, or changing users.</p></details>
+
+### Exercise 3: inspect the ablation contract
+
+In Ablations, remove retrieval under each budget protocol. Then return to matched budgets and remove the reranker. What can you say about each component?
+
+<details className="solution"><summary>Reveal the explanation</summary><p>Removing retrieval gives a 19-point difference at matched budgets, but 25 points when the full system also gets more tokens. The latter does not isolate retrieval. Removing the reranker at matched budgets gives 9 points. Effects depend on the other component and this dataset; repeated runs and suitable uncertainty would be needed for stronger claims.</p></details>
+
+## 11. Check your understanding
+
+<Quiz questions={chapter41Questions} client:visible />
+
+## 12. Revise and connect the ideas
+
+Explain a paper using five sentences: **the question, the method, the evidence, the limitation, and the next useful check**. Then apply the same habit to an AGI headline without replacing uncertainty with either enthusiasm or dismissal.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning |
+| --- | --- |
+| Operational definition | A concept expressed as a measurable procedure. |
+| Preprint / peer review | Public manuscript / scrutiny before or alongside publication. |
+| Baseline / benchmark | Reference system / tasks, data, protocol, and scoring. |
+| Percentage points / relative change | Difference between rates / difference divided by the starting rate. |
+| Contamination / leakage | Evaluation information in training or tuning / unavailable information entering evaluation. |
+| Confidence interval | An interval procedure with a stated repeated-sampling coverage target. |
+| Paired comparison | Two systems evaluated on the same units. |
+| Ablation / interaction | Change a component / its measured contribution depends on another component. |
+| Reproduction | Repeat a specified experiment or result; state what is held fixed. |
+| Generality / autonomy | Breadth and transfer of capability / degree of independent action. |
+| Extrapolation / forecast | Extend a relationship beyond observations / predict a specified future event. |
+| Research record | Versioned claims, evidence, limitations, and your checks. |
+
+</details>
+
+The linked papers and guides provide deeper treatments. All movie results in this chapter are original, authored teaching data, not measurements of real products or evidence of AGI.
+
+**Next: Chapter 42 — the capstone.** Bring the handbook together in an evaluated movie knowledge assistant, with clear requirements, evidence, and failure analysis.

@@ -1,0 +1,25 @@
+---
+interface Props {kind:'run'|'data'|'project'}
+const {kind}=Astro.props;
+const configs={
+  run:{title:'From saved instructions to a visible result',caption:'Figure 1. Editing the file changes the saved instructions. Running the interpreter executes them; print displays selected values.',nodes:[['Save a script','hello_ai.py'],['Run in a terminal','py hello_ai.py'],['Python executes','Calculate prediction'],['Inspect output','Predicted: 5.00 s']]},
+  data:{title:'A list contains rows; a dictionary names fields',caption:'Figure 2. Read the expression from left to right: select row zero, then retrieve its size field. Index zero is the first item.',nodes:[['jobs','List of three rows'],['jobs[0]','First dictionary'],['Key: "size"','One field in that row'],['Value: 1.0','A floating-point number']]},
+  project:{title:'Keep the data, calculation, and report distinct',caption:'Figure 3. The starter reads its input beside the script, checks the rows, evaluates fixed weights, then creates or replaces its generated report.',nodes:[['jobs.json','Structured input text'],['Parse & validate','Python list of rows'],['Evaluate','Predictions and MSE'],['Save the report','runtime_report.json']]}
+};
+const d=configs[kind],id='python-'+kind;
+---
+<figure class="diagram">
+  <div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{d.title}</div>
+  <div class="diagram-scroll" tabindex="0" role="region" aria-label={d.title}>
+    <svg viewBox="0 0 760 116" role="img" aria-labelledby={id+'-title '+id+'-desc'}>
+      <title id={id+'-title'}>{d.title}</title><desc id={id+'-desc'}>{d.nodes.map(n=>n.join(': ')).join(' → ')}</desc>
+      <defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/></marker></defs>
+      {d.nodes.map((n,i)=><g transform={'translate('+(15+190*i)+',24)'}>
+        <rect width="164" height="66" rx="8" class={i===2?'node node-accent':'node'}/>
+        <text x="82" y="27" text-anchor="middle" class="node-title">{n[0]}</text><text x="82" y="47" text-anchor="middle" class="node-detail">{n[1]}</text>
+        {i<3&&<line x1="168" y1="33" x2="184" y2="33" class="connector" marker-end={'url(#'+id+'-arrow)'}/>}
+      </g>)}
+    </svg>
+  </div>
+  <figcaption>{d.caption}</figcaption>
+</figure>

@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {data,authorize,evaluate,normalize} from '../src/lib/aiSecurity.mjs';
+test('boundaries preserve benign tasks and deny all authored violations',()=>assert.deepEqual(evaluate().full,{total:8,allowed:3,violations:0,falseBlocks:0,correct:8}));
+test('keyword baseline has missed attacks and a false positive',()=>assert.deepEqual(evaluate({mode:'keyword'}).full,{total:8,allowed:6,violations:4,falseBlocks:1,correct:3}));
+test('approval states affect real authorization, not proposal claims',()=>{for(const approval of ['missing','stale']){assert.equal(evaluate({approval}).rows[1].decision,'review');assert.equal(evaluate({mode:'keyword',approval}).full.violations,5);}});
+test('every grant scope field is enforced',()=>{const c=data.cases[1],h={...c.host,catalogIds:data.catalogIds};for(const key of ['principal','requestId','tool','movieId'])assert.notEqual(authorize(c.proposal,h,{...c.grant,[key]:'different'}).decision,'allow');assert.equal(authorize(c.proposal,h,null).decision,'review');});
+test('malformed proposals and unknown capabilities fail closed',()=>{const c=data.cases[1],h={...c.host,catalogIds:data.catalogIds};for(const p of [null,{},[],{...c.proposal,extra:true},{...c.proposal,claimedApproval:1},{...c.proposal,tool:'shell'}])assert.equal(authorize(p,h,c.grant).decision,'block');});
+test('public catalog targets and private read intent must match',()=>{const c=data.cases[1],h={...c.host,catalogIds:data.catalogIds};for(const [owner,movieId]of [['viewer-B','M003'],['public','M999']])assert.equal(authorize({tool:'read_catalog',owner,movieId,claimedApproval:true},h,null).decision,'block');const p={tool:'read_history',owner:'viewer-A',movieId:'',claimedApproval:true};assert.equal(authorize(p,h,null).decision,'block');assert.equal(authorize(p,{...h,historyRequested:true},null).decision,'allow');});
+test('display filters preserve full-suite evidence',()=>{const r=evaluate({mode:'keyword',slice:'legitimate'});assert.equal(r.visible.violations,0);assert.equal(r.full.violations,4);assert.equal(r.rows.length,3);});
+test('context minimization is independent of action authorization',()=>{const r=evaluate({context:'excessive'});assert.equal(r.unnecessaryPrivateFields,2);assert.equal(r.full.violations,0);assert.deepEqual(r.rows,evaluate().rows);});
+test('unknown configurations reject explicitly',()=>{for(const c of [null,[],{mode:'magic'},{approval:'yes'},{extra:true}])assert.throws(()=>normalize(c));});

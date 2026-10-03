@@ -1,0 +1,299 @@
+{
+  "notice": "Fictional movies, services, and authored provider responses; no model generated these fixtures.",
+  "sources": [
+    {
+      "id": "S1",
+      "text": "The viewer wants a light adventure movie lasting no more than 120 minutes."
+    },
+    {
+      "id": "S2",
+      "text": "Moonlight Map is a 105-minute adventure comedy. City Sprint is a 140-minute action movie."
+    },
+    {
+      "id": "S3",
+      "text": "No streaming service is recorded for Moonlight Map in this fictional catalog."
+    }
+  ],
+  "cases": [
+    {
+      "id": "success",
+      "label": "Usable draft",
+      "lesson": "The application reaches review_required. The prepared draft still needs evidence review.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "transient",
+      "label": "Temporary service failure",
+      "lesson": "One attempt stops. Two total attempts recover from the prepared 503; the retry wait is recorded but skipped offline.",
+      "outcomes": [
+        {
+          "error": {
+            "code": "http_503",
+            "retryable": true,
+            "retry_after": 1.0
+          }
+        },
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "authentication",
+      "label": "Invalid credentials",
+      "lesson": "A prepared 401 is not retried. Repeating unchanged credentials cannot fix configuration.",
+      "outcomes": [
+        {
+          "error": {
+            "code": "http_401"
+          }
+        }
+      ]
+    },
+    {
+      "id": "refusal",
+      "label": "Refused response",
+      "lesson": "Refusal content is a distinct outcome, not a recommendation to parse or a reason to bypass the refusal.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "refusal",
+                    "refusal": "Prepared refusal fixture."
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "incomplete",
+      "label": "Incomplete response",
+      "lesson": "A partial answer must not become a finished recommendation. Stop and inspect the cause before changing the output budget.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "incomplete",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\":"
+                  }
+                ]
+              }
+            ],
+            "incomplete_details": {
+              "reason": "max_output_tokens"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "malformed",
+      "label": "Broken JSON",
+      "lesson": "The parser rejects the prepared malformed text; repeating a network call is not the same as repairing content.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\":"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wrong_type",
+      "label": "Wrong field type",
+      "lesson": "Valid JSON still fails the recommendation contract when a streaming service is a number.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": 42, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "unknown_source",
+      "label": "Unknown source ID",
+      "lesson": "A reference to S99 is rejected because the request supplied only S1, S2, and S3.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S99\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "unsupported",
+      "label": "Unsupported claim",
+      "lesson": "The false ExampleFlix availability claim passes structure and source-ID checks. review_required does not mean verified.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": \"ExampleFlix [S1]\", \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "invalid_input",
+      "label": "Empty source list",
+      "lesson": "Local input validation stops before any provider call.",
+      "outcomes": [
+        {
+          "response": {
+            "status": "completed",
+            "output": [
+              {
+                "type": "reasoning",
+                "summary": []
+              },
+              {
+                "type": "message",
+                "role": "assistant",
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "output_text",
+                    "text": "{\"recommendation\": \"Try Moonlight Map: its adventure-comedy genre and 105-minute length fit the viewer's request for a light adventure under 120 minutes [S1, S2]. Streaming availability is not supplied [S3].\", \"streaming_service\": null, \"evidence_ids\": [\"S1\", \"S2\", \"S3\"], \"open_questions\": [\"Where can the viewer stream Moonlight Map?\"]}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "sources": []
+    }
+  ]
+}

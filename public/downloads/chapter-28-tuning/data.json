@@ -1,0 +1,8 @@
+{
+ "input": [1,0.5,0,1],
+ "base": [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]],
+ "A": [[0.5,-0.5,0,0.25],[0,0.25,0.5,-0.25]],
+ "B": [[0.4,0.1],[0,0.2],[-0.2,0.1],[0.1,-0.1]],
+ "prompt": "Recommend a calm movie under 100 minutes. Card: M001, Moonlight Map, 94 minutes, gentle pacing. Streaming availability is not supplied.",
+ "replies": {"A":"Moonlight Map fits the runtime limit and its gentle pacing suits a calm evening. I cannot establish streaming availability from this card.","B":"Moonlight Map is guaranteed to be your favorite and is streaming on every service tonight."}
+}

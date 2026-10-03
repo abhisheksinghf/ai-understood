@@ -1,0 +1,29 @@
+---
+interface Props{kind:'time'|'groups'|'fit'}
+const {kind}=Astro.props;
+const labels={time:['Draw the prediction-time boundary','Figure 1. Movie metadata available before watching can be an input. The later thumbs-up is the target, while the later review is excluded from features for this pre-watch task.'],groups:['A viewer stays in one split','Figure 2. This fixed teaching split separates viewers, not individual rows. Its purpose is to examine behavior on unseen viewers; future-event evaluation would need a time-aware design.'],fit:['Learn once from training. Reuse everywhere.','Figure 3. Training data determines fill values, scaling statistics, and the category vocabulary. Apply the frozen transformation to every split without fitting it again on held-out data.']};
+const id='data-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox={kind==='fit'?'0 0 760 285':'0 0 760 225'} role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='time'&&<>
+  {[['Before watching','runtime + genre'],['Prediction moment','estimate later thumbs-up'],['After watching','label + review arrive']].map(([name,detail],i)=><g><rect x={10+257*i} y="28" width="226" height="87" rx="7" class={i===1?'node node-accent':'node'}/><text x={123+257*i} y="62" text-anchor="middle" class="node-title">{name}</text><text x={123+257*i} y="89" text-anchor="middle" class="node-detail">{detail}</text></g>)}
+  {[0,1].map(i=><line x1={241+i*257} x2={260+i*257} y1="71" y2="71" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <text x="380" y="160" text-anchor="middle" class="node-title">“I enjoyed it” cannot be an input to this earlier prediction.</text><text x="380" y="191" text-anchor="middle" class="node-detail">A useful feature must exist at the time the application needs it.</text>
+</>}
+{kind==='groups'&&<>
+  {[['Training','U01 · U02 · U03','6 events'],['Validation','U04','2 events'],['Test','U05','2 events']].map(([name,viewers,count],i)=><g><rect x={10+257*i} y="24" width="226" height="116" rx="7" class={i===0?'node node-accent':'node'}/><text x={123+257*i} y="59" text-anchor="middle" class="node-title">{name}</text><text x={123+257*i} y="88" text-anchor="middle" class="node-detail">{viewers}</text><text x={123+257*i} y="116" text-anchor="middle" class="node-detail">{count}</text></g>)}
+  <text x="380" y="180" text-anchor="middle" class="node-title">No viewer ID crosses these boundaries.</text><text x="380" y="208" text-anchor="middle" class="node-detail">The 6 / 2 / 2 counts are a small illustration, not a universal ratio.</text>
+</>}
+{kind==='fit'&&<>
+  <rect x="12" y="17" width="219" height="76" rx="7" class="node"/><text x="121" y="47" text-anchor="middle" class="node-title">Training rows only</text><text x="121" y="74" text-anchor="middle" class="node-detail">observed values + categories</text>
+  <line x1="239" y1="55" x2="297" y2="55" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>
+  <rect x="306" y="17" width="251" height="76" rx="7" class="node node-accent"/><text x="431" y="47" text-anchor="middle" class="node-title">Fit preprocessing</text><text x="431" y="74" text-anchor="middle" class="node-detail">save learned parameters</text>
+  <path d="M431 94 V144" fill="none" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>
+  <rect x="12" y="156" width="219" height="82" rx="7" class="node"/><text x="121" y="189" text-anchor="middle" class="node-title">Each split's rows</text><text x="121" y="216" text-anchor="middle" class="node-detail">train / validation / test</text>
+  <line x1="239" y1="197" x2="297" y2="197" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>
+  <rect x="306" y="156" width="251" height="82" rx="7" class="node node-accent"/><text x="431" y="189" text-anchor="middle" class="node-title">Transform; do not refit</text><text x="431" y="216" text-anchor="middle" class="node-detail">same columns and meanings</text>
+  <line x1="565" y1="197" x2="605" y2="197" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>
+  <rect x="614" y="156" width="133" height="82" rx="7" class="node"/><text x="680" y="189" text-anchor="middle" class="node-title">Feature X</text><text x="680" y="216" text-anchor="middle" class="node-detail">label y separate</text>
+  <text x="380" y="272" text-anchor="middle" class="node-detail">A new prediction uses the same saved transformation.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

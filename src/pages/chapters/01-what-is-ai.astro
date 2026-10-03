@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, { getHeadings } from '../../content/chapter-01.mdx';
+import raw from '../../content/chapter-01.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="What is artificial intelligence?" chapter headings={headings} searchSections={searchSections}>
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 01 · Foundations</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 01</span><span class="edition">FOUNDATIONS, BEFORE FRAMEWORKS</span></div>
+    <h1>What is artificial<br/><em>intelligence?</em></h1>
+    <p class="hero-description">Understand the idea. Look inside the system.<br class="desktop-break"/> Learn when it belongs in your work.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 20–25 min core reading</span><span>Beginner friendly</span><span>16 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-begin-with-a-problem-not-a-technology" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-01.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">INPUT → IDEA → ACTION</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain it in your own words?</h2><p>Use the final drawing exercise as your checkpoint. Mark the chapter complete when you are ready.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 1 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>How the AI concepts connect</h3><p>AI, ML, deep learning, GenAI, LLMs, RAG, and agents.</p></div><a class="primary-button" href="/chapters/02-how-ai-concepts-connect/">Read Chapter 2 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 01 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

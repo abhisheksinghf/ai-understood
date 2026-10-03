@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-27.mdx';
+import raw from '../../content/chapter-27.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Choosing between prompting, RAG, tools, and fine-tuning" chapter chapterNumber={27} headings={headings} searchSections={searchSections} tocTitles={["Diagnose the gap","Prompt baseline","Retrieve evidence","Connect tools","Adapt behavior","Compare the choices","Combine the methods","Evaluate the change","Decide & maintain","Explore & practice","Knowledge check","Prepare for tuning"]} searchPlaceholder="Try “ablation”, “fine-tuning”, or “freshness”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 07 · Adaptation &amp; multimodal AI</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 27</span><span class="edition">INSTRUCTIONS · KNOWLEDGE · BEHAVIOR</span></div>
+    <h1>Choose the right change.<br/><em>Start with the missing piece.</em></h1>
+    <p class="hero-description">Compare prompting, retrieval, tools, and training,<br class="desktop-break"/> then design a grounded movie assistant.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 15–20 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-diagnose-the-gap-before-choosing-a-method" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-27.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">DIAGNOSE → COMBINE → EVALUATE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain why each component is needed?</h2><p>Separate instructions, evidence, live state, and behavior. Propose a small change, then explain how you would test it.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 27 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Fine-tuning and preference learning</h3><p>Build training examples, understand adaptation methods, and evaluate learned behavior.</p><a class="text-button" href="/chapters/26-efficient-and-advanced-llm-systems/">← Revisit Chapter 26</a></div><a class="primary-button" href="/chapters/28-fine-tuning-and-preference-learning/">Read Chapter 28 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 27 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

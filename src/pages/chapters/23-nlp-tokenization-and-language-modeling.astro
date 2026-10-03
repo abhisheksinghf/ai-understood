@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-23.mdx';
+import raw from '../../content/chapter-23.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="NLP, tokenization, and language modeling" chapter chapterNumber={23} headings={headings} searchSections={searchSections} tocTitles={["Start with the task","Choose token units","Learn BPE pieces","IDs & representations","Model the sequence","Counts & targets","Loss & perplexity","Generate text","Evaluate the task","Explore & practice","Knowledge check","Toward attention"]} searchPlaceholder="Try “BPE”, “perplexity”, or “temperature”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 06 · Deep learning &amp; LLM internals</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 23</span><span class="edition">TEXT · TOKENS · PREDICTION</span></div>
+    <h1>From text to tokens.<br/><em>Learn what comes next.</em></h1>
+    <p class="hero-description">Inspect how language becomes model input,<br class="desktop-break"/> then follow the probabilities behind generated text.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 20–25 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-start-with-the-language-task" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-23.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">ENCODE → PREDICT → CONTINUE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you separate tokenization, modeling, and decoding?</h2><p>Explain a token ID, calculate a target probability, and distinguish language likelihood from factual accuracy.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 23 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Attention and transformers explained</h3><p>See how attention combines information across the permitted context.</p><a class="text-button" href="/chapters/22-cnns-sequence-models-and-transfer-learning/">← Revisit Chapter 22</a></div><a class="primary-button" href="/chapters/24-attention-and-transformers-explained/">Read Chapter 24 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 23 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

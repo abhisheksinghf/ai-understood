@@ -1,0 +1,24 @@
+{
+  "queries": [
+    {"id":"calm","text":"A quiet seaside story","vector":[1,0.2,0]},
+    {"id":"chase","text":"A fast-paced city chase","vector":[0.1,1,0.1]},
+    {"id":"space","text":"A journey through space","vector":[0,0.2,1]}
+  ],
+  "posters": [
+    {"id":"M001","title":"Moonlight Map","description":"A boat on a quiet sea","vector":[0.9,0.25,0.05]},
+    {"id":"M030","title":"Neon Chase","description":"A car between city towers","vector":[0.2,0.95,0.15]},
+    {"id":"M031","title":"Orbit Home","description":"A small ship near a ringed planet","vector":[0.1,0.2,0.9]}
+  ],
+  "candidateSets":{"all":["M001","M030","M031"],"earth":["M001","M030"],"moon":["M001"]},
+  "trailer":{
+    "duration":20,
+    "scenes":[
+      {"start":0,"end":5,"label":"Sea","caption":"A boat on the sea"},
+      {"start":5,"end":6,"label":"Lantern","caption":"A lantern lights on the boat"},
+      {"start":6,"end":12,"label":"City","caption":"A car passes city towers"},
+      {"start":12,"end":20,"label":"Space","caption":"A ship moves past stars"}
+    ],
+    "event":{"start":5,"end":6,"label":"Lantern visible"},
+    "audio":{"sourceOffset":4,"localStart":0.8,"localEnd":2.2,"text":"Meet me when the lantern lights."}
+  }
+}

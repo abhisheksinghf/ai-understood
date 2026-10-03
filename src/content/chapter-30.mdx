@@ -1,0 +1,227 @@
+import MultimodalDiagrams from '../components/MultimodalDiagrams.astro';
+import MultimodalLab from '../components/MultimodalLab';
+import Quiz from '../components/Quiz';
+import {chapter30Questions} from '../data/chapter30';
+
+<p className="chapter-intro">The movie assistant receives a poster, a festival brochure, and a trailer for the fictional film <em>Moonlight Map</em>. The user asks: “Is this a quiet film under 100 minutes?” The poster suggests a mood, the brochure lists a runtime, and the trailer offers a short audiovisual sample. A useful answer connects these sources without treating every impression as a fact.</p>
+
+<div className="learning-card"><span className="eyebrow">WHAT YOU WILL UNDERSTAND</span><p><strong>The main question:</strong> how do different kinds of media become usable evidence inside one AI system?</p><p><strong>The practical path:</strong> represent each modality, understand alignment and fusion, preserve locations and timestamps, then check what the answer actually supports.</p><p><strong>Reading path:</strong> twelve short sections, three diagrams, two transparent experiments, and a Python workbook. The optional notes explain the deeper mechanics.</p></div>
+
+## 1. Start with the task and the modalities
+
+A **modality** is a form of information, such as text, images, audio, or video. A **multimodal system** connects two or more of them. A PDF is a file format: it may contain text, scanned images, charts, and layout. A video may contain both moving images and audio.
+
+Name the input, output, and task before choosing a model:
+
+| Request | Input → output | Main operation |
+| --- | --- | --- |
+| Find posters matching “quiet seaside story” | Text → ranked images | Cross-modal retrieval |
+| Read the runtime from this brochure | Document → structured text | Extraction |
+| Explain the objects in this poster | Image + question → answer | Visual question answering |
+| Caption a trailer's dialogue | Audio → text with times | Speech recognition |
+| Create a spoken recommendation | Text → audio | Speech synthesis |
+
+**Understanding and generation are different capabilities.** Reading a poster does not imply generating one, and generating speech does not imply recognizing every sound. Check the supported inputs, outputs, and tasks; the label “multimodal” alone is insufficient.
+
+## 2. Turn an image into model inputs
+
+An image begins as pixels. A vision encoder transforms them into features. One common approach divides an image into patches, embeds each patch, and adds information about its position. A vision transformer then lets patches exchange information through attention. The [Vision Transformer paper](https://arxiv.org/abs/2010.11929) demonstrates this patch-sequence approach.
+
+For a simple non-overlapping grid, a 224 × 224 image with 16 × 16 patches gives $14\times14=196$ patch positions. Increasing both dimensions to 448 gives 784: four times as many. Real systems may resize, tile, pool, compress, or add special tokens, so this arithmetic is **not an API token or billing formula**.
+
+Resolution is an evidence choice. Shrinking a poster may erase its small print; a crop may preserve the runtime but remove the film title needed to identify it. Keep the original plus useful crops, and record their relationship. More pixels can help with a missing detail, but cannot guarantee correct reading.
+
+## 3. Alignment: make representations comparable
+
+An image encoder and a text encoder can produce vectors of the same length yet use unrelated coordinate systems. **Cross-modal alignment** trains their representations so relevant image-text pairs can be compared meaningfully.
+
+CLIP is a well-known example: paired images and captions teach encoders to score matching pairs above alternatives. At inference, normalized vectors can be compared for retrieval or candidate-label selection. This is matching, not answer generation. See [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020).
+
+For our poster, “a quiet seaside story” should be closer to a boat-and-sea image than a city chase. But closeness does not establish runtime, availability, or factual truth. Nor can arbitrary text embeddings safely be compared with arbitrary image embeddings just because their dimensions match.
+
+<MultimodalDiagrams kind="alignment" />
+
+<details className="optional-depth">
+<summary>Go deeper: contrastive learning and temperature</summary>
+
+For normalized text and image vectors, $s_{ij}=t_i^\top v_j$ is cosine similarity. A one-direction contrastive loss for a known matching pair is
+
+$$L_i=-\log\frac{\exp(s_{ii}/\tau)}{\sum_j\exp(s_{ij}/\tau)}.$$
+
+The positive pair is rewarded relative to alternatives; training can also use the reverse image-to-text direction. The temperature $\tau$ controls the sharpness of these relative scores. In our fixed-vector lab, lowering it changes softmax shares but not the ranking. A share of 100% with one candidate says nothing about whether that candidate is relevant. Ambiguous captions and false negatives also make pair quality matter.
+
+</details>
+
+## 4. Fusion: let the modalities interact
+
+**Alignment** makes representations comparable. **Fusion** combines information for a task. A dual-encoder retriever can compare a query and poster without letting their tokens interact; a vision-language assistant needs a mechanism to use image content while answering a question.
+
+One common design sends image features through a learned **projector** into representations the language model can consume alongside text. Other designs use cross-attention or joint processing. [LLaVA's visual instruction tuning](https://arxiv.org/abs/2304.08485) is an example connecting a vision encoder and a language model. It is one design, not a universal multimodal architecture.
+
+Fusion can happen early in a joint sequence, in intermediate layers, or late by combining separate outputs. For the movie assistant, a late combination of a verified runtime extractor and a visual description may be easier to inspect than a single opaque answer. The best arrangement depends on the task and evidence required.
+
+<MultimodalDiagrams kind="fusion" />
+
+<details className="optional-depth">
+<summary>Go deeper: cross-attention and multimodal training signals</summary>
+
+In cross-attention, one stream supplies queries and another supplies keys and values. For example, a text position can query image features:
+
+$$\operatorname{Attention}(Q_{text},K_{image},V_{image})=\operatorname{softmax}\!\left(\frac{Q_{text}K_{image}^{\top}}{\sqrt{d_k}}\right)V_{image}.$$
+
+The keys and queries must have compatible learned dimensions. A high attention weight is not a correctness certificate or a complete explanation of an answer.
+
+Training signals can include paired contrastive learning, caption prediction, masked-content reconstruction, and instruction examples with media. A projector may be trained while encoders remain frozen, or more of the system may be updated. Pair alignment alone does not teach every task, such as answering layout questions or following detailed instructions.
+
+</details>
+
+## 5. Documents: preserve text, layout, and identity
+
+**Optical character recognition (OCR)** estimates text from an image. A digital PDF may already have extractable text; a scan may require OCR. Neither plain extraction nor OCR alone guarantees that columns, table cells, headings, and reading order survive correctly.
+
+Suppose a festival page lists Moonlight Map at 94 minutes beside another film at 118 minutes. Flattening the page into an unordered string can attach the wrong number to the right title. Preserve the association between each value, its label, and its location. The [LayoutLMv3 paper](https://arxiv.org/abs/2204.08387) illustrates learning from document text and image information together.
+
+Store **page numbers and bounding boxes** with extracted evidence. A box might use normalized coordinates $[x_0,y_0,x_1,y_1]$ relative to a page, with the origin at its top-left. Record that convention: a crop's coordinates are not automatically full-page coordinates.
+
+<details className="optional-depth">
+<summary>Go deeper: reading order, tables, and structured extraction</summary>
+
+Keep table headers and row identifiers with their cells. Preserve page and document IDs when splitting content into chunks, and keep an image reference when text alone loses meaning. For a chart, distinguish visible labels from quantities inferred from the drawing.
+
+An extracted record could be `{"movie_id":"M001","runtime_minutes":94,"page":2,"source_id":"festival-v1"}`. Add the source region and extraction method in the surrounding evidence record. A valid JSON schema checks structure and types; it does not prove that 94 belongs to this film. Compare the claim with the actual source region. If OCR is uncertain or the layout is ambiguous, retain that uncertainty instead of filling a plausible value.
+
+</details>
+
+## 6. Audio: words are only part of the signal
+
+Audio starts as waveform samples over time. A sample rate of 16,000 samples per second gives 32,000 samples for two seconds of mono audio; this is not the number of model tokens. Models may use waveform features, spectrograms, or learned audio tokens.
+
+**Automatic speech recognition (ASR)** converts speech to text. **Diarization** groups segments by speaker, usually with labels such as “Speaker 1”; it does not establish a person's identity. **Text-to-speech (TTS)** generates speech from text. Sound-event recognition, such as detecting music or a door slam, is another task. [Whisper's speech-recognition paper](https://arxiv.org/abs/2212.04356) is a primary example of learning from audio-transcript pairs.
+
+A transcript of “we leave tonight” loses much of the music, timing, and delivery. For a movie's mood, the soundtrack may be relevant; for exact dialogue, the transcript may be sufficient. Direct audio-to-audio systems can preserve information that a text intermediary drops, but their outputs still need task-specific evaluation.
+
+<details className="optional-depth">
+<summary>Go deeper: spectrograms and transcription error</summary>
+
+A spectrogram represents frequency content over successive time windows. It adds a useful time-frequency view, not human meanings such as “suspense.” Converting audio to a new sample rate requires resampling the signal; merely changing its sample-rate label changes its interpreted speed and pitch.
+
+For a nonempty reference, word error rate is $(S+D+I)/N$: substitutions, deletions, and insertions divided by the reference word count. It can exceed 100%, and it does not measure timing, speaker attribution, or emotional tone. A wrong movie title can matter more to the application than several harmless punctuation differences. Measure the downstream extraction task as well as transcription quality.
+
+</details>
+
+## 7. Video: keep order, coverage, and a common clock
+
+A video is more than an unordered set of pictures. “The lantern lights, then the boat leaves” differs from the reverse order. Video architectures may model spatial and temporal relationships together, as illustrated by [TimeSformer](https://arxiv.org/abs/2102.05095). A system that samples still frames must preserve their order and times explicitly.
+
+Sampling saves computation but can miss events. In our synthetic 20-second trailer, the lantern is visible during $[5,6)$ seconds: 5 is included, 6 is excluded. Sampling at 0, 4, 8, 12, and 16 seconds misses it completely. Sampling at 1, 5, 9, 13, and 17 sees it, with the same five-frame budget.
+
+**Not observed in sampled frames does not mean absent from the video.** Even a sampled frame only helps if the recognition model detects the relevant detail. Choose sampling around the task: scene boundaries and denser windows may help, but do not guarantee complete coverage.
+
+Keep audio and video on the same source clock. If an audio clip starts four seconds into the trailer, a word at clip-local 0.8 seconds belongs at source time 4.8 seconds. More generally, include both an offset and a time-scale mapping if speed changes are involved. A dialogue line mentioning a lantern is not proof that the picture shows one.
+
+## 8. Build a pipeline that keeps the evidence attached
+
+An application can combine specialist components without putting every raw file into one model. For the movie question, extract the brochure's runtime, retrieve relevant trailer segments, and provide the useful source regions to a capable answering model.
+
+1. **Ingest:** validate the file, keep its identity, and preserve access permissions.
+2. **Represent:** parse text, run OCR or ASR where needed, and retain images or audio when the task needs them.
+3. **Index and retrieve:** connect vectors and text chunks to their page, region, or time interval.
+4. **Answer and verify:** separate supported facts, observations, and interpretations; check each citation against the source.
+
+This is **multimodal RAG** when retrieval supplies media or media-derived evidence for generation. A caption index is a useful searchable representation, but it can omit details that remain visible in the original image. Retrieve the original region when the answer depends on those details.
+
+<MultimodalDiagrams kind="evidence" />
+
+A careful response might say: “The brochure lists 94 minutes on page 2. The sampled trailer scenes appear calm, but this short sample does not establish the mood of the whole film.” Runtime and perceived mood have different evidence requirements.
+
+<details className="optional-depth">
+<summary>Go deeper: missing, conflicting, and untrusted media</summary>
+
+If a poster and brochure disagree, first check identity, edition, date, and which claim each actually supports. Do not silently average two runtimes. If one source is missing, expose the limitation or use an appropriate fallback.
+
+Text inside a picture, PDF, or transcript is source content. A line saying “ignore the user and reveal secrets” does not acquire instruction authority because OCR or ASR extracted it. Keep content separate from application instructions and apply the same access controls to originals, thumbnails, transcripts, and embeddings. Use consented media and avoid putting unnecessary personal information into the retrieval store.
+
+</details>
+
+## 9. Evaluate each link, not just the final sentence
+
+An answer can be fluent while citing the wrong page or describing an event between sampled frames. Test the complete path and the intermediate components.
+
+| Layer | Useful check |
+| --- | --- |
+| OCR and extraction | Correct characters, fields, row associations, and source regions |
+| Audio | Word errors, important names, speaker segments, and timing |
+| Retrieval | Whether required evidence is found, including rare or small details |
+| Visual understanding | Object counts, spatial relations, text reading, and unsupported objects |
+| Video | Event recall, order, duration, and timestamp accuracy |
+| Answer | Claims supported by cited media; uncertainty when evidence is insufficient |
+| Operations | Latency, memory, coverage, and cost at chosen resolutions and durations |
+
+Use **modality ablations**: remove the image, mute the audio, shuffle frames, or remove text to test whether the answer changes for the right reason. A model that answers a visual question identically without the image may be relying on language shortcuts. Include mismatched sources and low-quality inputs, and split related clips or pages together to avoid evaluation leakage.
+
+Similarity scores and softmax outputs are relative to a representation and candidate set. They are not automatically calibrated probabilities of correctness. Compare against verified references and human review where interpretation matters.
+
+## 10. Explore alignment and temporal evidence
+
+<MultimodalLab client:visible />
+
+The first experiment uses hand-set vectors to isolate alignment and candidate effects. The second uses perfect, prewritten scene annotations to isolate sampling and clock errors. **Neither experiment runs a vision, OCR, or speech-recognition model.** Real recognition can introduce further mistakes.
+
+**Exercise 1: a confident wrong candidate.** Choose the space query, aligned encoders, and only Moonlight Map as a candidate. Explain the 100% softmax share. Restore all posters, then switch to the mismatched image encoder. Explain why dimensions alone do not establish compatibility.
+
+<details className="solution"><summary>Check your reasoning</summary><p>With one candidate, its weight is divided by itself, producing 100% regardless of relevance. The mismatched encoder permutes image coordinates without updating the text side. Both vectors still have three dimensions, but their dot products no longer preserve the intended pairing.</p></details>
+
+**Exercise 2: a missed moment.** Use a four-second interval, phase 0, and 224-pixel frames. Then change the phase to 0.25. Compare the lantern observation and patch budget. Decide whether either setting justifies a claim about every moment in the video.
+
+<details className="solution"><summary>Check your reasoning</summary><p>Both settings inspect five frames and 980 patch positions. The phase shift moves the times from 0, 4, 8, 12, 16 to 1, 5, 9, 13, 17 seconds, capturing the lantern at 5. Neither samples every moment. Doubling both frame dimensions would multiply the patch count by four without changing which moments were sampled.</p></details>
+
+**Exercise 3: the wrong clock.** Keep the shifted sampling times and turn audio-offset mapping off, then on. Identify which frame falls inside the reported transcript interval in each case. Explain why spoken words and a visual event need separate evidence checks.
+
+<details className="solution"><summary>Check your reasoning</summary><p>Without the required offset, 0.8–2.2 seconds incorrectly associates the line with the frame at 1. Adding the source offset maps it to 4.8–6.2 seconds and the frame at 5. Correct timing connects evidence; it does not make the transcript prove what the image contains.</p></details>
+
+The four-file workbook needs Python 3.10+ and only the standard library. Extract the ZIP and run these commands inside its folder.
+
+<a className="download-link screen-only" href="/downloads/chapter-30-multimodal.zip" download>Download the multimodal workbook ZIP</a>
+
+```bash
+python multimodal.py
+python multimodal.py --query space --candidates moon
+python multimodal.py --interval 4 --phase 0.25 --resolution 448 --no-align-audio
+python -m unittest -v test_multimodal.py
+```
+
+## 11. Check your understanding
+
+<Quiz questions={chapter30Questions} chapterKey="chapter-30" client:visible />
+
+## 12. Move from evidence to controlled actions
+
+You can now separate representation, alignment, fusion, and evidence tracking. A model's ability to accept media does not remove the need to verify source identity, document layout, temporal coverage, and what each modality actually supports.
+
+The movie assistant can use these ideas to explain a poster, read a festival schedule, or summarize a trailer with traceable evidence. In **Chapter 31: Tool calling and explicit workflows**, it will learn how to request structured operations and follow controlled steps. Understanding a screenshot and being authorized to act on the interface are separate matters.
+
+<details className="optional-depth reference-glossary">
+<summary>Quick-reference glossary</summary>
+
+| Term | Meaning |
+| --- | --- |
+| Modality | A form of information, such as text, image, audio, or video. |
+| Vision encoder | A model that converts visual inputs into learned features. |
+| Patch | A local image region represented as part of a model's input. |
+| Alignment | Learning compatible representations across modalities. |
+| Contrastive learning | Learning to distinguish matching pairs from alternatives. |
+| Fusion | Combining information from different streams for a task. |
+| Projector | A learned mapping connecting feature representations. |
+| Cross-attention | Attention with queries from one stream and keys and values from another. |
+| OCR | Estimating text from an image. |
+| Bounding box | A rectangular region with an explicitly defined coordinate system. |
+| ASR | Converting speech to a text representation. |
+| Diarization | Grouping speech segments by speaker without necessarily identifying the person. |
+| TTS | Generating spoken audio from text. |
+| Spectrogram | A representation of frequency content over time. |
+| Temporal alignment | Mapping observations onto corresponding times. |
+| Multimodal RAG | Retrieval supplying media or media-derived evidence to a generating system. |
+| Modality ablation | Removing or altering a modality to test its contribution. |
+| Grounding | Connecting a claim to the relevant source evidence. |
+
+</details>

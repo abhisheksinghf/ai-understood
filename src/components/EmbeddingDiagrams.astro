@@ -1,0 +1,25 @@
+---
+interface Props{kind:'pipeline'|'geometry'|'index'}
+const {kind}=Astro.props;
+const labels={pipeline:['Encode once, compare many times','Figure 1. Offline, encode source passages and store vectors with their IDs. Online, encode the query using the compatible query path, search, and fetch the source text. The model defines the space; the index organizes it.'],geometry:['Direction and length are different information','Figure 2. These two-dimensional teaching arrows are not learned features. A and B point in the same direction, so both have cosine 1 with q, but B has twice the dot product.'],index:['A fast candidate step can miss a close neighbor','Figure 3. For the authored space-rescue query, the closest centroid is A. Searching only its two members misses M007 in B; probing A and B recovers the exact top three. This is a small coarse-index demonstration, not HNSW.']};
+const id='embedding-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{labels[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={labels[kind][0]}><svg viewBox="0 0 760 280" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{labels[kind][0]}</title><desc id={id+'-desc'}>{labels[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='pipeline'&&<>
+  <text x="20" y="27" class="lane-label">OFFLINE · PREPARE THE COLLECTION</text>
+  {[['Passages','text + source IDs'],['Document encoder','fixed model / preprocessing'],['Vector index','vectors + metadata']].map(([a,b],i)=><g><rect x={15+255*i} y="43" width="223" height="76" rx="7" class={i===1?'node node-accent':'node'}/><text x={126+255*i} y="75" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="100" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  <text x="20" y="153" class="lane-label">ONLINE · ANSWER A NEW SEARCH</text>
+  {[['Query encoder','compatible retrieval space'],['Search','compare + select IDs'],['Fetch sources','return the original passages']].map(([a,b],i)=><g><rect x={15+255*i} y="168" width="223" height="76" rx="7" class={i===1?'node node-accent':'node'}/><text x={126+255*i} y="200" text-anchor="middle" class="node-title">{a}</text><text x={126+255*i} y="225" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[81,205].map(y=>[0,1].map(i=><line x1={241+i*255} x2={266+i*255} y1={y} y2={y} stroke="var(--accent)" stroke-width="1.6" marker-end={'url(#'+id+'-arrow)'}/>))}
+</>}
+{kind==='geometry'&&<>
+  <line x1="40" y1="235" x2="380" y2="235" stroke="var(--line)" stroke-width="2"/><line x1="55" y1="250" x2="55" y2="30" stroke="var(--line)" stroke-width="2"/>
+  <line x1="55" y1="235" x2="345" y2="75" stroke="var(--accent)" stroke-width="3" marker-end={'url(#'+id+'-arrow)'}/><text x="315" y="54" class="node-title">B = [2, 2]</text><circle cx="200" cy="155" r="6" fill="var(--gold)"/><text x="210" y="180" class="node-title">A = q = [1, 1]</text><text x="190" y="267" text-anchor="middle" class="node-detail">Illustrative coordinates</text>
+  <rect x="420" y="43" width="320" height="194" rx="8" class="node node-accent"/><text x="440" y="77" class="node-title">Same direction; different magnitude</text><text x="440" y="114" class="node-detail">cos(q, A) = cos(q, B) = 1</text><text x="440" y="145" class="node-detail">q · A = 2; q · B = 4</text><text x="440" y="176" class="node-detail">distance(q, A) = 0; distance(q, B) = √2</text><text x="440" y="214" class="node-detail">Unit normalization makes A and B identical.</text>
+</>}
+{kind==='index'&&<>
+  <text x="380" y="29" text-anchor="middle" class="node-title">Query → compare 3 centroids → visit the selected cells</text>
+  {[['A · nearest centroid','M004, M008','2 searched candidates'],['B · next centroid','M001, M002, M003, M005, M007','includes a missed exact neighbor'],['C · remaining centroid','M006','not needed for this query’s top 3']].map(([a,b,c],i)=><g><rect x={12+i*255} y="57" width="225" height="133" rx="7" class={i===0?'node node-accent':'node'}/><text x={124+i*255} y="91" text-anchor="middle" class="node-title">{a}</text><text x={124+i*255} y="124" text-anchor="middle" class="node-detail">{b}</text><text x={124+i*255} y="164" text-anchor="middle" class="node-detail">{c}</text></g>)}
+  <text x="380" y="231" text-anchor="middle" class="node-title">1 cell: neighbor recall@3 = 2/3. Two cells: 3/3.</text><text x="380" y="258" text-anchor="middle" class="node-detail">Neighbor recall checks search fidelity, not whether the movies are relevant.</text>
+</>}
+</svg></div><figcaption>{labels[kind][1]}</figcaption></figure>

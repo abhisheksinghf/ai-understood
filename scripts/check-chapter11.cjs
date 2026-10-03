@@ -1,0 +1,61 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE_PATH||'playwright');
+const fs=require('node:fs/promises');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+const base='http://127.0.0.1:4321',route='/chapters/11-project-movie-recommendation-assistant/';
+(async()=>{
+  const out=path.resolve(__dirname,'../tmp/qa/chapter-11');await fs.mkdir(out,{recursive:true});
+  const browser=await chromium.launch({channel:'chrome',headless:true});
+  try{
+    const context=await browser.newContext({viewport:{width:1512,height:1100},reducedMotion:'reduce'});
+    const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.goto(base+'/chapters/10-building-an-llm-application-with-python/',{waitUntil:'networkidle'});
+    const prior={version:1,chapter:10,complete:true,bookmark:'1-build-one-useful-vertical-slice'};
+    await page.evaluate(p=>localStorage.setItem('ai-handbook-progress-chapter-10-v1',JSON.stringify(p)),prior);
+    await page.getByRole('link',{name:'Read Chapter 11'}).click();await page.waitForURL(base+route);await page.waitForLoadState('networkidle');
+    assert.equal(await page.locator('.chapter-content h2').count(),12);assert.equal(await page.locator('figure.diagram svg').count(),3);
+    assert.equal(await page.locator('.optional-depth').count(),7);assert.equal(await page.locator('.optional-depth[open]').count(),0);
+    assert.equal(await page.locator('.chapter-nav[aria-current="page"]').getAttribute('href'),route);
+    assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'false');
+    const missing=await page.locator('a[href^="#"]').evaluateAll(as=>as.filter(a=>a.hash&&!document.getElementById(decodeURIComponent(a.hash.slice(1)))).map(a=>a.hash));assert.deepEqual(missing,[]);
+    await page.screenshot({path:path.join(out,'desktop.png')});
+    for(let i=0;i<3;i++)await page.locator('figure.diagram').nth(i).screenshot({path:path.join(out,'diagram-'+i+'.png')});
+    assert.ok(await page.locator('figure.diagram svg').evaluateAll(svgs=>svgs.every(svg=>(svg.getAttribute('aria-labelledby')||'').split(' ').every(id=>!!document.getElementById(id)?.textContent))));
+    await page.getByRole('button',{name:'Search Chapter 11'}).click();await page.locator('#search-input').fill('cold start');await page.locator('.search-item:visible').filter({hasText:'4. Rank candidates'}).click();
+    const note=page.locator('.optional-depth').filter({has:page.locator('summary',{hasText:'cold start'})});assert.equal(await note.getAttribute('open'),'');await note.locator('summary').click();
+    const lab=page.locator('.movie-project');await lab.scrollIntoViewIfNeeded();await page.waitForFunction(()=>!document.querySelector('.movie-project')?.closest('astro-island')?.hasAttribute('ssr'));
+    const title=lab.locator('[data-movie="title"]');assert.equal(await title.innerText(),'Moonlight Map');assert.match(await lab.locator('[data-movie="result"]').innerText(),/Unknown in this catalog/);
+    await page.locator('#movie-minutes').fill('104');assert.match(await lab.locator('[data-movie="result"]').innerText(),/No matching movie/);
+    await page.locator('#movie-minutes').fill('105');assert.equal(await title.innerText(),'Moonlight Map');
+    await page.locator('#movie-minutes').fill('120');await lab.getByText('Exclude movies you have already seen (0)',{exact:true}).click();
+    await lab.getByLabel('Moonlight Map',{exact:true}).check();assert.equal(await title.innerText(),'Forest Signal');
+    await page.locator('#movie-light').uncheck();assert.equal(await title.innerText(),'Quiet Orbit');
+    await lab.getByLabel('Forest Signal',{exact:true}).check();await lab.getByLabel('Quiet Orbit',{exact:true}).check();assert.match(await lab.locator('[data-movie="result"]').innerText(),/No matching movie/);
+    await page.getByRole('button',{name:'Reset preferences'}).click();await lab.getByText('Exclude movies you have already seen (0)',{exact:true}).click();
+    await page.locator('#movie-minutes').fill('');assert.ok(await page.locator('#movie-input-error').isVisible());assert.equal(await page.getByRole('button',{name:'Download this result'}).isEnabled(),false);assert.equal(await title.count(),0);
+    await page.getByRole('button',{name:'Reset preferences'}).click();await lab.screenshot({path:path.join(out,'workshop.png')});
+    await lab.getByText('Why were these movies included or excluded?',{exact:true}).click();assert.equal(await lab.locator('.movie-table-wrap tbody tr').count(),7);assert.match(await lab.locator('[data-movie="ranking"]').innerText(),/M001 → M003 → M004/);await lab.screenshot({path:path.join(out,'decisions.png')});
+    const resultWait=page.waitForEvent('download');await page.getByRole('button',{name:'Download this result'}).click();const resultDownload=await resultWait;assert.equal(resultDownload.suggestedFilename(),'chapter-11-movie-result.json');const file=path.join(out,'result.json');await resultDownload.saveAs(file);
+    const {recommend}=await import('../src/lib/movie-project.mjs');assert.deepEqual(JSON.parse(await fs.readFile(file,'utf8')),recommend());
+    await page.getByRole('button',{name:'Switch to dark theme'}).click();await lab.screenshot({path:path.join(out,'workshop-dark.png')});await page.getByRole('button',{name:'Switch to light theme'}).click();
+    await page.locator('.solution summary').first().click();assert.equal(await page.locator('.solution').first().getAttribute('open'),'');
+    await page.locator('.quiz').scrollIntoViewIfNeeded();await page.waitForFunction(()=>!document.querySelector('.quiz')?.closest('astro-island')?.hasAttribute('ssr'));
+    for(const [i,a] of [1,0,2,1,2].entries())await page.locator(`input[name="question-${i}"][value="${a}"]`).check();await page.getByRole('button',{name:'Check my answers'}).click();assert.match(await page.locator('.quiz-actions [role="status"]').innerText(),/^5\/5 correct/);
+    for(const [label,name] of [['Download the movie recommendation project ZIP','chapter-11-movie-project.zip'],['Download PDF','ai-handbook-chapter-11.pdf']]){
+      const wait=page.waitForEvent('download');await page.getByRole('link',{name:label}).click();const d=await wait;assert.equal(d.suggestedFilename(),name);const saved=path.join(out,name);await d.saveAs(saved);assert.deepEqual(await fs.readFile(saved),await fs.readFile(path.resolve(__dirname,'../public/downloads/'+name)));
+    }
+    await page.getByRole('button',{name:'Mark Chapter 11 complete'}).click();
+    const bookmark='5-try-the-complete-recommendation-flow';await page.evaluate(id=>document.getElementById(id).scrollIntoView({block:'start'}),bookmark);await page.waitForFunction(id=>document.querySelector('.page-toc [data-section="'+id+'"]')?.getAttribute('aria-current')==='location',bookmark);
+    const b=await page.locator('#save-place').boundingBox();await page.mouse.click(b.x+b.width/2,b.y+b.height/2);await page.reload({waitUntil:'networkidle'});assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'true');assert.equal(await page.locator('#resume-place').getAttribute('href'),'#'+bookmark);
+    await page.locator('.reader-tools summary').click();const waitBackup=page.waitForEvent('download');await page.locator('#export-progress').click();const backup=await waitBackup;assert.equal(backup.suggestedFilename(),'ai-handbook-chapter-11-progress.json');
+    await page.locator('#import-progress').setInputFiles({name:'wrong.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(prior))});await page.waitForFunction(()=>document.getElementById('toast')?.textContent?.includes('not a valid'));assert.equal(await page.locator('#complete-chapter').getAttribute('aria-pressed'),'true');assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('ai-handbook-progress-chapter-10-v1'))),prior);
+    await page.goto(base+'/curriculum/',{waitUntil:'networkidle'});assert.equal(await page.locator('.curriculum-part li').count(),42);assert.equal(await page.locator('.curriculum-part small').count(),0);assert.equal(await page.locator('.curriculum-part li a').count(),42);assert.match(await page.locator('.availability').innerText(),/All 42 chapters are available/);
+    await page.goto(base+route,{waitUntil:'networkidle'});await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await page.screenshot({path:path.join(out,'mobile.png')});
+    await page.getByRole('button',{name:'Open handbook navigation'}).click();assert.equal(await page.locator('.chapter-nav[aria-current="page"]').isVisible(),true);await page.keyboard.press('Escape');
+    await lab.scrollIntoViewIfNeeded();await lab.screenshot({path:path.join(out,'mobile-lab.png')});await page.locator('#movie-genre').selectOption('comedy');await page.locator('#movie-minutes').fill('90');assert.equal(await title.innerText(),'Cafe Chaos');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    await page.setViewportSize({width:1200,height:1000});await page.evaluate(()=>dispatchEvent(new Event('beforeprint')));assert.equal(await page.locator('.chapter-content details:not([open])').count(),0);await page.emulateMedia({media:'print'});assert.equal(await lab.locator('.print-only').isVisible(),true);assert.equal(await lab.locator('.print-only tbody tr').count(),7);assert.equal(await page.locator('#movie-genre').isVisible(),false);assert.match(await lab.locator('.print-only').innerText(),/Moonlight Map/);
+    await page.emulateMedia({media:'screen'});await page.evaluate(()=>dispatchEvent(new Event('afterprint')));assert.equal(await page.locator('.optional-depth[open]').count(),0);assert.deepEqual(errors,[]);
+    const report={passed:true,headings:12,diagrams:3,optionalNotes:7,checks:['preference changes','exact time boundary','seen exclusions','soft preference ranking','no-match and invalid input','decision table','JSON download parity','quiz and search','PDF and workbook downloads','chapter navigation','progress isolation','mobile and dark themes','fixed print result'],errors};
+    await fs.writeFile(path.join(out,'browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
+  }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});

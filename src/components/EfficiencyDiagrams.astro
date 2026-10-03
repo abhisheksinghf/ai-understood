@@ -1,0 +1,26 @@
+---
+interface Props{kind:'memory'|'heads'|'speculation'}
+const {kind}=Astro.props;
+const titles={memory:'Weights stay loaded. Sequence state grows.',heads:'Several queries can share the same keys and values.',speculation:'A draft proposes. The target model verifies.'};
+const captions={memory:'Figure 1. Inference memory has several parts. One model copy can serve multiple requests, but each distinct sequence needs cache state unless valid prefix sharing is used. Temporary buffers and runtime overhead also occupy memory; a weight-file size is not a complete capacity estimate.',heads:'Figure 2. A four-query illustration: MHA uses four KV heads, GQA shares two KV heads among query groups, and MQA shares one. Query heads still calculate their own scores and mixtures. These are architecture choices, not a guarantee that an existing checkpoint works after deleting KV heads.',speculation:'Figure 3. Illustrative greedy verification. The target agrees with the first two draft tokens, then prefers “feels” over “is”. Keep the matching prefix, use the target correction, and discard the remaining draft suffix. Distribution-preserving sampled speculation needs an acceptance and correction algorithm, not a simple text comparison.'};
+const id='efficiency-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{titles[kind]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={titles[kind]}><svg viewBox={kind==='heads'?'0 0 760 300':'0 0 760 270'} role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{titles[kind]}</title><desc id={id+'-desc'}>{captions[kind]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='memory'&&<>
+ {[['Model weights','Parameters × bytes per weight','One shared model copy'],['KV cache','Sequences × retained tokens','Keys + values across layers'],['Other runtime','Activations, buffers, allocator','Depends on implementation']].map(([a,b,c],i)=><g><rect x={10+253*i} y="35" width="232" height="120" rx="6" class={i===1?'node node-accent':'node'}/><text x={126+253*i} y="68" text-anchor="middle" class="node-title">{a}</text><text x={126+253*i} y="102" text-anchor="middle" class="node-detail">{b}</text><text x={126+253*i} y="129" text-anchor="middle" class="node-detail">{c}</text></g>)}
+ <path d="M126 163v23h253v18 M632 163v23H379 M379 163v40" fill="none" stroke="var(--accent)" stroke-width="1.5"/><rect x="196" y="209" width="368" height="43" rx="6" class="node node-accent"/><text x="380" y="236" text-anchor="middle" class="node-title">Compare peak total with available memory</text>
+</>}
+{kind==='heads'&&<>
+ {['MHA · 4 KV heads','GQA · 2 KV heads','MQA · 1 KV head'].map((title,group)=><g>
+ <text x={126+253*group} y="27" text-anchor="middle" class="node-title">{title}</text>
+ {[0,1,2,3].map(i=><g><rect x={16+253*group+i*56} y="60" width="48" height="45" rx="5" class="node"/><text x={40+253*group+i*56} y="89" text-anchor="middle" class="node-detail">Q{i+1}</text><path d={`M${40+253*group+i*56} 111L${group===0?40+i*56:group===1?253+68+112*Math.floor(i/2):632} 171`} stroke="var(--accent)" stroke-width="1.4" marker-end={'url(#'+id+'-arrow)'}/></g>)}
+ {Array.from({length:group===0?4:group===1?2:1},(_,i)=><g><rect x={group===0?16+i*56:group===1?277+i*112:558} y="178" width={group===0?48:group===1?88:148} height="50" rx="5" class="node node-accent"/><text x={group===0?40+i*56:group===1?321+i*112:632} y="209" text-anchor="middle" class="node-detail">KV{i+1}</text></g>)}
+ </g>)}
+ <text x="380" y="269" text-anchor="middle" class="node-title">Same number of query heads; fewer distinct cached KV heads.</text><text x="380" y="291" text-anchor="middle" class="node-detail">The lab scales this idea to 32 query heads and compares 32, 8, or 1 KV heads.</text>
+</>}
+{kind==='speculation'&&<>
+ <text x="20" y="35" class="node-title">Draft tokens</text><text x="20" y="128" class="node-title">Target check</text>
+ {['Moonlight','Map','is','calm'].map((t,i)=><g><rect x={177+142*i} y="12" width="130" height="48" rx="5" class="node"/><text x={242+142*i} y="42" text-anchor="middle" class="node-title">{t}</text><path d={`M${242+142*i} 65v25`} stroke="var(--accent)" stroke-width="1.5" marker-end={'url(#'+id+'-arrow)'}/><rect x={177+142*i} y="99" width="130" height="62" rx="5" class={i<2?'node node-accent':'node'}/><text x={242+142*i} y="122" text-anchor="middle" class="node-title">{i<2?'Match':i===2?'Use “feels”':'Discard'}</text><text x={242+142*i} y="146" text-anchor="middle" class="node-detail">{i<2?'Keep token':i===2?'First mismatch':'After mismatch'}</text></g>)}
+ <rect x="177" y="196" width="556" height="50" rx="6" class="node node-accent"/><text x="455" y="227" text-anchor="middle" class="node-title">Verified extension: Moonlight → Map → feels</text><text x="20" y="226" class="node-detail">Continue from here</text>
+</>}
+</svg></div><figcaption>{captions[kind]}</figcaption></figure>

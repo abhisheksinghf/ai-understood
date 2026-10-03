@@ -1,0 +1,18 @@
+{
+  "version": "movie-search-v1",
+  "movies": [
+    {"id":"M001","title":"Moonlight Map","runtime_minutes":105,"summary":"A funny adventure follows friends on a treasure rescue across an island."},
+    {"id":"M002","title":"City Sprint","runtime_minutes":140,"summary":"A city rescue team races through traffic to stop a robbery."},
+    {"id":"M003","title":"Forest Signal","runtime_minutes":115,"summary":"Friends follow a forest signal on a gentle adventure to help a lost explorer."},
+    {"id":"M004","title":"Quiet Orbit","runtime_minutes":110,"summary":"A space crew plans a rescue near a silent planet."},
+    {"id":"M005","title":"Cafe Chaos","runtime_minutes":90,"summary":"A funny comedy about friends opening a cafe with no space for a kitchen."},
+    {"id":"M006","title":"Winter Road","runtime_minutes":100,"summary":"A quiet drama about a family reunited on a winter road."},
+    {"id":"M007","title":"Unlisted Voyage","runtime_minutes":null,"summary":"Astronauts save a stranded pilot beyond a distant moon."},
+    {"id":"M008","title":"Parallel World","runtime_minutes":118,"summary":"A space rescue becomes a rescue mission when a space station loses contact."}
+  ],
+  "queries": [
+    {"query":"space rescue","intent":"Find movies about rescuing someone in outer space.","relevant":["M004","M007","M008"]},
+    {"query":"funny adventure","intent":"Find a humorous adventure story.","relevant":["M001"]},
+    {"query":"quiet drama","intent":"Find a quiet dramatic story.","relevant":["M006"]}
+  ]
+}

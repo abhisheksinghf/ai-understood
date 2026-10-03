@@ -1,0 +1,14 @@
+[
+  {"name":"default adventure","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":true,"seen_ids":[]},"expected_id":"M001"},
+  {"name":"exact length boundary","preferences":{"genre":"adventure","max_minutes":105,"prefer_light":true,"seen_ids":[]},"expected_id":"M001"},
+  {"name":"one minute too short","preferences":{"genre":"adventure","max_minutes":104,"prefer_light":true,"seen_ids":[]},"expected_id":null},
+  {"name":"seen first choice","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":true,"seen_ids":["M001"]},"expected_id":"M003"},
+  {"name":"remove soft preference","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":false,"seen_ids":["M001"]},"expected_id":"M004"},
+  {"name":"all known-length adventures seen","preferences":{"genre":"adventure","max_minutes":120,"prefer_light":true,"seen_ids":["M001","M003","M004"]},"expected_id":null},
+  {"name":"short comedy","preferences":{"genre":"comedy","max_minutes":90,"prefer_light":true,"seen_ids":[]},"expected_id":"M005"},
+  {"name":"action over time limit","preferences":{"genre":"action","max_minutes":120,"prefer_light":true,"seen_ids":[]},"expected_id":null},
+  {"name":"action at exact limit","preferences":{"genre":"action","max_minutes":140,"prefer_light":true,"seen_ids":[]},"expected_id":"M002"},
+  {"name":"serious drama still eligible","preferences":{"genre":"drama","max_minutes":100,"prefer_light":true,"seen_ids":[]},"expected_id":"M006"},
+  {"name":"second genre tag","preferences":{"genre":"sci-fi","max_minutes":110,"prefer_light":true,"seen_ids":[]},"expected_id":"M004"},
+  {"name":"any genre","preferences":{"genre":"any","max_minutes":90,"prefer_light":false,"seen_ids":[]},"expected_id":"M005"}
+]

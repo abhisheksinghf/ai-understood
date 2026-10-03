@@ -1,0 +1,15 @@
+[
+  {"event_id":"E01","viewer_id":"U01","movie_id":"M001","runtime_minutes":"105","genre":" Adventure ","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E02","viewer_id":"U01","movie_id":"M002","runtime_minutes":"140","genre":"action","liked":"0","review_after":"Not for me."},
+  {"event_id":"E03","viewer_id":"U02","movie_id":"M003","runtime_minutes":"115","genre":"ADVENTURE","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E04","viewer_id":"U02","movie_id":"M004","runtime_minutes":"","genre":"sci-fi","liked":"0","review_after":"Not for me."},
+  {"event_id":"E05","viewer_id":"U03","movie_id":"M005","runtime_minutes":"90","genre":"comedy","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E06","viewer_id":"U03","movie_id":"M006","runtime_minutes":"","genre":"drama","liked":"0","review_after":"Not for me."},
+  {"event_id":"E07","viewer_id":"U04","movie_id":"M008","runtime_minutes":"180","genre":"documentary","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E08","viewer_id":"U04","movie_id":"M009","runtime_minutes":"200","genre":"adventure","liked":"0","review_after":"Not for me."},
+  {"event_id":"E09","viewer_id":"U05","movie_id":"M010","runtime_minutes":"80","genre":"comedy","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E10","viewer_id":"U05","movie_id":"M011","runtime_minutes":"160","genre":"documentary","liked":"0","review_after":"Not for me."},
+  {"event_id":"E03","viewer_id":"U02","movie_id":"M003","runtime_minutes":"115","genre":"ADVENTURE","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E11","viewer_id":"U02","movie_id":"M005","runtime_minutes":"-5","genre":"comedy","liked":"1","review_after":"I enjoyed it."},
+  {"event_id":"E12","viewer_id":"U03","movie_id":"M001","runtime_minutes":"105","genre":"adventure","liked":"","review_after":""}
+]

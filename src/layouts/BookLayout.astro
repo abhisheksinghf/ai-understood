@@ -1,0 +1,116 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+import { curriculum } from '../data/curriculum';
+interface Props { title: string; chapter?: boolean; chapterNumber?: number; tocTitles?: string[]; searchPlaceholder?: string; headings?: { depth:number; slug:string; text:string }[]; searchSections?: {title:string;slug:string;body:string}[] }
+const {title,chapter=false,chapterNumber=1,headings=[],searchSections=[],tocTitles,searchPlaceholder='Try “training”, “threshold”, or “movie”…'}=Astro.props;
+const shortTitles=tocTitles||['Begin with a problem','What AI means','Inside an application','The tasks AI can do','Rules vs. learned patterns','Training & inference','The threshold experiment','Prediction & generation','A movie assistant','When to use AI','Limits & misconceptions','Python lab','Practice exercises','Knowledge check','Revision & glossary','Sources & next steps'];
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="description" content="A detailed personal AI handbook with clear explanations, original diagrams, practical examples, and interactive experiments."/>
+    <meta name="color-scheme" content="light dark"/>
+    <title>{title} · AI, understood</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+    <script is:inline>try{document.documentElement.dataset.theme=localStorage.getItem('ai-handbook-theme')||'light'}catch{}</script>
+  </head>
+  <body data-chapter={chapter?chapterNumber:undefined}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="AI, understood home"><span class="brand-mark" aria-hidden="true">ai<span>·</span></span><span>AI, <em>understood.</em></span></a>
+      <div class="topbar-center">A PERSONAL LEARNING HANDBOOK</div>
+      <div class="header-actions">
+        {chapter && <button id="open-search" class="search-button" aria-label={`Search Chapter ${chapterNumber}`}><span aria-hidden="true">⌕</span><span class="search-label">Search chapter</span><kbd>Ctrl K</kbd></button>}
+        <button id="theme-toggle" class="icon-button" aria-label="Switch to dark theme" title="Switch theme"><span id="theme-symbol" aria-hidden="true">◐</span></button>
+        <button id="menu-toggle" class="icon-button mobile-only" aria-label="Open handbook navigation" aria-expanded="false" aria-controls="book-sidebar">☰</button>
+      </div>
+    </header>
+    <div id="scroll-track" aria-hidden="true"><div id="scroll-bar"></div></div>
+    <div class="book-shell">
+      <aside id="book-sidebar" class="book-sidebar" aria-label="Handbook navigation">
+        <div class="sidebar-top"><p class="eyebrow">THE LEARNING PATH</p><a href="/curriculum/" class="curriculum-link">42 chapters. One connected journey. <span>↗</span></a></div>
+        <nav aria-label="Parts and chapters">
+          <div class="part-label"><span>01</span> Understanding the AI landscape</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===1}]} href="/chapters/01-what-is-ai/" aria-current={chapter&&chapterNumber===1?'page':undefined}><span>01</span><span>What is artificial<br/>intelligence?</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===2}]} href="/chapters/02-how-ai-concepts-connect/" aria-current={chapter&&chapterNumber===2?'page':undefined}><span>02</span><span>How the concepts connect</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===3}]} href="/chapters/03-how-models-learn/" aria-current={chapter&&chapterNumber===3?'page':undefined}><span>03</span><span>How models learn</span><span class="status-dot" title="Available"></span></a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>02</span> Programming &amp; mathematical foundations</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===4}]} href="/chapters/04-python-for-ai/" aria-current={chapter&&chapterNumber===4?'page':undefined}><span>04</span><span>Python for AI</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===5}]} href="/chapters/05-software-apis-and-data/" aria-current={chapter&&chapterNumber===5?'page':undefined}><span>05</span><span>Software, APIs, and data</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===6}]} href="/chapters/06-algebra-and-linear-algebra/" aria-current={chapter&&chapterNumber===6?'page':undefined}><span>06</span><span>Algebra and linear algebra</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===7}]} href="/chapters/07-probability-and-statistics/" aria-current={chapter&&chapterNumber===7?'page':undefined}><span>07</span><span>Probability and statistics</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===8}]} href="/chapters/08-calculus-optimization-and-information/" aria-current={chapter&&chapterNumber===8?'page':undefined}><span>08</span><span>Calculus, optimization &amp; information</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-2"><span>↗</span> All chapters in Part 2</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>03</span> Your first LLM application</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===9}]} href="/chapters/09-prompting-and-context-design/" aria-current={chapter&&chapterNumber===9?'page':undefined}><span>09</span><span>Prompting and context design</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===10}]} href="/chapters/10-building-an-llm-application-with-python/" aria-current={chapter&&chapterNumber===10?'page':undefined}><span>10</span><span>Building an LLM app with Python</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===11}]} href="/chapters/11-project-movie-recommendation-assistant/" aria-current={chapter&&chapterNumber===11?'page':undefined}><span>11</span><span>Project: movie recommendation</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-3"><span>↗</span> All chapters in Part 3</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>04</span> Data &amp; classical machine learning</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===12}]} href="/chapters/12-preparing-data-for-machine-learning/" aria-current={chapter&&chapterNumber===12?'page':undefined}><span>12</span><span>Preparing data for machine learning</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===13}]} href="/chapters/13-supervised-learning-regression-and-classification/" aria-current={chapter&&chapterNumber===13?'page':undefined}><span>13</span><span>Supervised learning</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===14}]} href="/chapters/14-unsupervised-learning-and-other-approaches/" aria-current={chapter&&chapterNumber===14?'page':undefined}><span>14</span><span>Unsupervised learning</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===15}]} href="/chapters/15-evaluating-and-improving-ml-models/" aria-current={chapter&&chapterNumber===15?'page':undefined}><span>15</span><span>Evaluating &amp; improving models</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-4"><span>↗</span> All chapters in Part 4</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>05</span> Search, embeddings &amp; RAG</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===16}]} href="/chapters/16-information-retrieval-how-search-works/" aria-current={chapter&&chapterNumber===16?'page':undefined}><span>16</span><span>How search works</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===17}]} href="/chapters/17-embeddings-and-vector-search/" aria-current={chapter&&chapterNumber===17?'page':undefined}><span>17</span><span>Embeddings &amp; vector search</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===18}]} href="/chapters/18-building-a-rag-system-step-by-step/" aria-current={chapter&&chapterNumber===18?'page':undefined}><span>18</span><span>Build a RAG system</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===19}]} href="/chapters/19-improving-and-evaluating-rag/" aria-current={chapter&&chapterNumber===19?'page':undefined}><span>19</span><span>Improve &amp; evaluate RAG</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-5"><span>↗</span> All chapters in Part 5</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>06</span> Deep learning &amp; LLM internals</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===20}]} href="/chapters/20-neural-networks-from-first-principles/" aria-current={chapter&&chapterNumber===20?'page':undefined}><span>20</span><span>Neural networks from first principles</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===21}]} href="/chapters/21-training-and-debugging-neural-networks/" aria-current={chapter&&chapterNumber===21?'page':undefined}><span>21</span><span>Training &amp; debugging networks</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===22}]} href="/chapters/22-cnns-sequence-models-and-transfer-learning/" aria-current={chapter&&chapterNumber===22?'page':undefined}><span>22</span><span>CNNs, sequences &amp; transfer</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===23}]} href="/chapters/23-nlp-tokenization-and-language-modeling/" aria-current={chapter&&chapterNumber===23?'page':undefined}><span>23</span><span>NLP, tokens &amp; language models</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===24}]} href="/chapters/24-attention-and-transformers-explained/" aria-current={chapter&&chapterNumber===24?'page':undefined}><span>24</span><span>Attention &amp; transformers</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===25}]} href="/chapters/25-how-llms-are-trained-and-generate-text/" aria-current={chapter&&chapterNumber===25?'page':undefined}><span>25</span><span>LLM training &amp; generation</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===26}]} href="/chapters/26-efficient-and-advanced-llm-systems/" aria-current={chapter&&chapterNumber===26?'page':undefined}><span>26</span><span>Efficient LLM systems</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-6"><span>↗</span> All chapters in Part 6</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>07</span> Adaptation &amp; multimodal AI</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===27}]} href="/chapters/27-choosing-between-prompting-rag-tools-and-fine-tuning/" aria-current={chapter&&chapterNumber===27?'page':undefined}><span>27</span><span>Choose the right adaptation</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===28}]} href="/chapters/28-fine-tuning-and-preference-learning/" aria-current={chapter&&chapterNumber===28?'page':undefined}><span>28</span><span>Fine-tuning &amp; preferences</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===29}]} href="/chapters/29-generative-ai-beyond-language/" aria-current={chapter&&chapterNumber===29?'page':undefined}><span>29</span><span>Generative AI beyond language</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===30}]} href="/chapters/30-multimodal-ai-images-documents-audio-and-video/" aria-current={chapter&&chapterNumber===30?'page':undefined}><span>30</span><span>Multimodal AI</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-7"><span>↗</span> All chapters in Part 7</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>08</span> Tools, workflows &amp; agents</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===31}]} href="/chapters/31-tool-calling-and-explicit-workflows/" aria-current={chapter&&chapterNumber===31?'page':undefined}><span>31</span><span>Tool calling &amp; workflows</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===32}]} href="/chapters/32-building-ai-agents/" aria-current={chapter&&chapterNumber===32?'page':undefined}><span>32</span><span>Building AI agents</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===33}]} href="/chapters/33-mcp-and-multi-agent-systems/" aria-current={chapter&&chapterNumber===33?'page':undefined}><span>33</span><span>MCP and multi-agent systems</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-8"><span>↗</span> All chapters in Part 8</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>09</span> Evaluation, security &amp; production</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===34}]} href="/chapters/34-evaluating-complete-ai-systems/" aria-current={chapter&&chapterNumber===34?'page':undefined}><span>34</span><span>Evaluating complete AI systems</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===35}]} href="/chapters/35-ai-security-and-responsible-use/" aria-current={chapter&&chapterNumber===35?'page':undefined}><span>35</span><span>AI security and responsible use</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===36}]} href="/chapters/36-deploying-and-operating-ai-applications/" aria-current={chapter&&chapterNumber===36?'page':undefined}><span>36</span><span>Deploying and operating AI applications</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-9"><span>↗</span> All chapters in Part 9</a>
+          <div class="sidebar-divider"></div>
+          <div class="part-label"><span>10</span> Broader AI &amp; your capstone</div>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===37}]} href="/chapters/37-classical-symbolic-and-probabilistic-ai/" aria-current={chapter&&chapterNumber===37?'page':undefined}><span>37</span><span>Classical, symbolic, and probabilistic AI</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===38}]} href="/chapters/38-reinforcement-learning-and-robotics/" aria-current={chapter&&chapterNumber===38?'page':undefined}><span>38</span><span>Reinforcement learning and robotics</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===39}]} href="/chapters/39-vision-recommendations-and-time-series-applications/" aria-current={chapter&&chapterNumber===39?'page':undefined}><span>39</span><span>Vision, recommendations &amp; time series</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===40}]} href="/chapters/40-graphs-causality-and-alternative-learning-methods/" aria-current={chapter&&chapterNumber===40?'page':undefined}><span>40</span><span>Graphs, causality &amp; learning methods</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===41}]} href="/chapters/41-ai-research-agi-and-keeping-your-knowledge-current/" aria-current={chapter&&chapterNumber===41?'page':undefined}><span>41</span><span>AI research, AGI &amp; keeping current</span><span class="status-dot" title="Available"></span></a>
+          <a class:list={['chapter-nav',{'active':chapter&&chapterNumber===42}]} href="/chapters/42-capstone-build-an-evaluated-movie-knowledge-assistant/" aria-current={chapter&&chapterNumber===42?'page':undefined}><span>42</span><span>Capstone: movie knowledge assistant</span><span class="status-dot" title="Available"></span></a>
+          <a class="part-link" href="/curriculum/#part-10"><span>↗</span> All chapters in Part 10</a>
+          {curriculum.slice(10).map(p=><a class="part-link" href={`/curriculum/#part-${p.number}`}><span>{String(p.number).padStart(2,'0')}</span>{p.title}</a>)}
+        </nav>
+        <div class="sidebar-footer"><span class="small-label">BUILD UNDERSTANDING, STEP BY STEP</span><p>Explain it. Try it.<br/>Question the result.</p><a href="/curriculum/">View the full curriculum →</a></div>
+      </aside>
+      <main id="main" class:list={['main-content',{'curriculum-main':!chapter}]} tabindex="-1"><slot /></main>
+      {chapter && <aside class="page-toc" aria-label="On this page"><p class="eyebrow">IN THIS CHAPTER</p><nav>{headings.filter(h=>h.depth===2).map((h,i)=><a href={`#${h.slug}`} data-section={h.slug}><span>{String(i+1).padStart(2,'0')}</span>{shortTitles[i]||h.text}</a>)}</nav><div class="toc-footer"><p>Learning, not just reading.</p><span class="local-note">Try the examples before revealing the solutions.</span></div></aside>}
+    </div>
+    {chapter && <dialog id="search-dialog" aria-label={`Search Chapter ${chapterNumber}`}><div class="search-dialog-head"><label for="search-input">Search Chapter {chapterNumber}</label><button id="close-search" class="icon-button" aria-label="Close search">✕</button></div><input id="search-input" type="search" placeholder={searchPlaceholder} autocomplete="off"/><p id="search-status" class="search-status" role="status">Search the explanations, examples, and glossary.</p><div id="search-results">{searchSections.map(s=><a class="search-item" href={`#${s.slug}`} data-search={`${s.title} ${s.body}`.toLowerCase()}><strong>{s.title}</strong><span>{s.body.slice(0,150)}…</span></a>)}</div></dialog>}
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script src="../scripts/reader.ts"></script>
+  </body>
+</html>

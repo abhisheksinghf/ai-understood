@@ -1,0 +1,25 @@
+---
+import BookLayout from '../../layouts/BookLayout.astro';
+import Chapter, {getHeadings} from '../../content/chapter-29.mdx';
+import raw from '../../content/chapter-29.mdx?raw';
+const headings=getHeadings();
+const chunks=raw.split(/^## /m).slice(1);
+const searchSections=headings.filter(h=>h.depth===2).map((h,i)=>({title:h.text,slug:h.slug,body:(chunks[i]||'').split('\n').slice(1).join(' ').replace(/<[^>]+>/g,' ').replace(/[`*#|]/g,'').replace(/\s+/g,' ').trim()}));
+const words=raw.replace(/<[^>]+>/g,' ').split(/\s+/).filter(Boolean).length;
+---
+<BookLayout title="Generative AI beyond language" chapter chapterNumber={29} headings={headings} searchSections={searchSections} tocTitles={["Model a distribution","Choose a representation","Variational autoencoders","Adversarial learning","Generate in order","Learn to denoise","Sample & guide","Flow matching","Evaluate generations","Explore & practice","Knowledge check","Connect modalities"]} searchPlaceholder="Try “diffusion”, “latent”, or “mode collapse”…">
+  <div class="breadcrumb"><a href="/curriculum/">Handbook</a><span>/</span><span>Part 07 · Adaptation &amp; multimodal AI</span></div>
+  <header class="chapter-hero">
+    <div class="hero-kicker"><span class="chapter-pill">CHAPTER 29</span><span class="edition">REPRESENT · SAMPLE · GENERATE</span></div>
+    <h1>Generate more than words.<br/><em>Understand the path from noise.</em></h1>
+    <p class="hero-description">Explore how models create images and other data,<br class="desktop-break"/> then trace a tiny generative process.</p>
+    <div class="chapter-meta"><span><i aria-hidden="true">◷</i> 20–25 min core reading</span><span>20–30 min practice</span><span>12 short sections</span></div>
+    <div class="hero-actions screen-only"><a href="#1-learn-a-distribution-not-one-correct-output" class="primary-button">Start learning <span>↓</span></a><a class="text-button" href="/downloads/ai-handbook-chapter-29.pdf" download>Download PDF <span>↗</span></a><button class="text-button" id="print-chapter">Print chapter</button></div>
+    <div class="hero-illustration" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><span class="orbit-node n1"></span><span class="orbit-node n2"></span><span class="orbit-node n3"></span><span class="orbit-label">DATA → REPRESENTATION → SAMPLE</span></div>
+  </header>
+  <div class="reader-tools screen-only"><button id="save-place" class="small-button">Bookmark this section</button><a id="resume-place" hidden>Resume saved section →</a><details class="reader-options"><summary>More reading tools</summary><div class="reader-tools-inner"><span class="local-note">Progress is saved in this browser.</span><div class="backup-actions"><button id="export-progress" class="small-button">Export progress</button><label class="small-button" for="import-progress">Import progress<input id="import-progress" type="file" accept="application/json"/></label></div></div></details></div>
+  <div class="chapter-content"><Chapter /></div>
+  <section class="completion-card screen-only" aria-labelledby="completion-title"><span class="eyebrow">PAUSE. EXPLAIN. CONNECT.</span><h2 id="completion-title">Can you explain how a new sample is produced?</h2><p>Compare generative families, distinguish training from sampling, and explain why guidance and realism do not guarantee correctness.</p><button id="complete-chapter" class="primary-button" aria-pressed="false">Mark Chapter 29 complete</button><p id="completion-status" class="local-note">Your completion status is saved only in this browser.</p></section>
+  <footer class="chapter-end"><div><span class="eyebrow">NEXT IN THE HANDBOOK</span><h3>Multimodal AI: images, documents, audio, and video</h3><p>Connect different kinds of input and output, and understand how multimodal systems use them.</p><a class="text-button" href="/chapters/28-fine-tuning-and-preference-learning/">← Revisit Chapter 28</a></div><a class="primary-button" href="/chapters/30-multimodal-ai-images-documents-audio-and-video/">Read Chapter 30 →</a></footer>
+  <div class="edition-footer">AI, understood · Personal learning edition · Chapter 29 · About {(Math.round(words/100)*100).toLocaleString()} words</div>
+</BookLayout>

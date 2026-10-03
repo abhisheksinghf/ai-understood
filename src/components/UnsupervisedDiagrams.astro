@@ -1,0 +1,22 @@
+---
+interface Props{kind:'loop'|'compression'|'signals'}
+const {kind}=Astro.props;
+const descriptions={loop:['K-means alternates between groups and their means','Figure 1. Choose starting centers, assign each movie to its nearest center, then move centers to group means. Repeat until the chosen stopping rule is met. Cluster IDs have no built-in genre meaning.'],compression:['One coordinate can retain structure and lose detail','Figure 2. PCA learns directions from centered feature values. Keeping one direction stores one score per movie. Reconstructing two coordinates from that score generally loses the perpendicular detail.'],signals:['Ask where the learning signal comes from','Figure 3. Human feedback, targets derived from raw text, and rewards from interaction can train different systems. Having fewer human annotations does not mean having no training objective.']};
+const id='unsupervised-'+kind;
+---
+<figure class="diagram"><div class="figure-title"><span class="figure-icon" aria-hidden="true">↗</span>{descriptions[kind][0]}</div><div class="diagram-scroll" tabindex="0" role="region" aria-label={descriptions[kind][0]}><svg viewBox="0 0 760 265" role="img" aria-labelledby={id+'-title '+id+'-desc'}><title id={id+'-title'}>{descriptions[kind][0]}</title><desc id={id+'-desc'}>{descriptions[kind][1]}</desc><defs><marker id={id+'-arrow'} markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="var(--accent)"/></marker></defs>
+{kind==='loop'&&<>
+  {[['Assign movies','nearest current center'],['Update centers','mean of assigned points'],['Check the result','repeat or stop']].map(([a,b],i)=><g><rect x={12+255*i} y="40" width="225" height="91" rx="7" class={i===1?'node node-accent':'node'}/><text x={124+255*i} y="77" text-anchor="middle" class="node-title">{a}</text><text x={124+255*i} y="106" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1].map(i=><line x1={241+255*i} x2={262+255*i} y1="85" y2="85" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <path d="M635 138 V187 H125 V139" fill="none" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/><text x="380" y="175" text-anchor="middle" class="node-detail">Use the new centers for the next assignment</text><text x="380" y="235" text-anchor="middle" class="node-title">An objective exists even without supplied target labels.</text>
+</>}
+{kind==='compression'&&<>
+  {[['Two feature values','action + humor'],['One PC1 score','center, then project'],['Approximate features','reconstruct from the score']].map(([a,b],i)=><g><rect x={12+255*i} y="41" width="225" height="94" rx="7" class={i===1?'node node-accent':'node'}/><text x={124+255*i} y="78" text-anchor="middle" class="node-title">{a}</text><text x={124+255*i} y="107" text-anchor="middle" class="node-detail">{b}</text></g>)}
+  {[0,1].map(i=><line x1={241+255*i} x2={262+255*i} y1="88" y2="88" stroke="var(--accent)" stroke-width="2" marker-end={'url(#'+id+'-arrow)'}/>)}
+  <text x="380" y="188" text-anchor="middle" class="node-title">Keep variation along the line; discard the sideways difference.</text><text x="380" y="222" text-anchor="middle" class="node-detail">High retained variance is not evidence of high prediction accuracy.</text>
+</>}
+{kind==='signals'&&<>
+  {[['Supervised','Viewer gives a thumbs-up','Target supplied as feedback'],['Self-supervised','Hide a word in a synopsis','Target comes from original text'],['Reinforcement','Choose a recommendation','Learn from resulting rewards']].map(([a,b,c],i)=><g><rect x={12+255*i} y="34" width="225" height="149" rx="7" class={i===1?'node node-accent':'node'}/><text x={124+255*i} y="71" text-anchor="middle" class="node-title">{a}</text><text x={124+255*i} y="111" text-anchor="middle" class="node-detail">{b}</text><text x={124+255*i} y="155" text-anchor="middle" class="node-detail">{c}</text></g>)}
+  <text x="380" y="226" text-anchor="middle" class="node-detail">These describe learning signals, not interchangeable names for algorithms.</text>
+</>}
+</svg></div><figcaption>{descriptions[kind][1]}</figcaption></figure>
